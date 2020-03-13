@@ -10,6 +10,9 @@ public class playerFSM : FSMbase
     float maxHP = 100;
     float hp;
     int atkNum;
+    int degree;
+    Rigidbody2D RBD;
+    bool animEnd;
 
     // Use this for initialization
     void Awake()
@@ -19,11 +22,10 @@ public class playerFSM : FSMbase
         hp = maxHP;
         atkNum = 0;
         setState(State.idle);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        RBD = GetComponent<Rigidbody2D>();
+        for (int i = 1; i < 4; i++) {
+            _anim.initAnims("attack/" + i);
+        }
     }
     bool movePlayer()
     {
@@ -46,22 +48,22 @@ public class playerFSM : FSMbase
             moveDir.y += -1;
         }
         if (objectState == State.attack)
-            speedRate = 10;
+            speedRate = 20;
         else
             speedRate = 100;
 
         if (moveDir != Vector2.zero)
         {
-            GetComponent<Rigidbody2D>().velocity = moveDir * moveSpeed * speedRate / 100;
+            RBD.velocity = moveDir * moveSpeed * speedRate / 100;
 
-            int degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y,moveDir.x)/Mathf.PI*180f -180 )* -1)/45;
-            _anim.setDir(degree.ToString());
+            degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y,moveDir.x)/Mathf.PI*180f -180 )* -1)/45;
+            _anim.setDir(degree);
 
             return true;
         }
         else
         {
-            GetComponent<Rigidbody2D>().velocity = moveDir;
+            RBD.velocity = moveDir;
         }
         return false;
     }
@@ -93,7 +95,6 @@ public class playerFSM : FSMbase
 
         } while (!newState);
     }
-
     IEnumerator move()
     {
         do
@@ -115,14 +116,14 @@ public class playerFSM : FSMbase
         do
         {
             yield return null;
-            bool end =_anim.isEnd();
+            animEnd =_anim.isEnd();
             if (movePlayer())
             {
-                if (end) {
+                if (animEnd) {
                     setState(State.move);
                 }
             }
-            else if (end)
+            else if (animEnd)
             {
                 setState(State.idle);
             }
