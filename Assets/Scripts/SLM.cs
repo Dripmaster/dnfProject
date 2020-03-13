@@ -22,7 +22,28 @@ public static class SLM//Sprite Load Manager
         s = _cache[path];
         return s;
     }
+    static public void clearDic() {
+
+
+    }
     static public bool isSpr(string path) {
         return _cache.ContainsKey(path);
+    }
+    static public float countSprite(string path)
+    {
+        float i = 0;
+        while (true) {
+            if (isSpr(path + "/" + i))
+            {
+                i++;
+            }
+            else
+            {
+                break;
+            }
+
+        }
+       
+        return i;
     }
 }

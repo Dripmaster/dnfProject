@@ -13,6 +13,10 @@ public class playerFSM : FSMbase
     int degree;
     Rigidbody2D RBD;
     bool animEnd;
+    public float checkDashTime = 0.75f;//대쉬 가능 시간
+    float checkDashTimeTemp;
+    int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
+    bool dashState = false;
 
     // Use this for initialization
     void Awake()
@@ -21,15 +25,101 @@ public class playerFSM : FSMbase
         speedRate = 100;
         hp = maxHP;
         atkNum = 0;
+        checkDashTimeTemp = checkDashTime;
         setState(State.idle);
         RBD = GetComponent<Rigidbody2D>();
         for (int i = 1; i < 4; i++) {
             _anim.initAnims("attack/" + i);
         }
     }
+    void Update() {
+        dashCount();
+    }
+    void dashCount()
+    {
+        if (canDash<3)
+        {
+            checkDashTimeTemp -= Time.deltaTime;
+            if (checkDashTimeTemp < 0) {
+                checkDashTimeTemp = checkDashTime;
+                canDash = 0;
+            }
+        }
+    }
+    bool dashPlayer() {//dash페이즈 체크
+        if (dashState)
+            return false;
+        if (canDash == 0)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                canDash = 1;
+                checkDashTimeTemp = checkDashTime;
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                canDash = 1;
+                checkDashTimeTemp = checkDashTime;
+            }
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                canDash = 1;
+                checkDashTimeTemp = checkDashTime;
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                canDash = 1;
+                checkDashTimeTemp = checkDashTime;
+            }
+        }
+        else if (canDash == 1) {
+            if (Input.GetKeyUp(KeyCode.LeftArrow))
+            {
+                canDash = 2;
+            }
+            if (Input.GetKeyUp(KeyCode.RightArrow))
+            {
+                canDash = 2;
+
+            }
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                canDash = 2;
+
+            }
+            if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                canDash = 2;
+
+            }
+        }
+        else if (canDash == 2)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                canDash = 3;
+                return true;
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                canDash = 3;
+                return true;
+            }
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                canDash = 3;
+                return true;
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                canDash = 3;
+                return true;
+            }
+        }
+        return false;
+    }
     bool movePlayer()
     {
-
         Vector2 moveDir = new Vector2(0, 0);
         if (Input.GetKey(KeyCode.LeftArrow))
         {
@@ -47,11 +137,13 @@ public class playerFSM : FSMbase
         {
             moveDir.y += -1;
         }
-        if (objectState == State.attack)
+        if (dashState)
+            speedRate = 1000;
+        else if (objectState == State.attack)
             speedRate = 20;
         else
             speedRate = 100;
-
+        
         if (moveDir != Vector2.zero)
         {
             RBD.velocity = moveDir * moveSpeed * speedRate / 100;
@@ -83,6 +175,11 @@ public class playerFSM : FSMbase
         do
         {
             yield return null;
+            if (dashPlayer())
+            {
+                StartCoroutine(dashTimer());
+                continue;
+            }
             if (attackInput())
             {
                 setState(State.attack,atkNum);
@@ -95,11 +192,22 @@ public class playerFSM : FSMbase
 
         } while (!newState);
     }
+    IEnumerator dashTimer() {
+        dashState = true;
+        yield return new WaitForSeconds(0.1f);
+        dashState = false;
+        canDash = 0;
+    }
     IEnumerator move()
     {
         do
         {
             yield return null;
+            if (dashPlayer())
+            {
+                StartCoroutine(dashTimer());
+                continue;
+            }
             if (attackInput())
             {
                 setState(State.attack,atkNum);
@@ -117,6 +225,12 @@ public class playerFSM : FSMbase
         {
             yield return null;
             animEnd =_anim.isEnd();
+            if (dashPlayer())
+            {
+                StartCoroutine(dashTimer());
+                setState(State.move);
+                continue;
+            }
             if (movePlayer())
             {
                 if (animEnd) {

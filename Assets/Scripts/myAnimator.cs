@@ -16,10 +16,12 @@ public class myAnimator : MonoBehaviour
     Sprite s;
     public float animDelay = 0.1f;
     public bool hasDir = false;
+    WaitForSeconds WFS;
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         animNum = 0;//anim 번호 처음으로 초기화
+        WFS = new WaitForSeconds(animDelay);
         StartCoroutine(sprUpdater());
     }
     void Update()
@@ -60,6 +62,7 @@ public class myAnimator : MonoBehaviour
     public void setState(string stat) {
         state = stat;
         animNum = 0;
+        WFS  = new WaitForSeconds(1.0f/SLM.countSprite(string.Format(animPathInitFormat, animPath, stat,direction)));
     }
     public void setDir(int dir) {
         direction = dir;
@@ -95,13 +98,15 @@ public class myAnimator : MonoBehaviour
 
     IEnumerator sprUpdater()
     {
+        
         do
         {
             if (hasDir)
                 sprUptate();
             else
                 sprUptate_None();
-            yield return new WaitForSeconds(animDelay);
+            yield return WFS;
+
 
         } while (gameObject.activeInHierarchy);
 
