@@ -45,10 +45,7 @@ TagManager:
   - name: backGround
     uniqueID: 1646489847
     locked: 0
-  - name: monster
-    uniqueID: 4248808769
-    locked: 0
-  - name: player
+  - name: objects
     uniqueID: 1495362589
     locked: 0
   - name: foreGround
