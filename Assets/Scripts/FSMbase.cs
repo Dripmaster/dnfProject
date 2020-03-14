@@ -13,7 +13,6 @@ public class FSMbase : MonoBehaviour
         dead,
         skill,
         hited,
-        NONE
     };
     public State objectState;
     public myAnimator _anim;

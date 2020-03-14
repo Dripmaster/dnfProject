@@ -14,14 +14,14 @@ public class myAnimator : MonoBehaviour
     SpriteRenderer sr;
     int animNum;
     Sprite s;
-    public float animDelay = 0.1f;
     public bool hasDir = false;
     WaitForSeconds WFS;
+    public float speed = 1f;
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         animNum = 0;//anim 번호 처음으로 초기화
-        WFS = new WaitForSeconds(animDelay);
+        WFS = new WaitForSeconds(0);
         StartCoroutine(sprUpdater());
     }
     void Update()
@@ -62,7 +62,7 @@ public class myAnimator : MonoBehaviour
     public void setState(string stat) {
         state = stat;
         animNum = 0;
-        WFS  = new WaitForSeconds(1.0f/SLM.countSprite(string.Format(animPathInitFormat, animPath, stat,direction)));
+        WFS  = new WaitForSeconds(speed/SLM.countSprite(string.Format(animPathInitFormat, animPath, stat,direction)));
     }
     public void setDir(int dir) {
         direction = dir;
@@ -70,7 +70,7 @@ public class myAnimator : MonoBehaviour
     public void initAnims(string[] stats) {
         string[] paths = new string[stats.Length*8];
         for (int i = 0; i < stats.Length; i++) {
-            if (paths[i]==("attack"))
+            if (paths[i]==("attack"))//attack은 attack/n의 형태로 있음
                 continue;
             for (int j = 0; j < 8; j++) {
                 paths[i*8+j] = string.Format(animPathInitFormat, animPath,stats[i], j);

@@ -7,23 +7,27 @@ public class playerFSM : FSMbase
     public float attackRange = 1.1f;
     public float moveSpeed = 5;
     float speedRate;
-    float maxHP = 100;
-    float hp;
     int atkNum;
     int degree;
     Rigidbody2D RBD;
     bool animEnd;
     public float checkDashTime = 0.75f;//대쉬 가능 시간
+    public float dashRate = 500;
     float checkDashTimeTemp;
     int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
     bool dashState = false;
-
+    KeyCode downKey;
+    Vector2 dashDir;
+    GameObject[] dashEffects;
     // Use this for initialization
     void Awake()
     {
         base.Awake();
+        dashEffects = GameObject.FindGameObjectsWithTag("dashPaticles");
+        foreach (GameObject g in dashEffects)
+            g.SetActive(false);
+        dashDir = new Vector2(0, 0);
         speedRate = 100;
-        hp = maxHP;
         atkNum = 0;
         checkDashTimeTemp = checkDashTime;
         setState(State.idle);
@@ -34,6 +38,11 @@ public class playerFSM : FSMbase
     }
     void Update() {
         dashCount();
+    }
+    void dashEffect(int i) {
+        dashEffects[i].SetActive(true);
+        
+        dashEffects[i].transform.position = new Vector2(transform.position.x,transform.position.y-0.457f);
     }
     void dashCount()
     {
@@ -55,64 +64,56 @@ public class playerFSM : FSMbase
             {
                 canDash = 1;
                 checkDashTimeTemp = checkDashTime;
+                downKey = KeyCode.LeftArrow;
             }
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 canDash = 1;
                 checkDashTimeTemp = checkDashTime;
+                downKey = KeyCode.RightArrow;
             }
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 canDash = 1;
                 checkDashTimeTemp = checkDashTime;
+                downKey = KeyCode.UpArrow;
             }
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 canDash = 1;
                 checkDashTimeTemp = checkDashTime;
+                downKey = KeyCode.DownArrow;
             }
         }
         else if (canDash == 1) {
-            if (Input.GetKeyUp(KeyCode.LeftArrow))
+            if (Input.GetKeyUp(downKey))
             {
                 canDash = 2;
-            }
-            if (Input.GetKeyUp(KeyCode.RightArrow))
-            {
-                canDash = 2;
-
-            }
-            if (Input.GetKeyUp(KeyCode.UpArrow))
-            {
-                canDash = 2;
-
-            }
-            if (Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                canDash = 2;
-
             }
         }
         else if (canDash == 2)
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKeyDown(downKey))
             {
                 canDash = 3;
-                return true;
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                canDash = 3;
-                return true;
-            }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                canDash = 3;
-                return true;
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                canDash = 3;
+                dashDir.x = 0;
+                dashDir.y = 0;
+                if (Input.GetKey(KeyCode.LeftArrow))
+                {
+                    dashDir.x += -1;
+                }
+                if (Input.GetKey(KeyCode.RightArrow))
+                {
+                    dashDir.x += 1;
+                }
+                if (Input.GetKey(KeyCode.UpArrow))
+                {
+                    dashDir.y += 1;
+                }
+                if (Input.GetKey(KeyCode.DownArrow))
+                {
+                    dashDir.y += -1;
+                }
                 return true;
             }
         }
@@ -137,20 +138,17 @@ public class playerFSM : FSMbase
         {
             moveDir.y += -1;
         }
-        if (dashState)
-            speedRate = 1000;
-        else if (objectState == State.attack)
-            speedRate = 20;
-        else
-            speedRate = 100;
         
-        if (moveDir != Vector2.zero)
+        if (moveDir != Vector2.zero || dashState)
         {
-            RBD.velocity = moveDir * moveSpeed * speedRate / 100;
-
-            degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y,moveDir.x)/Mathf.PI*180f -180 )* -1)/45;
-            _anim.setDir(degree);
-
+            if (!dashState)
+            {
+                RBD.velocity = moveDir * moveSpeed * speedRate / 100;
+                degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
+                _anim.setDir(degree);
+            }
+            else
+                RBD.velocity = dashDir * moveSpeed * dashRate / 100;
             return true;
         }
         else
@@ -166,6 +164,7 @@ public class playerFSM : FSMbase
             atkNum++;
             if (atkNum > 3)
                 atkNum = 1;
+            RBD.velocity = Vector2.zero;
             return true;
         }
         return false;
@@ -194,7 +193,13 @@ public class playerFSM : FSMbase
     }
     IEnumerator dashTimer() {
         dashState = true;
-        yield return new WaitForSeconds(0.1f);
+        for (int i = 0; i < 5; i++)
+        {
+            dashEffect(i);
+            yield return new WaitForSeconds(0.02f);
+        }
+
+        dashDir = Vector2.zero;
         dashState = false;
         canDash = 0;
     }
@@ -231,13 +236,7 @@ public class playerFSM : FSMbase
                 setState(State.move);
                 continue;
             }
-            if (movePlayer())
-            {
-                if (animEnd) {
-                    setState(State.move);
-                }
-            }
-            else if (animEnd)
+            if (animEnd)
             {
                 setState(State.idle);
             }

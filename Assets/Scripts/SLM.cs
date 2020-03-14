@@ -23,8 +23,7 @@ public static class SLM//Sprite Load Manager
         return s;
     }
     static public void clearDic() {
-
-
+        
     }
     static public bool isSpr(string path) {
         return _cache.ContainsKey(path);
