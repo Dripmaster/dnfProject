@@ -226,6 +226,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator attack()
     {
+        RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
         do
         {
             yield return null;
@@ -241,5 +242,6 @@ public class playerFSM : FSMbase
                 setState(State.idle);
             }
         } while (!newState);
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 }

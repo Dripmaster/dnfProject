@@ -24,6 +24,7 @@ public class FSMbase : MonoBehaviour
         objectState = State.idle;
         _anim = GetComponent<myAnimator>();
         setAnim();
+        
     }
     public void OnEnable()
     {
