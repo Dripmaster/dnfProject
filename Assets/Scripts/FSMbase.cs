@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class FSMbase : MonoBehaviour
 {
@@ -11,13 +12,14 @@ public class FSMbase : MonoBehaviour
         attack,
         dead,
         skill,
-        hited
+        hited,
+        NONE
     };
     public State objectState;
     public myAnimator _anim;
     public bool newState;
     public string myPath;
-    //
+    
     public void Awake()
     {
         objectState = State.idle;
@@ -31,12 +33,8 @@ public class FSMbase : MonoBehaviour
 
     public virtual void setAnim() {
         _anim.setPath(myPath);
-    }
-
-    // Update is called once per frame
-    public virtual void Update()
-    {
-
+        _anim.setDir(6);//아래방향으로 초기화
+        _anim.initAnims(Enum.GetNames(typeof(State)));
     }
 
     public virtual void setState(State s)
@@ -44,6 +42,7 @@ public class FSMbase : MonoBehaviour
         newState = true;
         objectState = s;
         _anim.setState(objectState.ToString());
+        
     }
     public virtual void setState(State s,int atkNum)
     {
@@ -54,7 +53,6 @@ public class FSMbase : MonoBehaviour
 
     IEnumerator FSMmain()
     {
-
         while (true)
         {
             newState = false;
@@ -63,8 +61,6 @@ public class FSMbase : MonoBehaviour
     }
     IEnumerator idle()
     {
-        
-
         do
         {
             yield return null;
@@ -74,14 +70,9 @@ public class FSMbase : MonoBehaviour
 
     IEnumerator move()
     {
-        
-
         do
         {
             yield return null;
-
-            
-
         } while (!newState);
     }
 

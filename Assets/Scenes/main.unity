@@ -236,6 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cb06507c6cef334e8e45ad2a6c758a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animDelay: 0.025
   hasDir: 1
 --- !u!212 &928876954
 SpriteRenderer:
@@ -318,6 +319,7 @@ MonoBehaviour:
   myPath: player/bigSword
   attackRange: 1.1
   moveSpeed: 2
+  checkDashTime: 0.5
 --- !u!50 &928876957
 Rigidbody2D:
   serializedVersion: 4
