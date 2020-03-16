@@ -5,15 +5,14 @@ using UnityEngine;
 public class myAnimator : MonoBehaviour
 {
     string animPath;
-    string sprPath;
     string state;
     int direction;
     SpriteRenderer sr;
     int animNum;
-    Sprite s;
     public bool hasDir = false;
     WaitForSeconds WFS;
     public float speed = 0.5f;
+    public int sprLength = 0;
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -21,36 +20,25 @@ public class myAnimator : MonoBehaviour
         WFS = new WaitForSeconds(0);
         StartCoroutine(sprUpdater());
     }
-    void Update()
+    void LateUpdate()
     {
-        
+        if (sr.sprite == null)
+            print("image load error : "+string.Format(SLM.animPathFormat, animPath, state, direction, animNum));
     }
     void sprUptate_None()
     {//state, 방향 필요 없음
-        sprPath = string.Format(SLM.animPathFormat_NONE, animPath, animNum);
-        s = SLM.getSpr(sprPath);
-        if (s == null)
-        {
-            animNum = 0;
-            sprPath = string.Format(SLM.animPathFormat_NONE, animPath, animNum);
-            s = SLM.getSpr(sprPath);
-        }
-        sr.sprite = s;
-
+        sr.sprite = SLM.getSpr(string.Format(SLM.animPathFormat_NONE, animPath, animNum));
         animNum++;
+        if (animNum >= sprLength)
+            animNum = 0;
     }
     void sprUptate() {
-        sprPath = string.Format(SLM.animPathFormat, animPath,state,direction,animNum);
-        s = SLM.getSpr(sprPath);
-        if (s == null)
-        {
-            animNum = 0;
-            sprPath = string.Format(SLM.animPathFormat, animPath, state, direction, animNum);
-            s = SLM.getSpr(sprPath);
-        }
-        sr.sprite = s;
-        
+       
+        sr.sprite = SLM.getSpr(string.Format(SLM.animPathFormat, animPath, state, direction, animNum));
+
         animNum++;
+        if (animNum >= sprLength)
+            animNum = 0;
     }
     public void setPath(string aPath) {
 
@@ -59,7 +47,11 @@ public class myAnimator : MonoBehaviour
     public void setState(string stat) {
         state = stat;
         animNum = 0;
-        WFS  = new WaitForSeconds(speed/SLM.countSprite(string.Format(SLM.animPathInitFormat, animPath, stat,direction)));
+        if(hasDir)
+            sprLength = SLM.countSprite(string.Format(SLM.animPathInitFormat, animPath, stat, direction));
+        else
+            sprLength = SLM.countSprite(string.Format(SLM.animPathFormat_NONE, animPath));
+        WFS  = new WaitForSeconds(speed/sprLength);
     }
     public void setDir(int dir) {
         direction = dir;
@@ -68,7 +60,11 @@ public class myAnimator : MonoBehaviour
         string[] paths = new string[stats.Length*8];
         for (int i = 0; i < stats.Length; i++) {
             for (int j = 0; j < 8; j++) {
+                if(hasDir)
                 paths[i*8+j] = string.Format(SLM.animPathInitFormat, animPath,stats[i], j);
+                else
+                    paths[i * 8 + j] = string.Format(SLM.animPathInitFormat_NONE, animPath, stats[i], j);
+
             }
         }
         SLM.Load(paths);
@@ -78,17 +74,17 @@ public class myAnimator : MonoBehaviour
         string[] paths = new string[8];
         for (int j = 0; j < 8; j++) { 
             {
-                paths[j] = string.Format(SLM.animPathInitFormat, animPath, stat, j);
+                if(hasDir)
+                    paths[j] = string.Format(SLM.animPathInitFormat, animPath, stat, j);
+                else
+                    paths[j] = string.Format(SLM.animPathInitFormat_NONE, animPath, stat, j);
+
             }
         }
         SLM.Load(paths);
     }
-    public bool isEnd() {
-        if(hasDir)
-        sprPath = string.Format(SLM.animPathFormat, animPath, state, direction, animNum+1);
-        else
-        sprPath = string.Format(SLM.animPathFormat_NONE, animPath, animNum+1);
-        return !SLM.isSpr(sprPath); ;
+    public bool isEnd(int about = 0) {
+        return (animNum >= sprLength - about-1); 
     }
 
     IEnumerator sprUpdater()

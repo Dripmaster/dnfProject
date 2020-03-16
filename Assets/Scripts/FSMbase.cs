@@ -26,6 +26,7 @@ public class FSMbase : MonoBehaviour
         setAnim();
         
     }
+    public virtual void initAnim() { }
     public void OnEnable()
     {
         StartCoroutine("FSMmain");

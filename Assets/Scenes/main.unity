@@ -345,6 +345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hasDir: 1
   speed: 1
+  sprLength: 0
 --- !u!114 &352240163
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -361,7 +362,7 @@ MonoBehaviour:
   _anim: {fileID: 0}
   newState: 0
   myPath: enemy/waterFairy/short
-  attackRange: 1.1
+  attackRange: 1
   moveSpeed: 3
 --- !u!1 &519420028
 GameObject:
@@ -560,7 +561,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hasDir: 1
-  speed: 0.5
+  speed: 1
+  sprLength: 0
 --- !u!212 &928876954
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -618,7 +620,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 928876952}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1.19, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -639,8 +641,9 @@ MonoBehaviour:
   objectState: 0
   _anim: {fileID: 0}
   newState: 0
-  myPath: player/bigSword
-  attackRange: 1.1
+  myPath: player/sword
+  attackRange: 1
+  attackAngle: 150
   moveSpeed: 5
   checkDashTime: 0.5
   dashRate: 500
@@ -721,7 +724,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1533790211}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1521209435}

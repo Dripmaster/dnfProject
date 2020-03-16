@@ -39,7 +39,7 @@ public class EnemyFSM : FSMbase
         degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
         _anim.setDir(degree);
 
-        RBD.velocity = moveDir * moveSpeed * speedRate / 100;
+        RBD.MovePosition((Vector2)transform.position+moveDir * moveSpeed * speedRate / 100*Time.deltaTime);
     }
     bool detectPlayer() {
         if (Vector2.Distance(player.position, transform.position) <= attackRange)
