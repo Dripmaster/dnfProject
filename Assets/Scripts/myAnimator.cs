@@ -8,37 +8,37 @@ public class myAnimator : MonoBehaviour
     string state;
     int direction;
     SpriteRenderer sr;
-    int animNum;
+    public int animNum;
     public bool hasDir = false;
     WaitForSeconds WFS;
     public float speed = 0.5f;
     public int sprLength = 0;
+    bool aniPause = false;
+    bool isEnded = false;
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         animNum = 0;//anim 번호 처음으로 초기화
-        WFS = new WaitForSeconds(0);
-        StartCoroutine(sprUpdater());
+        WFS = null;
+        StartCoroutine(sprUpdater());   
+    }
+    void OnEnable() {
+        aniPause = false;
+        isEnded = false;
     }
     void LateUpdate()
     {
-        if (sr.sprite == null)
-            print("image load error : "+string.Format(SLM.animPathFormat, animPath, state, direction, animNum));
+        
     }
     void sprUptate_None()
     {//state, 방향 필요 없음
+        
         sr.sprite = SLM.getSpr(string.Format(SLM.animPathFormat_NONE, animPath, animNum));
-        animNum++;
-        if (animNum >= sprLength)
-            animNum = 0;
     }
     void sprUptate() {
-       
+        
         sr.sprite = SLM.getSpr(string.Format(SLM.animPathFormat, animPath, state, direction, animNum));
-
-        animNum++;
-        if (animNum >= sprLength)
-            animNum = 0;
+        
     }
     public void setPath(string aPath) {
 
@@ -47,24 +47,20 @@ public class myAnimator : MonoBehaviour
     public void setState(string stat) {
         state = stat;
         animNum = 0;
-        if(hasDir)
-            sprLength = SLM.countSprite(string.Format(SLM.animPathInitFormat, animPath, stat, direction));
-        else
-            sprLength = SLM.countSprite(string.Format(SLM.animPathFormat_NONE, animPath));
-        WFS  = new WaitForSeconds(speed/sprLength);
+        sprLength = SLM.countSprite(string.Format(SLM.animPathInitFormat, animPath, stat, direction));
+
+        if (sprLength != 0)
+            WFS  = new WaitForSeconds(speed/sprLength);
     }
     public void setDir(int dir) {
-        direction = dir;
+        direction = dir%8;
     }
     public void initAnims(string[] stats) {
+        
         string[] paths = new string[stats.Length*8];
         for (int i = 0; i < stats.Length; i++) {
             for (int j = 0; j < 8; j++) {
-                if(hasDir)
                 paths[i*8+j] = string.Format(SLM.animPathInitFormat, animPath,stats[i], j);
-                else
-                    paths[i * 8 + j] = string.Format(SLM.animPathInitFormat_NONE, animPath, stats[i], j);
-
             }
         }
         SLM.Load(paths);
@@ -74,34 +70,62 @@ public class myAnimator : MonoBehaviour
         string[] paths = new string[8];
         for (int j = 0; j < 8; j++) { 
             {
-                if(hasDir)
-                    paths[j] = string.Format(SLM.animPathInitFormat, animPath, stat, j);
-                else
-                    paths[j] = string.Format(SLM.animPathInitFormat_NONE, animPath, stat, j);
-
+               paths[j] = string.Format(SLM.animPathInitFormat, animPath, stat, j);
             }
         }
         SLM.Load(paths);
     }
+    public void initAnims() {
+        SLM.Load(string.Format(SLM.animPathInitFormat_NONE,animPath));
+        sprLength = SLM.countSprite((string.Format(SLM.animPathInitFormat_NONE, animPath)));
+        if (sprLength != 0)
+            WFS = new WaitForSeconds(speed / sprLength);
+    }
+    
     public bool isEnd(int about = 0) {
-        return (animNum >= sprLength - about-1); 
+        //if(sprLength == 1&&isEnded)
+        //print(animNum);
+
+            //return isEnded;
+            return (animNum >= (sprLength- about)) || isEnded;
+        //return (animNum >= sprLength - about-1); 
+    }
+    public void Pause() {
+        aniPause = true;
     }
 
     IEnumerator sprUpdater()
     {
-        
         do
         {
+            if (aniPause) {
+                yield return null;
+                continue;
+            }
+            isEnded = false;
+            if (animNum >= sprLength)
+            {
+                animNum = 0;
+                isEnded = true;
+            }
             if (hasDir)
                 sprUptate();
             else
                 sprUptate_None();
+            if (WFS == null)
+            {
+                if (sprLength != 0)
+                    WFS = new WaitForSeconds(speed / (float)sprLength);
+            }
+            animNum++;
+            if (isEnded == true)
+                yield return null;
+            else
             yield return WFS;
-
 
         } while (gameObject.activeInHierarchy);
 
-
+        
     }
 
 }

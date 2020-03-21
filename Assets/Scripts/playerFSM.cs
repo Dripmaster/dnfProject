@@ -9,7 +9,8 @@ public class playerFSM : FSMbase
     public float attackRange = 1.1f;
     public float attackAngle = 50f;
     public float moveSpeed = 5;
-    Vector2 attackfan;//에디터전용
+    public float attackSpeed = 0.5f;
+    public Vector2 attackfan;//에디터전용
     float speedRate;
     int atkNum;
     int degree;
@@ -24,10 +25,13 @@ public class playerFSM : FSMbase
     Vector2 dashDir;
     GameObject[] dashEffects;
     int movecount = 0;
+    BoxCollider2D _Colider;
+
     // Use this for initialization
     void Awake()
     {
         base.Awake();
+
         dashEffects = GameObject.FindGameObjectsWithTag("dashPaticles");
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
@@ -37,11 +41,16 @@ public class playerFSM : FSMbase
         checkDashTimeTemp = checkDashTime;
         setState(State.idle);
         RBD = GetComponent<Rigidbody2D>();
-        for (int i = 1; i < 4; i++) {
+        _Colider = GetComponent<BoxCollider2D>();
+        attackfan = new Vector2(0, -1);
+        DamageReceiver.addPlayer(this);
+        for (int i = 1; i < 4; i++)
+        {
             _anim.initAnims("attack/" + i);
         }
-        attackfan = new Vector2(0,-1);
     }
+    
+
     void Update() {
         dashCount();
     }
@@ -213,6 +222,14 @@ public class playerFSM : FSMbase
         atkNum = 1;
         return false;
     }
+    public void hitted(float damage) {
+        if (hp <= 0)
+            return;
+        hp -= damage;
+        if (hp <= 0) {
+            setState(State.dead);
+        }
+    }
     IEnumerator idle()
     {
         do
@@ -225,6 +242,7 @@ public class playerFSM : FSMbase
             }
             if (attackInput())
             {
+                _anim.speed = attackSpeed;
                 setState(State.attack,atkNum);
             }
             else
@@ -237,6 +255,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator dashTimer() {
         dashState = true;
+        _Colider.isTrigger = true;
         Vector2 tempPos = transform.position;
         
         for(int i= 0; i < 5; i++) { 
@@ -247,6 +266,20 @@ public class playerFSM : FSMbase
         dashDir = Vector2.zero;
         dashState = false;
         canDash = 0;
+        _Colider.isTrigger = false;
+    }
+    IEnumerator dead()
+    {
+        do
+        {
+            yield return null;
+            if (_anim.isEnd())
+            {
+                _anim.Pause();
+                _anim.speed = 1f;
+                break;
+            }
+        } while (!newState);
     }
     IEnumerator move()
     {
@@ -260,6 +293,7 @@ public class playerFSM : FSMbase
             }
             if (!dashState&&attackInput())
             {
+                _anim.speed = attackSpeed;
                 setState(State.attack,atkNum);
             }
             else
@@ -272,7 +306,8 @@ public class playerFSM : FSMbase
     IEnumerator attack()
     {
         RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-        _anim.speed = 0.5f;
+        
+        bool doneAttack = false;
         do
         {
             yield return null;
@@ -290,14 +325,17 @@ public class playerFSM : FSMbase
                 if (attackInput())
                     setState(State.attack, atkNum);
                 else
+                {
                     setState(State.idle);
+                    _anim.speed = 1;
+                }
             }
-            if (_anim.isEnd(_anim.sprLength / 2)) {
+            if (!doneAttack &&_anim.isEnd(_anim.sprLength -3)) {
                 //공격
-
+                doneAttack = true;
+                DamageReceiver.playerAttack(attackPoint);
             }
         } while (!newState);
-        _anim.speed = 1;
         RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
     private void OnDrawGizmos()
@@ -305,6 +343,5 @@ public class playerFSM : FSMbase
         Handles.color = new Color(0,0,255,0.2f);
         Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, attackAngle / 2, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, -attackAngle / 2, attackRange);
-
     }
 }
