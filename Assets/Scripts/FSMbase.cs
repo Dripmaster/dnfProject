@@ -13,7 +13,6 @@ public class FSMbase : MonoBehaviour
         dead,
         skill,
         hited,
-        NONE
     };
     public State objectState;
     public myAnimator _anim;
@@ -25,7 +24,9 @@ public class FSMbase : MonoBehaviour
         objectState = State.idle;
         _anim = GetComponent<myAnimator>();
         setAnim();
+        
     }
+    public virtual void initAnim() { }
     public void OnEnable()
     {
         StartCoroutine("FSMmain");

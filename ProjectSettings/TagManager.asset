@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - dashPaticles
   layers:
   - Default
   - TransparentFX
@@ -40,4 +41,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: backGround
+    uniqueID: 1646489847
+    locked: 0
+  - name: objects
+    uniqueID: 1495362589
+    locked: 0
+  - name: foreGround
+    uniqueID: 4262217349
+    locked: 0
+  - name: UI
+    uniqueID: 1456846019
     locked: 0
