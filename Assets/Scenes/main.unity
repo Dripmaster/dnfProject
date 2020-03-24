@@ -808,7 +808,7 @@ MonoBehaviour:
   objectState: 0
   _anim: {fileID: 0}
   newState: 0
-  name: hammer
+  name: bigSword
   myType: 0
   attackRange: 2
   attackAngle: 150

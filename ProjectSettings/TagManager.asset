@@ -6,6 +6,7 @@ TagManager:
   tags:
   - dashPaticles
   - Enemy
+  - bullet
   layers:
   - Default
   - TransparentFX

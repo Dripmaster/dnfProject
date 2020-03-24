@@ -10,7 +10,7 @@ public static class SLM//Sprite Load Manager
     static public string animPathInitFormat_NONE = "image/{0}";//0:경로
 
     static private Dictionary<string, Sprite> _cache = new Dictionary<string, Sprite>();
-    
+
     static public void Load(string[] path)
     {
         for (int i = 0; i < path.Length; i++) {
@@ -49,6 +49,7 @@ public static class SLM//Sprite Load Manager
     static public void clearDic() {
         
     }
+
     static public bool isSpr(string path) {
         return _cache.ContainsKey(path);
     }
