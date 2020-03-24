@@ -220,7 +220,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &352240158
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -385,7 +385,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &427804795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -808,11 +808,11 @@ MonoBehaviour:
   objectState: 0
   _anim: {fileID: 0}
   newState: 0
-  name: bigSword
+  name: hammer
   myType: 0
   attackRange: 2
   attackAngle: 150
-  attackSpeed: 0.5
+  attackSpeed: 0.3
   attackfan: {x: 0, y: 0}
   checkDashTime: 0.5
   dashRate: 500
@@ -883,7 +883,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &982395471
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,7 +12,7 @@ public class EffectScript : MonoBehaviour
         
     }
 
-    public void initAni(string path ,float speed=1) {
+    public void initAni(string path ,float speed=0.5f) {
         _anim.setPath(path);
         _anim.speed = speed;
         _anim.initAnims();

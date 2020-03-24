@@ -24,12 +24,13 @@ public class playerFSM : FSMbase
     GameObject[] dashEffects;
     int movecount = 0;
     BoxCollider2D _Colider;
+    GameObject EffPrefab;
 
     // Use this for initialization
     void Awake()
     {
         base.Awake();
-
+        EffPrefab = Resources.Load<GameObject>("prefabs/Effect");
         dashEffects = GameObject.FindGameObjectsWithTag("dashPaticles");
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
@@ -211,9 +212,6 @@ public class playerFSM : FSMbase
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            atkNum++;
-            if (atkNum > 3)
-                atkNum = 1;
             RBD.velocity = Vector2.zero;
             return true;
         }
@@ -303,9 +301,32 @@ public class playerFSM : FSMbase
     }
     IEnumerator attack()
     {
+
+       
         RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-        
+        bool secondAtk = false;
         bool doneAttack = false;
+        float rot;
+        if (name != "bigSword")
+            rot = -90;
+        else
+            rot = 0;
+
+        if (atkNum == 3 && name == "bigSword")
+        {
+            EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position, Quaternion.identity).GetComponent<EffectScript>();
+            es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
+            es.initAni("effect/playerAttack/" + name + "/1",attackSpeed/2);
+            secondAtk = true;
+        }
+        else
+        {
+            EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position , Quaternion.identity).GetComponent<EffectScript>();
+            es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
+            es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeed);
+        }
+
+
         do
         {
             yield return null;
@@ -328,10 +349,25 @@ public class playerFSM : FSMbase
                     _anim.speed = 1;
                 }
             }
-            if (!doneAttack &&_anim.isEnd(_anim.sprLength -3)) {
+            if (!doneAttack && _anim.isEnd(_anim.sprLength - 3)) {
                 //공격
                 doneAttack = true;
                 DamageReceiver.playerAttack(attackPoint);
+                
+                atkNum++;
+                if (atkNum > 3)
+                    atkNum = 1;
+            }
+            if (doneAttack && _anim.isEnd(_anim.sprLength - 3))
+            {
+                //공격
+                if (secondAtk)
+                {
+                    EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position, Quaternion.identity).GetComponent<EffectScript>();
+                    es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
+                    es.initAni("effect/playerAttack/" + name + "/2", attackSpeed);
+                    secondAtk = false;
+                }
             }
         } while (!newState);
         RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
