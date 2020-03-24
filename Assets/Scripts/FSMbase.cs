@@ -26,12 +26,15 @@ public class FSMbase : MonoBehaviour
     public myAnimator _anim;
     public bool newState;
     string myPath;
-    public float maxHp;
+    float maxHp;
     protected float hp;
     protected float attackPoint;
     public string name;
     public type myType;
-    
+    public float attackRange;
+    protected float moveSpeed = 5;
+    protected float attackDelay = 2.0f;
+
     public void Awake()
     {
         objectState = State.idle;
@@ -39,11 +42,19 @@ public class FSMbase : MonoBehaviour
         initAnim();
         setAnim();
         init_Stat();
-        
     }
     public void init_Stat() {
+        maxHp = 100; //나중엔 데이터로부터 받아오기
         hp = maxHp;
         attackPoint = 50;//나중엔 데이터로부터 받아오기
+        attackDelay = 2f; //나중엔 데이터로부터 받아오기
+        switch (myType)
+        {
+            case type.Long: attackRange = 3; break;
+            case type.Short: attackRange = 1.1f; break;
+            case type.boss: attackRange = 4f; break;
+            case type.player: attackRange = 2f; break;
+        }
     }
     public virtual void initAnim() {
         if (myType == 0)

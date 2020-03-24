@@ -6,9 +6,7 @@ using UnityEditor;
 
 public class playerFSM : FSMbase
 {
-    public float attackRange = 1.1f;
     public float attackAngle = 50f;
-    public float moveSpeed = 5;
     public float attackSpeed = 0.5f;
     public Vector2 attackfan;//에디터전용
     float speedRate;
