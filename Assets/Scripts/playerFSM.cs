@@ -303,9 +303,11 @@ public class playerFSM : FSMbase
     {
 
        
-        RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-        bool secondAtk = false;
-        bool doneAttack = false;
+        RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;//공격중 위치 고정
+
+        bool secondAtk = false;//대검 3번째 공격 두번휘둘
+        bool doneAttack = false;//한번만 공격
+        ////////////이펙트 생성 방향 (안맞는거는 수정예정)
         float rot;
         if (name != "bigSword")
             rot = -90;
@@ -325,7 +327,7 @@ public class playerFSM : FSMbase
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeed);
         }
-
+        ///////////////
 
         do
         {
@@ -333,7 +335,7 @@ public class playerFSM : FSMbase
             animEnd =_anim.isEnd();
             
             if (dashPlayer())
-            {
+            {//공격하다 대쉬하면 공격 캔슬
                 StartCoroutine(dashTimer());
                 setState(State.move);
                 break;
@@ -360,9 +362,10 @@ public class playerFSM : FSMbase
             }
             if (doneAttack && _anim.isEnd(_anim.sprLength - 3))
             {
-                //공격
+                //대검 두번째공격
                 if (secondAtk)
                 {
+                    DamageReceiver.playerAttack(attackPoint);
                     EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position, Quaternion.identity).GetComponent<EffectScript>();
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeed);
@@ -370,7 +373,7 @@ public class playerFSM : FSMbase
                 }
             }
         } while (!newState);
-        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;//공격후 이동 가능
     }
     private void OnDrawGizmos()
     {
