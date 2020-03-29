@@ -79,6 +79,7 @@ public class EnemyFSM : FSMbase
         return false;
     }
     public void hitted(float damage) {
+        
         if (hp <= 0)
         {
             return;
@@ -101,6 +102,7 @@ public class EnemyFSM : FSMbase
     {
         do
         {
+            _anim.setSpeed(1);
             yield return null;
             moveEnemy();
             delayCount();
@@ -134,6 +136,7 @@ public class EnemyFSM : FSMbase
         bool doneAttack = false;
         do
         {
+            _anim.setSpeed(1);
             yield return null;
             lookPlayer();
             if (_anim.isEnd(1) && !doneAttack)
@@ -160,6 +163,7 @@ public class EnemyFSM : FSMbase
         
         do
         {
+            _anim.setSpeed(0.1f);
             yield return null;
             knockBack();
             

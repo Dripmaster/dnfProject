@@ -93,6 +93,10 @@ public class myAnimator : MonoBehaviour
     public void Pause() {
         aniPause = true;
     }
+    public void setSpeed(float spd) {
+        speed = spd;
+        WFS = new WaitForSeconds(speed / sprLength);
+    }
 
     IEnumerator sprUpdater()
     {

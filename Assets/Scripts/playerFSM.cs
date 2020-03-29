@@ -347,8 +347,8 @@ public class playerFSM : FSMbase
                     setState(State.attack, atkNum);
                 else
                 {
-                    setState(State.idle);
                     _anim.speed = 1;
+                    setState(State.idle);
                 }
             }
             if (!doneAttack && _anim.isEnd(_anim.sprLength - 3)) {
