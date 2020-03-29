@@ -75,9 +75,9 @@ public static class EffectManager
         {
             if (e.gameObject.activeInHierarchy == false)
             {
-
                 effect = e;
                 e.transform.position = v;
+                e.transform.rotation = Quaternion.identity;
                 break;
             }
         }
@@ -87,7 +87,7 @@ public static class EffectManager
                 bulletPrefab = Resources.Load<GameObject>("prefabs/bullet");
             effect = GameObject.Instantiate(bulletPrefab, v, Quaternion.identity).GetComponent<bulletEffect>();
             effect.gameObject.SetActive(false);
-            AddEffect(effect);
+            AddBullet(effect);
         }
 
         return effect;
