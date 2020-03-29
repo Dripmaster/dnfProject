@@ -20,11 +20,12 @@ public class myAnimator : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         animNum = 0;//anim 번호 처음으로 초기화
         WFS = null;
-        StartCoroutine(sprUpdater());   
+        
     }
     void OnEnable() {
         aniPause = false;
         isEnded = false;
+        StartCoroutine(sprUpdater());
     }
     void LateUpdate()
     {
@@ -76,6 +77,7 @@ public class myAnimator : MonoBehaviour
         SLM.Load(paths);
     }
     public void initAnims() {
+        animNum = 0;
         SLM.Load(string.Format(SLM.animPathInitFormat_NONE,animPath));
         sprLength = SLM.countSprite((string.Format(SLM.animPathInitFormat_NONE, animPath)));
         if (sprLength != 0)

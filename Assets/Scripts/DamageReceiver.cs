@@ -7,7 +7,6 @@ public static class DamageReceiver
     static playerFSM player;
     static List<EnemyFSM> enemys;
 
-
     public static void addEnemy(EnemyFSM e) {
         if (enemys == null)
             enemys = new List<EnemyFSM>();
@@ -39,7 +38,6 @@ public static class DamageReceiver
             
             return true;
         }
-
         return false;
     }
 }

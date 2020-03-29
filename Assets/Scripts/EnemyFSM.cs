@@ -12,7 +12,6 @@ public class EnemyFSM : FSMbase
     Transform player;
     Vector2 moveDir;
     BoxCollider2D _Colider;
-    GameObject bulletPrefab;
     float tempDelay;
     bool attackAllow;
 
@@ -22,7 +21,6 @@ public class EnemyFSM : FSMbase
         speedRate = 100;
         setState(State.move);
         player = GameObject.Find("player").transform;
-        bulletPrefab = Resources.Load<GameObject>("prefabs/bullet");
         RBD = GetComponent<Rigidbody2D>();
         DamageReceiver.addEnemy(this);
         _Colider = GetComponent<BoxCollider2D>();
@@ -115,15 +113,19 @@ public class EnemyFSM : FSMbase
     void spawnBullet() {
         if (myType == type.Long)
         {
-            bulletEffect b = Instantiate(bulletPrefab, transform.position, Quaternion.identity).GetComponent<bulletEffect>();
+            bulletEffect b = EffectManager.getbullet(transform.position);
             b.transform.Rotate(new Vector3(0, 0, (Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
             b.setAnim(name, attackPoint, myType == type.boss);
+            b.gameObject.SetActive(true);
         }
         else {
-            for (int i = -2; i < 3; i++) {
-                bulletEffect b = Instantiate(bulletPrefab, transform.position, Quaternion.identity).GetComponent<bulletEffect>();
-                b.transform.Rotate(new Vector3(0, 0, 25*i+(Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
+            bulletEffect b;
+            for (int i = -2; i < 3; i++)
+            {
+                b = EffectManager.getbullet(transform.position);
+                b.transform.Rotate(new Vector3(0, 0, 25 * i + (Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
                 b.setAnim(name, attackPoint, myType == type.boss);
+                b.gameObject.SetActive(true);
             }
         }
         

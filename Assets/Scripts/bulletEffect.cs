@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class bulletEffect : MonoBehaviour
+public class bulletEffect : EffectScript
 {
 
-    myAnimator _anim;
     Vector2 moveDir;
     float attackPoint;
-    GameObject prefab;
     string effPath;
     // Start is called before the first frame update
     void Awake()
     {
-        prefab = Resources.Load<GameObject>("prefabs/Effect");
-        _anim = GetComponent<myAnimator>();
+        base.Awake();
         moveDir = new Vector2(8, 0);
     }
 
@@ -47,20 +44,19 @@ public class bulletEffect : MonoBehaviour
         if (col.name == "player") {
             DamageReceiver.playerHit(attackPoint);
             gameObject.SetActive(false);
-            
-            EffectScript es = Instantiate(prefab, col.ClosestPoint(transform.position), Quaternion.identity).GetComponent<EffectScript>();
+
+            EffectScript es = EffectManager.getEffect(col.ClosestPoint(transform.position));
             es.initAni(effPath);
+            es.gameObject.SetActive(true);
         }
         else if (col.tag == "wall")
         {
             gameObject.SetActive(false);
 
-            RaycastHit2D hit;
-            hit = Physics2D.Raycast(transform.position, transform.forward);
-
-            EffectScript es = Instantiate(prefab, col.ClosestPoint(transform.position), Quaternion.identity).GetComponent<EffectScript>();
-
+            EffectScript es = EffectManager.getEffect(col.ClosestPoint(transform.position));
             es.initAni(effPath);
+            es.gameObject.SetActive(true);
+
         }
     }
 }

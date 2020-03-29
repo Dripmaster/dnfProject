@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class EffectScript : MonoBehaviour
 {
-    myAnimator _anim;
+    protected myAnimator _anim;
     // Start is called before the first frame update
-    void Awake()
+    public void Awake()
     {
         _anim = GetComponent<myAnimator>();
-        
     }
 
     public void initAni(string path ,float speed=0.5f) {

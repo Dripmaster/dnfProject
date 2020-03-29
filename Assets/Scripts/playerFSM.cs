@@ -316,16 +316,20 @@ public class playerFSM : FSMbase
 
         if (atkNum == 3 && name == "bigSword")
         {
-            EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position, Quaternion.identity).GetComponent<EffectScript>();
+            EffectScript es = EffectManager.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/1",attackSpeed/2);
+            es.gameObject.SetActive(true);
+
             secondAtk = true;
         }
         else
         {
-            EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position , Quaternion.identity).GetComponent<EffectScript>();
+            EffectScript es = EffectManager.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeed);
+            es.gameObject.SetActive(true);
+
         }
         ///////////////
 
@@ -366,9 +370,11 @@ public class playerFSM : FSMbase
                 if (secondAtk)
                 {
                     DamageReceiver.playerAttack(attackPoint);
-                    EffectScript es = Instantiate(EffPrefab, (Vector2)transform.position, Quaternion.identity).GetComponent<EffectScript>();
+                    EffectScript es = EffectManager.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeed);
+                    es.gameObject.SetActive(true);
+
                     secondAtk = false;
                 }
             }
