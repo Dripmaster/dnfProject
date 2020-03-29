@@ -29,6 +29,7 @@ public static class DamageReceiver
             {
                 enemys[i].hitted(attackPoint);
                 showHitEffect(enemys[i].getCol());
+                EffectManager.AddDamage(attackPoint, enemys[i].transform.position);
             }
             
         }
@@ -47,9 +48,10 @@ public static class DamageReceiver
 
     static void showHitEffect(BoxCollider2D mColider)
     {
-        Vector2 RandomDir = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
-        EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
-        es.setOffset(Random.Range(0,10)/100f);
+        //Vector2 RandomDir = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
+        //EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
+        EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
+        //es.setOffset(Random.Range(0,10)/100f);
         es.initAni("effect/playerHit/" + player.name);
         es.gameObject.SetActive(true);
     }

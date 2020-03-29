@@ -318,6 +318,7 @@ public class playerFSM : FSMbase
 
         if (atkNum == 3 && name == "bigSword")
         {
+            DamageReceiver.playerAttack(attackPoint);
             EffectScript es = EffectManager.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/1",attackSpeed/2);
@@ -331,7 +332,6 @@ public class playerFSM : FSMbase
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeed);
             es.gameObject.SetActive(true);
-
         }
         ///////////////
 
@@ -370,8 +370,7 @@ public class playerFSM : FSMbase
                 //대검 두번째공격
                 if (secondAtk)
                 {
-                    DamageReceiver.playerAttack(attackPoint);
-
+                    
                     EffectScript es = EffectManager.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeed);

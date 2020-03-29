@@ -1,13 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class EffectManager
 {
     static List<EffectScript> EffectList;
     static List<bulletEffect> bulletList;
+    static List<GameObject> DagmageList;
     static GameObject effectPrefab;
     static GameObject bulletPrefab;
+    static GameObject damagePrefab;
 
 
     public static void AddEffect(EffectScript e) {
@@ -31,7 +34,6 @@ public static class EffectManager
         {
             if (e.gameObject.activeInHierarchy == false)
             {
-                
                 effect = e;
                 e.transform.position = v;
                 break;
@@ -91,4 +93,32 @@ public static class EffectManager
 
         return effect;
     }
+
+    public static void AddDamage(float atkPoint, Vector2 pos)
+    {
+        if (DagmageList == null)
+            DagmageList = new List<GameObject>();
+        GameObject g = null;
+        foreach (GameObject e in DagmageList)
+        {
+            if (e.gameObject.activeInHierarchy == false)
+            {
+                g = e;
+                break;
+            }
+        }
+        if (g == null)
+        {
+            if (damagePrefab == null)
+                damagePrefab = Resources.Load<GameObject>("prefabs/DamageText");
+            g = GameObject.Instantiate(damagePrefab, pos, Quaternion.identity);
+            g.transform.SetParent(GameObject.Find("Canvas").transform,false);
+            
+        }
+        g.GetComponent<Text>().text = atkPoint.ToString("00");
+        g.transform.position = Camera.main.WorldToScreenPoint(pos);
+        g.gameObject.SetActive(true);
+        DagmageList.Add(g);
+    }
+
 }
