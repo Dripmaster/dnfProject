@@ -19,7 +19,6 @@ public static class SLM//Sprite Load Manager
                 continue;
             for (int j = 0; j < objs.Length; j++) {
                 _cache[path[i] + "/"+objs[j].name] = objs[j];
-                
             }
         }
     }
@@ -66,7 +65,6 @@ public static class SLM//Sprite Load Manager
                 break;
             }
         }
-       
         return i;
     }
 }

@@ -32,7 +32,11 @@ public class EnemyFSM : FSMbase
     {
         
     }
-
+    public bool isDead() {
+        if (hp <= 0)
+            return true;
+        return false;
+    }
     void delayCount() {
         tempDelay += Time.deltaTime;
         if (tempDelay >= attackDelay) {
@@ -199,5 +203,8 @@ public class EnemyFSM : FSMbase
         Handles.color = new Color(0, 0, 255, 0.2f);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90 / 2, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
+    }
+    public BoxCollider2D getCol() {
+        return _Colider;
     }
 }

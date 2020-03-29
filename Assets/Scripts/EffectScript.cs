@@ -16,6 +16,9 @@ public class EffectScript : MonoBehaviour
         _anim.speed = speed;
         _anim.initAnims();
     }
+    public void setOffset(float time) {
+        _anim.setOffset(time);
+    }
 
     // Update is called once per frame
     void Update()

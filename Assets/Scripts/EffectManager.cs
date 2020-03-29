@@ -16,7 +16,6 @@ public static class EffectManager
         EffectList.Add(e);
     }
 
-
     public static EffectScript getEffect(Transform t) {
 
         return getEffect(t.position);

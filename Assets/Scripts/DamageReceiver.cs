@@ -25,8 +25,12 @@ public static class DamageReceiver
 
         for (int i = 0; i < enemys.Count; i++)
         {
-            if (isColMonster(enemys[i].transform.position))
+            if (!enemys[i].isDead()&& isColMonster(enemys[i].transform.position))
+            {
                 enemys[i].hitted(attackPoint);
+                showHitEffect(enemys[i].getCol());
+            }
+            
         }
     }
     static bool isColMonster(Vector2 ePos) {
@@ -39,5 +43,14 @@ public static class DamageReceiver
             return true;
         }
         return false;
+    }
+
+    static void showHitEffect(BoxCollider2D mColider)
+    {
+        Vector2 RandomDir = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
+        EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
+        es.setOffset(Random.Range(0,10)/100f);
+        es.initAni("effect/playerHit/" + player.name);
+        es.gameObject.SetActive(true);
     }
 }

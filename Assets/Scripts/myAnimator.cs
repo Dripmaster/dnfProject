@@ -15,6 +15,7 @@ public class myAnimator : MonoBehaviour
     public int sprLength = 0;
     bool aniPause = false;
     bool isEnded = false;
+    float offsetTime = 0f;
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -23,9 +24,14 @@ public class myAnimator : MonoBehaviour
         
     }
     void OnEnable() {
-        aniPause = false;
+        //aniPause = false;
         isEnded = false;
         StartCoroutine(sprUpdater());
+    }
+    public void setOffset(float time)
+    {
+        Pause();
+        offsetTime = time;
     }
     void LateUpdate()
     {
@@ -105,7 +111,9 @@ public class myAnimator : MonoBehaviour
         do
         {
             if (aniPause) {
-                yield return null;
+                sr.sprite = null;
+                yield return new WaitForSeconds(offsetTime);
+                aniPause = false;
                 continue;
             }
             isEnded = false;

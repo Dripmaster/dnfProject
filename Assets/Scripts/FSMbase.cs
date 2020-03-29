@@ -44,7 +44,7 @@ public class FSMbase : MonoBehaviour
         init_Stat();
     }
     public void init_Stat() {
-        maxHp = 100; //나중엔 데이터로부터 받아오기
+        maxHp = 10000; //나중엔 데이터로부터 받아오기
         hp = maxHp;
         attackPoint = 50;//나중엔 데이터로부터 받아오기
         attackDelay = 2f; //나중엔 데이터로부터 받아오기

@@ -24,13 +24,12 @@ public class playerFSM : FSMbase
     GameObject[] dashEffects;
     int movecount = 0;
     BoxCollider2D _Colider;
-    GameObject EffPrefab;
+    GameObject myAlert;
 
     // Use this for initialization
     void Awake()
     {
         base.Awake();
-        EffPrefab = Resources.Load<GameObject>("prefabs/Effect");
         dashEffects = GameObject.FindGameObjectsWithTag("dashPaticles");
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
@@ -43,6 +42,8 @@ public class playerFSM : FSMbase
         _Colider = GetComponent<BoxCollider2D>();
         attackfan = new Vector2(0, -1);
         DamageReceiver.addPlayer(this);
+        myAlert = GameObject.Find("noHp");
+        myAlert.SetActive(false);
         for (int i = 1; i < 4; i++)
         {
             _anim.initAnims("attack/" + i);
@@ -222,6 +223,7 @@ public class playerFSM : FSMbase
         if (hp <= 0)
             return;
         hp -= damage;
+        myAlert.SetActive(true);
         if (hp <= 0) {
             setState(State.dead);
         }
@@ -359,7 +361,6 @@ public class playerFSM : FSMbase
                 //공격
                 doneAttack = true;
                 DamageReceiver.playerAttack(attackPoint);
-                
                 atkNum++;
                 if (atkNum > 3)
                     atkNum = 1;
@@ -370,6 +371,7 @@ public class playerFSM : FSMbase
                 if (secondAtk)
                 {
                     DamageReceiver.playerAttack(attackPoint);
+
                     EffectScript es = EffectManager.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeed);
@@ -387,4 +389,5 @@ public class playerFSM : FSMbase
         Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, attackAngle / 2, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, -attackAngle / 2, attackRange);
     }
+    
 }
