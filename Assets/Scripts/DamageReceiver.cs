@@ -29,7 +29,7 @@ public static class DamageReceiver
             {
                 enemys[i].hitted(attackPoint);
                 showHitEffect(enemys[i].getCol());
-                EffectManager.AddDamage(attackPoint, enemys[i].transform.position);
+                EffectManager.AddDamage(attackPoint, enemys[i].transform.position,enemys[i].getDamageTextGen());
             }
             
         }

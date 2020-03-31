@@ -11,7 +11,7 @@ public class DamageText : MonoBehaviour
     void Start()
     {
         
-        moveDir = new Vector2(0, 1);
+        moveDir = new Vector2(0, 0.01f);
     }
     private void OnEnable()
     {

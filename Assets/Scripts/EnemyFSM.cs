@@ -14,6 +14,7 @@ public class EnemyFSM : FSMbase
     BoxCollider2D _Colider;
     float tempDelay;
     bool attackAllow;
+    RectTransform damageTextGen;
 
     void Awake()
     {
@@ -26,11 +27,12 @@ public class EnemyFSM : FSMbase
         _Colider = GetComponent<BoxCollider2D>();
         tempDelay = 0f;
         attackAllow = true;
+        damageTextGen = transform.Find("enemyCanvas/TextGen").GetComponent<RectTransform>();
     }
 
     void Update()
     {
-        
+        RBD.velocity = Vector2.zero;
     }
     public bool isDead() {
         if (hp <= 0)
@@ -42,6 +44,9 @@ public class EnemyFSM : FSMbase
         if (tempDelay >= attackDelay) {
             attackAllow = true;
         }
+    }
+    public RectTransform getDamageTextGen() {
+        return damageTextGen;
     }
 
     void knockBack() {
@@ -80,8 +85,7 @@ public class EnemyFSM : FSMbase
 
         return false;
     }
-    public void hitted(float damage) {
-        
+    public void hitted(float damage) {       
         if (hp <= 0)
         {
             return;
@@ -94,7 +98,6 @@ public class EnemyFSM : FSMbase
             _anim.speed = 0.5f;
             setState(State.dead);
         }
-
         else if(myType!=type.boss){
             _anim.speed = 0.1f;
             setState(State.hited);
@@ -105,12 +108,12 @@ public class EnemyFSM : FSMbase
         do
         {
             _anim.setSpeed(1);
-            yield return null;
             moveEnemy();
             delayCount();
             if (detectPlayer()) {
                 setState(State.attack);
             }
+            yield return null;
         } while (!newState);
     }
 
@@ -138,12 +141,11 @@ public class EnemyFSM : FSMbase
     IEnumerator attack()
     {
         bool _animEnd = false;
-        RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        
         bool doneAttack = false;
         do
         {
             _anim.setSpeed(1);
-            yield return null;
             lookPlayer();
             if (_anim.isEnd(1) && !doneAttack)
             {
@@ -160,43 +162,39 @@ public class EnemyFSM : FSMbase
                 attackAllow = false;
                 tempDelay = 0f;
             }
+            yield return null;
         } while (!newState);
-        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
+
     }
     IEnumerator hited()
     {
-        _Colider.isTrigger = true;
-        
         do
         {
             _anim.setSpeed(0.1f);
-            yield return null;
             knockBack();
-            
             if (_anim.isEnd(-1))
             {
-                _anim.speed = 1;
                 setState(State.move);
-            }            
+            }
+            yield return null;
         } while (!newState);
-        _Colider.isTrigger = false;
+        
 
     }
     IEnumerator dead()
     {
-        _Colider.isTrigger = true;
-
+        
         do
         {
-            yield return null;
             if (_anim.isEnd())
             {
                 gameObject.SetActive(false);
                 _anim.speed = 1f;
                 break;
             }
+            yield return null;
         } while (!newState);
-        _Colider.isTrigger = false;
+        
     }
     private void OnDrawGizmos()
     {

@@ -169,7 +169,7 @@ public class playerFSM : FSMbase
         
         
 
-        if ((moveDir != Vector2.zero || dashState) && objectState!=State.attack)
+        if ((moveDir != Vector2.zero || dashState))
         {
             if (dashState)
                 moveDir = dashDir;
@@ -178,6 +178,9 @@ public class playerFSM : FSMbase
             _anim.setDir(degree);
             attackfan = moveDir;
 
+            if (objectState == State.attack) {
+                moveDir *= 0.1f;
+            }
 
             if (!dashState)
             {
@@ -253,7 +256,6 @@ public class playerFSM : FSMbase
     }
     IEnumerator dashTimer() {
         dashState = true;
-        _Colider.isTrigger = true;
         Vector2 tempPos = transform.position;
         
         for(int i= 0; i < 5; i++) { 
@@ -264,7 +266,6 @@ public class playerFSM : FSMbase
         dashDir = Vector2.zero;
         dashState = false;
         canDash = 0;
-        _Colider.isTrigger = false;
     }
     IEnumerator dead()
     {
@@ -303,10 +304,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator attack()
     {
-
-       
-        RBD.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;//공격중 위치 고정
-
+        
         bool secondAtk = false;//대검 3번째 공격 두번휘둘
         bool doneAttack = false;//한번만 공격
         ////////////이펙트 생성 방향 (안맞는거는 수정예정)
@@ -346,7 +344,7 @@ public class playerFSM : FSMbase
                 setState(State.move);
                 break;
             }
-            //movePlayer(); 공격중방향전환
+            movePlayer(); //공격중방향전환
             if (animEnd)
             {
                 if (attackInput())
@@ -380,7 +378,6 @@ public class playerFSM : FSMbase
                 }
             }
         } while (!newState);
-        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;//공격후 이동 가능
     }
     private void OnDrawGizmos()
     {

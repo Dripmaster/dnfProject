@@ -94,7 +94,7 @@ public static class EffectManager
         return effect;
     }
 
-    public static void AddDamage(float atkPoint, Vector2 pos)
+    public static void AddDamage(float atkPoint, Vector2 pos, RectTransform damageTextGen)
     {
         if (DagmageList == null)
             DagmageList = new List<GameObject>();
@@ -112,11 +112,10 @@ public static class EffectManager
             if (damagePrefab == null)
                 damagePrefab = Resources.Load<GameObject>("prefabs/DamageText");
             g = GameObject.Instantiate(damagePrefab, pos, Quaternion.identity);
-            g.transform.SetParent(GameObject.Find("Canvas").transform,false);
-            
+            g.transform.SetParent(damageTextGen.parent, false);
         }
         g.GetComponent<Text>().text = atkPoint.ToString("00");
-        g.transform.position = Camera.main.WorldToScreenPoint(pos);
+        g.transform.localPosition = damageTextGen.localPosition;
         g.gameObject.SetActive(true);
         DagmageList.Add(g);
     }
