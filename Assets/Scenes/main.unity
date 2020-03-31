@@ -543,6 +543,26 @@ PrefabInstance:
       propertyPath: myType
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2968487413014801250, guid: 71eabfbb8eaea964e85615840973771a,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2968487413014801250, guid: 71eabfbb8eaea964e85615840973771a,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2968487413014801250, guid: 71eabfbb8eaea964e85615840973771a,
+        type: 3}
+      propertyPath: m_Offset.y
+      value: -0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2968487413014801251, guid: 71eabfbb8eaea964e85615840973771a,
+        type: 3}
+      propertyPath: m_BodyType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7720337774116314039, guid: 71eabfbb8eaea964e85615840973771a,
         type: 3}
       propertyPath: m_Name
@@ -791,11 +811,11 @@ MonoBehaviour:
   objectState: 0
   _anim: {fileID: 0}
   newState: 0
-  name: sword
+  name: bigSword
   myType: 0
   attackRange: 2
   attackAngle: 150
-  attackSpeed: 0.3
+  attackSpeed: 0.5
   attackfan: {x: 0, y: 0}
   checkDashTime: 0.5
   dashRate: 500

@@ -24,7 +24,7 @@ public class myAnimator : MonoBehaviour
         
     }
     void OnEnable() {
-        //aniPause = false;
+        aniPause = false;
         isEnded = false;
         StartCoroutine(sprUpdater());
     }
@@ -100,6 +100,11 @@ public class myAnimator : MonoBehaviour
     }
     public void Pause() {
         aniPause = true;
+        animNum = sprLength - 1;
+        if (hasDir)
+            sprUptate();
+        else
+            sprUptate_None();
     }
     public void setSpeed(float spd) {
         speed = spd;
