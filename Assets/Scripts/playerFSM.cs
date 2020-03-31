@@ -44,12 +44,17 @@ public class playerFSM : FSMbase
         DamageReceiver.addPlayer(this);
         myAlert = GameObject.Find("noHp");
         myAlert.SetActive(false);
+        
+    }
+    private void OnEnable()
+    {
+        base.OnEnable();
         for (int i = 1; i < 4; i++)
         {
             _anim.initAnims("attack/" + i);
         }
     }
-    
+
 
     void Update() {
         dashCount();

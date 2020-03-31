@@ -26,7 +26,7 @@ public class FSMbase : MonoBehaviour
     public myAnimator _anim;
     public bool newState;
     string myPath;
-    float maxHp;
+    protected float maxHp;
     protected float hp;
     protected float attackPoint;
     public string name;
@@ -39,12 +39,9 @@ public class FSMbase : MonoBehaviour
     {
         objectState = State.idle;
         _anim = GetComponent<myAnimator>();
-        initAnim();
-        setAnim();
-        init_Stat();
     }
     public void init_Stat() {
-        maxHp = 10000; //나중엔 데이터로부터 받아오기
+        maxHp = 1000; //나중엔 데이터로부터 받아오기
         hp = maxHp;
         attackPoint = 50;//나중엔 데이터로부터 받아오기
         attackDelay = 2f; //나중엔 데이터로부터 받아오기
@@ -68,7 +65,9 @@ public class FSMbase : MonoBehaviour
     }//name으로부터 해당 애니메이션 주소 구해서 myPath로 넣기
     public void OnEnable()
     {
-        hp = maxHp;
+        initAnim();
+        setAnim();
+        init_Stat();
         StartCoroutine("FSMmain");
     }
 

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-
+using UnityEngine.UI;
 public class EnemyFSM : FSMbase
 {
-    
     float speedRate;
     int degree;
     Rigidbody2D RBD;
@@ -15,24 +14,48 @@ public class EnemyFSM : FSMbase
     float tempDelay;
     bool attackAllow;
     RectTransform damageTextGen;
+    Image hpBar;
 
     void Awake()
     {
         base.Awake();
-        speedRate = 100;
-        setState(State.move);
         player = GameObject.Find("player").transform;
         RBD = GetComponent<Rigidbody2D>();
         DamageReceiver.addEnemy(this);
         _Colider = GetComponent<BoxCollider2D>();
-        tempDelay = 0f;
-        attackAllow = true;
         damageTextGen = transform.Find("enemyCanvas/TextGen").GetComponent<RectTransform>();
     }
-
     void Update()
     {
         RBD.velocity = Vector2.zero;
+    }
+    private void OnEnable()
+    {
+        base.OnEnable();
+        speedRate = 100;
+        setState(State.move);
+        tempDelay = 0f;
+        attackAllow = true;
+        setHpBar();
+    }
+    void setHpBar() {
+        switch (myType)
+        {
+            case type.boss: transform.Find("enemyCanvas/hpFrame").GetComponent<Image>().sprite = SLM.getSpr("image/enemy/bossFrame");
+                hpBar = transform.Find("enemyCanvas/hpValue").GetComponent<Image>();
+                hpBar.sprite = SLM.getSpr("image/enemy/bossHp");
+                break;
+            case type.Long:
+            case type.Short:
+                transform.Find("enemyCanvas/hpFrame").GetComponent<Image>().sprite = SLM.getSpr("image/enemy/frame");
+                hpBar = transform.Find("enemyCanvas/hpValue").GetComponent<Image>();
+                hpBar.sprite = SLM.getSpr("image/enemy/hp");
+                break;
+            default: break;
+        }
+        transform.Find("enemyCanvas/hpFrame").GetComponent<Image>().SetNativeSize();
+        hpBar.SetNativeSize();
+        hpBar.fillAmount = 1;
     }
     public bool isDead() {
         if (hp <= 0)
@@ -92,7 +115,7 @@ public class EnemyFSM : FSMbase
         }
 
         hp -= damage;
-
+        hpBar.fillAmount = hp / maxHp;
         if (hp <= 0)
         {
             _anim.speed = 0.5f;
@@ -178,8 +201,6 @@ public class EnemyFSM : FSMbase
             }
             yield return null;
         } while (!newState);
-        
-
     }
     IEnumerator dead()
     {

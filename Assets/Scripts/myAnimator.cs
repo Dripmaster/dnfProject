@@ -111,9 +111,17 @@ public class myAnimator : MonoBehaviour
         do
         {
             if (aniPause) {
-                sr.sprite = null;
-                yield return new WaitForSeconds(offsetTime);
-                aniPause = false;
+                if (offsetTime != 0)
+                {
+                    sr.sprite = null;
+                    yield return new WaitForSeconds(offsetTime);
+
+                    aniPause = false;
+                }
+                else
+                {
+                    yield return null;
+                }
                 continue;
             }
             isEnded = false;

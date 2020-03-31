@@ -22,7 +22,8 @@ public static class DamageReceiver
     }
 
     public static void playerAttack(float attackPoint) {
-
+        if (enemys == null)
+            enemys = new List<EnemyFSM>();
         for (int i = 0; i < enemys.Count; i++)
         {
             if (!enemys[i].isDead()&& isColMonster(enemys[i].transform.position))

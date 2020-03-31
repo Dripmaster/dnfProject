@@ -116,6 +116,7 @@ public static class EffectManager
         g.transform.SetParent(damageTextGen.parent, false);
         g.GetComponent<Text>().text = atkPoint.ToString("00");
         g.transform.localPosition = damageTextGen.localPosition;
+        g.transform.localScale = damageTextGen.localScale;
         g.gameObject.SetActive(true);
         DagmageList.Add(g);
     }

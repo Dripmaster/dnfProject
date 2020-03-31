@@ -34,16 +34,12 @@ public static class SLM//Sprite Load Manager
         }
     }
     static public Sprite getSpr(string path) {
-        if (isSpr(path)) {
-            if(_cache[path] == null)
-            {
-                _cache[path] = Resources.Load<Sprite>(path);
-                Debug.Log("Reload");
-            }
-            return _cache[path];
+        if (!isSpr(path))
+        {
+            _cache[path] = Resources.Load<Sprite>(path);
         }
 
-        return null;
+        return _cache[path];
     }
     static public void clearDic() {
         

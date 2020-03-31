@@ -7,11 +7,12 @@ public class DamageText : MonoBehaviour
     Vector2 moveDir;
     float deleteTime = 0.4f;
     float tempTime;
+    Vector2 scale;
     // Start is called before the first frame update
     void Start()
     {
         
-        moveDir = new Vector2(0, 0.01f);
+        moveDir = new Vector2(0, 1f);
     }
     private void OnEnable()
     {
@@ -26,6 +27,7 @@ public class DamageText : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
-        transform.Translate(moveDir*Time.deltaTime*100);
+        transform.Translate(moveDir*Time.deltaTime);
+        
     }
 }
