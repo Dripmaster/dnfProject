@@ -56,7 +56,6 @@ public class bulletEffect : EffectScript
             EffectScript es = EffectManager.getEffect(col.ClosestPoint(transform.position));
             es.initAni(effPath);
             es.gameObject.SetActive(true);
-
         }
     }
 }
