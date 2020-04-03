@@ -54,7 +54,6 @@ public class mapMaker : MonoBehaviour
     }
     void Update()
     {
-        if(target!=null)
         keyInput();
         if (Input.GetMouseButtonDown(0))
         {
@@ -143,8 +142,8 @@ public class mapMaker : MonoBehaviour
         {
             Destroy(target);
             target = null;
-            if (tileList.map.Count <= currentTile.id)
-                tileList.map.RemoveAt(currentTile.id);
+            if(currentTile.id < tileList.map.Count)
+            tileList.map.RemoveAt(currentTile.id);
         }
         if (Input.GetKeyDown(KeyCode.Return))
         {
@@ -184,7 +183,6 @@ public class mapMaker : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero);
         if (hit.collider != null)
         {
-            Debug.Log("★hit"+hit.collider.gameObject.name);
             target = hit.collider.gameObject;
         }
         return pos;
@@ -245,6 +243,8 @@ public class mapMaker : MonoBehaviour
             MapList.maps[idex] = tileList;
         }
         string str = JsonUtility.ToJson(MapList);
+        Debug.Log(str);
+        Debug.Log("save 완료");
         
         File.WriteAllText(Application.dataPath + "/MapData/data.json", str);
     }
