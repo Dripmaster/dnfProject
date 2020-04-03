@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - bullet
   - wall
+  - customTile
+  - floor
   layers:
   - Default
   - TransparentFX
@@ -17,10 +19,10 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - player
+  - enemy
+  - bullet
+  - wall
   - 
   - 
   - 

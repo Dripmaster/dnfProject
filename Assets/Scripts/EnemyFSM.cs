@@ -27,7 +27,7 @@ public class EnemyFSM : FSMbase
     }
     void Update()
     {
-        RBD.velocity = Vector2.zero;
+        RBD.velocity = Vector2.zero;   
     }
     private void OnEnable()
     {
@@ -83,7 +83,7 @@ public class EnemyFSM : FSMbase
         moveDir = Vector2.zero;
         moveDir = (player.position - transform.position).normalized;
 
-        degree = (Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45 +1)%8;
+        degree = (Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45 +1);
         _anim.setDir(degree);
     }
 

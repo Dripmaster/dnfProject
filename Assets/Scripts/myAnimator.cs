@@ -89,6 +89,10 @@ public class myAnimator : MonoBehaviour
         if (sprLength != 0)
             WFS = new WaitForSeconds(speed / sprLength);
     }
+    public Sprite currentSpr() {
+
+        return sr.sprite;
+    }
     
     public bool isEnd(int about = 0) {
         //if(sprLength == 1&&isEnded)

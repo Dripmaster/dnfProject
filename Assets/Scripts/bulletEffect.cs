@@ -14,6 +14,7 @@ public class bulletEffect : EffectScript
     {
         base.Awake();
         moveDir = new Vector2(8, 0);
+        Physics2D.IgnoreLayerCollision(9, 10);
     }
 
     // Update is called once per frame

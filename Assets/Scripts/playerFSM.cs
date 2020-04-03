@@ -25,6 +25,7 @@ public class playerFSM : FSMbase
     int movecount = 0;
     BoxCollider2D _Colider;
     GameObject myAlert;
+    myParticle ps;
 
     // Use this for initialization
     void Awake()
@@ -44,7 +45,10 @@ public class playerFSM : FSMbase
         DamageReceiver.addPlayer(this);
         myAlert = GameObject.Find("noHp");
         myAlert.SetActive(false);
-        
+        ps = dashEffects[0].transform.parent.GetComponentInChildren<myParticle>();
+        ps.Stop();
+        ps.setSr(GetComponent<SpriteRenderer>());
+
     }
     private void OnEnable()
     {
@@ -76,7 +80,34 @@ public class playerFSM : FSMbase
         }
     }
     bool dashPlayer() {//dash페이즈 체크
-        if (dashState)
+        if (Input.GetKeyDown(KeyCode.LeftShift)) {
+            canDash = 3;
+            dashDir.x = 0;
+            dashDir.y = 0;
+            movecount = 0;
+            if (Input.GetKey(KeyCode.LeftArrow))
+            {
+                movecount++;
+                dashDir.x += -1;
+            }
+            if (Input.GetKey(KeyCode.RightArrow))
+            {
+                dashDir.x += 1;
+                movecount++;
+            }
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+                dashDir.y += 1;
+                movecount++;
+            }
+            if (Input.GetKey(KeyCode.DownArrow))
+            {
+                dashDir.y += -1;
+                movecount++;
+            }
+            return true;
+        }
+        /*if (dashState)
             return false;
         if (canDash == 0)
         {
@@ -141,7 +172,7 @@ public class playerFSM : FSMbase
                 }
                 return true;
             }
-        }
+        }*/
         return false;
     }
     bool movePlayer()
@@ -171,8 +202,6 @@ public class playerFSM : FSMbase
             movecount++;
             moveDir.y += -1;
         }
-        
-        
 
         if ((moveDir != Vector2.zero || dashState))
         {
@@ -261,14 +290,17 @@ public class playerFSM : FSMbase
     }
     IEnumerator dashTimer() {
         dashState = true;
-        Vector2 tempPos = transform.position;
-        
-        for(int i= 0; i < 5; i++) { 
+        ps.Play();
+        Physics2D.IgnoreLayerCollision(8,9);
+        Physics2D.IgnoreLayerCollision(8,10);
+        for (int i= 0; i < 5; i++) { 
                 dashEffect(i);
             yield return new WaitForSeconds(0.02f);
-            
         }
         dashDir = Vector2.zero;
+        ps.Stop();
+        Physics2D.IgnoreLayerCollision(8, 9,false);
+        Physics2D.IgnoreLayerCollision(8, 10,false);
         dashState = false;
         canDash = 0;
     }
@@ -305,6 +337,7 @@ public class playerFSM : FSMbase
                 if (!movePlayer())
                     setState(State.idle);
             }
+            
         } while (!newState);
     }
     IEnumerator attack()
