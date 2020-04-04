@@ -9,11 +9,17 @@ public class TextTwinkle : MonoBehaviour
     public float showTime;
     public float delay;
 
+    bool canClick = false;
+
     private SpriteRenderer spriteRenderer;
+
+    GameObject sceneFade;
 
     // Start is called before the first frame update
     void Awake()
     {
+        sceneFade = GameObject.Find("fade");
+
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.enabled = false;
         StartCoroutine("RunTwinkle");
@@ -22,7 +28,12 @@ public class TextTwinkle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (canClick && Input.anyKeyDown)
+        {
+            canClick = false;
+            SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
+            sceneChangeManager.ChangeScene("tutorial", 1, 0.7f);
+        }
     }
 
     IEnumerator RunTwinkle()
@@ -30,6 +41,7 @@ public class TextTwinkle : MonoBehaviour
         if (delay > 0f)
             yield return new WaitForSeconds(delay);
 
+        canClick = true;
         while (true)
         {
             int count = 0;
