@@ -63,14 +63,14 @@ public class mapMaker : MonoBehaviour
                 if (target.tag == "customTile")
                 {
                     currentTile = tileList.map[int.Parse(target.name)];
-                    Debug.Log("몬스터 속성 변경: [d]ark, [f]ire, [g]low, gras[s], [w]ater");
-                    Debug.Log("몬스터 종류 변경: [l]ong, shor[t], [b]oss");
-                    Debug.Log("방향키로 해당 몬스터 이동");
-                    Debug.Log("해당 몬스터 지우기 : [x]");
+                    print("몬스터 속성 변경: [d]ark, [f]ire, [g]low, gras[s], [w]ater");
+                    print("몬스터 종류 변경: [l]ong, shor[t], [b]oss");
+                    print("방향키로 해당 몬스터 이동");
+                    print("해당 몬스터 지우기 : [x]");
                 }
                 else if (target.tag == "wall")
                 {
-                    Debug.Log("여긴 벽입니다.");
+                    print("여긴 벽입니다.");
                 }
                 else if (target.tag == "floor")
                 {
@@ -78,15 +78,15 @@ public class mapMaker : MonoBehaviour
                     target = Instantiate(tilePrefab, pos, Quaternion.identity);
                     target.name = tileList.map.Count.ToString();
                     target.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/water/long/move/6/0");
-                    Debug.Log("몬스터 속성을 지정해 주세요: [d]ark, [f]ire, [g]low, gras[s], [w]ater");
-                    Debug.Log("몬스터 종류를 지정해 주세요: [l]ong, shor[t], [b]oss");
-                    Debug.Log("Enter 키 입력 시 지정된 몬스터가 추가됩니다.");
-                    Debug.Log("방향키로 해당 몬스터 이동");
-                    Debug.Log("해당 몬스터 지우기 : [x]");
+                    print("몬스터 속성을 지정해 주세요: [d]ark, [f]ire, [g]low, gras[s], [w]ater");
+                    print("몬스터 종류를 지정해 주세요: [l]ong, shor[t], [b]oss");
+                    print("Enter 키 입력 시 지정된 몬스터가 추가됩니다.");
+                    print("방향키로 해당 몬스터 이동");
+                    print("해당 몬스터 지우기 : [x]");
                 }
             }
             else {
-                Debug.Log("다시 선택 바랍니다.");
+                print("다시 선택 바랍니다.");
             }
             
         }
@@ -243,8 +243,8 @@ public class mapMaker : MonoBehaviour
             MapList.maps[idex] = tileList;
         }
         string str = JsonUtility.ToJson(MapList);
-        Debug.Log(str);
-        Debug.Log("save 완료");
+        print(str);
+        print("save 완료");
         
         File.WriteAllText(Application.dataPath + "/MapData/data.json", str);
     }
@@ -261,7 +261,7 @@ public class mapMaker : MonoBehaviour
                 {
                     idex = i;
                     tileList = MapList.maps[i];
-                    Debug.Log("load success : " + mapNum + "번째 맵 " + floorNum + "층");
+                    print("load success : " + mapNum + "번째 맵 " + floorNum + "층");
 
                     break;
                 }
@@ -269,12 +269,12 @@ public class mapMaker : MonoBehaviour
         }
         else {
             MapList = new SerializedLIST();
-            Debug.Log("new map : " + mapNum + "번째 맵 " + floorNum + "층");
+            print("new map : " + mapNum + "번째 맵 " + floorNum + "층");
         }
         if (tileList == null) {
             idex = MapList.maps.Count;
             tileList = new TileList();
-            Debug.Log("new map : " + mapNum + "번째 맵 " + floorNum + "층");
+            print("new map : " + mapNum + "번째 맵 " + floorNum + "층");
 
         }
         initMap();

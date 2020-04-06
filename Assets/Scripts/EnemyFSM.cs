@@ -15,20 +15,20 @@ public class EnemyFSM : FSMbase
     RectTransform damageTextGen;
     Image hpBar;
 
-    void Awake()
+    new void Awake()
     {
         base.Awake();
         RBD = GetComponent<Rigidbody2D>();
         DamageReceiver.addEnemy(this);
         _Colider = GetComponent<BoxCollider2D>();
-        damageTextGen = transform.Find("enemyCanvas/TextGen").GetComponent<RectTransform>();
+        damageTextGen = transform.Find("enemyCanvas/TextGen").GetComponent<RectTransform>(); 
         gameObject.SetActive(false);
     }
     void Update()
     {
         RBD.velocity = Vector2.zero;   
     }
-    private void OnEnable()
+    new private void OnEnable()
     {
         base.OnEnable();
         speedRate = 100;

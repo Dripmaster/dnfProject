@@ -29,7 +29,7 @@ public class FSMbase : MonoBehaviour
     protected float maxHp;
     protected float hp;
     protected float attackPoint;
-    public string name;
+    public new string name;
     public type myType;
     public float attackRange;
     protected float moveSpeed = 5;

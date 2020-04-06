@@ -24,7 +24,13 @@ public class LevelManager : MonoBehaviour
         loadTileList();
         loadMap();
         setEnemy();
-        mapObject[1].transform.position = new Vector2(0,-20);
+        switch (Random.Range(0, 3))
+        {
+            case 0: mapObject[1].transform.position = new Vector2(0, -20); break;
+            case 1: mapObject[1].transform.position = new Vector2(20, 0); break;
+            case 2: mapObject[1].transform.position = new Vector2(-20, 0); break;
+
+        }
         isPause = false;
         //mapObject[1].SetActive(false);
     }
@@ -69,7 +75,12 @@ public class LevelManager : MonoBehaviour
         if (Vector2.Distance(Vector2.zero, mapObject[currentMap].transform.position) <= 0.1f)
         {
             mapObject[currentMap].transform.position = Vector2.zero;
-            mapObject[(currentMap + 1) % 2].transform.position = new Vector2(0, -20);
+            switch (Random.Range(0, 3)) {
+                case 0: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(0, -20);break;
+                case 1: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(20, 0);break;
+                case 2: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(-20, 0);break;
+
+            }
             return true;
         }
         return false;
@@ -96,7 +107,7 @@ public class LevelManager : MonoBehaviour
                 if (MapList.maps[i].floorNum == floorNum && MapList.maps[i].MapNum == mapNum)
                 {
                     tileList = MapList.maps[i];
-                    Debug.Log("load success : " + mapNum + "번째 맵 " + floorNum + "층");
+                    print("load success : " + mapNum + "번째 맵 " + floorNum + "층");
 
                     break;
                 }
@@ -104,7 +115,7 @@ public class LevelManager : MonoBehaviour
         }
         if (tileList == null)
         {
-            Debug.Log("load Error : " + mapNum + "번째 맵 " + floorNum + "층");
+            print("load Error : " + mapNum + "번째 맵 " + floorNum + "층");
             isError = true;
         }
     }

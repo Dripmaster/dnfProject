@@ -26,9 +26,9 @@ public class playerFSM : FSMbase
     int movecount = 0;
     BoxCollider2D _Colider;
     GameObject myAlert;
-    
+
     // Use this for initialization
-    void Awake()
+    new void Awake()
     {
         base.Awake();
         instance = this;
@@ -47,7 +47,7 @@ public class playerFSM : FSMbase
         myAlert = GameObject.Find("noHp");
         myAlert.SetActive(false);
     }
-    private void OnEnable()
+    new private void OnEnable()
     {
         base.OnEnable();
         for (int i = 1; i < 4; i++)

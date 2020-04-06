@@ -10,7 +10,7 @@ public class bulletEffect : EffectScript
     float attackPoint;
     string effPath;
     // Start is called before the first frame update
-    void Awake()
+    new void Awake()
     {
         base.Awake();
         moveDir = new Vector2(8, 0);
