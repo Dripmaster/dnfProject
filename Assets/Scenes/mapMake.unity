@@ -270,7 +270,7 @@ MonoBehaviour:
     type: 3}
   moveSize: 0.1
   mapNum: 1
-  floorNum: 1
+  floorNum: 2
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0

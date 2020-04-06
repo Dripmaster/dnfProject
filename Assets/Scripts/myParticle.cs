@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class myParticle : MonoBehaviour
 {
+    public static myParticle instance;
     bool isPlaying = false;
     GameObject particlePrefab;
     SpriteRenderer sr;
@@ -12,6 +13,7 @@ public class myParticle : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        instance = this;
         particles = new List<GameObject>();
         particlePrefab = Resources.Load<GameObject>("prefabs/TrailParticle");
     }

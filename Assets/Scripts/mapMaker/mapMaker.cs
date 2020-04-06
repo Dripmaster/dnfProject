@@ -8,7 +8,7 @@ public class mapMaker : MonoBehaviour
     public GameObject tilePrefab;
 
     [System.Serializable]
-    class tileSet {
+    public class tileSet {
         
         public int type = 1; // player long short boss
         public string name = "dark"; // bigSword, sowrd, Hammer, dark, fire, glow, grass, water
@@ -16,7 +16,7 @@ public class mapMaker : MonoBehaviour
         public int id;
     }
     [System.Serializable]
-    class TileList
+    public class TileList
     {
         public int MapNum = 1;
         public int floorNum = 1;
@@ -28,7 +28,7 @@ public class mapMaker : MonoBehaviour
     }
 
     [System.Serializable]
-    class SerializedLIST
+    public class SerializedLIST
     {
         public List<TileList> maps = new List<TileList>();
     }
@@ -77,7 +77,7 @@ public class mapMaker : MonoBehaviour
                     currentTile = new tileSet();
                     target = Instantiate(tilePrefab, pos, Quaternion.identity);
                     target.name = tileList.map.Count.ToString();
-                    target.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/dark/long/move/6/0");
+                    target.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/water/long/move/6/0");
                     Debug.Log("몬스터 속성을 지정해 주세요: [d]ark, [f]ire, [g]low, gras[s], [w]ater");
                     Debug.Log("몬스터 종류를 지정해 주세요: [l]ong, shor[t], [b]oss");
                     Debug.Log("Enter 키 입력 시 지정된 몬스터가 추가됩니다.");
@@ -278,6 +278,5 @@ public class mapMaker : MonoBehaviour
 
         }
         initMap();
-
     }
 }

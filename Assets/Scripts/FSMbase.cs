@@ -53,6 +53,11 @@ public class FSMbase : MonoBehaviour
             case type.player: attackRange = 2f; break;
         }
     }
+    public void setTypeName(int t, string n) {
+        myType = (type)t;
+        name = n;
+    
+    }
     public virtual void initAnim() {
         if (myType == 0)
         {

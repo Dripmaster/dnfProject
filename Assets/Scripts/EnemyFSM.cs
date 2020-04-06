@@ -8,7 +8,6 @@ public class EnemyFSM : FSMbase
     float speedRate;
     int degree;
     Rigidbody2D RBD;
-    Transform player;
     Vector2 moveDir;
     BoxCollider2D _Colider;
     float tempDelay;
@@ -19,11 +18,11 @@ public class EnemyFSM : FSMbase
     void Awake()
     {
         base.Awake();
-        player = GameObject.Find("player").transform;
         RBD = GetComponent<Rigidbody2D>();
         DamageReceiver.addEnemy(this);
         _Colider = GetComponent<BoxCollider2D>();
         damageTextGen = transform.Find("enemyCanvas/TextGen").GetComponent<RectTransform>();
+        gameObject.SetActive(false);
     }
     void Update()
     {
@@ -74,25 +73,25 @@ public class EnemyFSM : FSMbase
 
     void knockBack() {
         moveDir = Vector2.zero;
-        moveDir = (player.position - transform.position).normalized;
+        moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
         RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * -1*Time.deltaTime/2);
     }
 
     void lookPlayer()
     {
         moveDir = Vector2.zero;
-        moveDir = (player.position - transform.position).normalized;
+        moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
 
         degree = (Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45 +1);
         _anim.setDir(degree);
     }
 
     void moveEnemy() {
-        if (Vector2.Distance(player.position, transform.position) <= attackRange)
+        if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= attackRange)
             return;
 
         moveDir = Vector2.zero;
-        moveDir = (player.position - transform.position).normalized;
+        moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
 
         degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
         _anim.setDir(degree);
@@ -103,7 +102,7 @@ public class EnemyFSM : FSMbase
     bool detectPlayer() {
         if (!attackAllow)
             return false;
-        if (Vector2.Distance(player.position, transform.position) <= attackRange)
+        if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= attackRange)
             return true;
 
         return false;

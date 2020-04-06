@@ -6,13 +6,32 @@ public static class DamageReceiver
 {
     static playerFSM player;
     static List<EnemyFSM> enemys;
-
+    static bool enemyRemain = true;
     public static void addEnemy(EnemyFSM e) {
         if (enemys == null)
             enemys = new List<EnemyFSM>();
         enemys.Add(e);
     }
-
+    public static bool isEnemyRemain()
+    {
+        int count = 0;
+        if (enemys != null) {
+            foreach (EnemyFSM e in enemys) {
+                if (e.gameObject.activeInHierarchy == true) {
+                    count++;
+                    break;
+                }
+            }
+            if (count == 0)
+            {
+                enemyRemain = false;
+            }
+            else {
+                enemyRemain = true;
+            }
+        }
+        return enemyRemain;
+    }
     public static void addPlayer(playerFSM p) {
         player = p;
     }
@@ -26,13 +45,12 @@ public static class DamageReceiver
             enemys = new List<EnemyFSM>();
         for (int i = 0; i < enemys.Count; i++)
         {
-            if (!enemys[i].isDead()&& isColMonster(enemys[i].transform.position))
+            if (!enemys[i].isDead() && isColMonster(enemys[i].transform.position))
             {
-                enemys[i].hitted(attackPoint);
+                enemys[i].hitted(attackPoint*50f);
                 showHitEffect(enemys[i].getCol());
-                EffectManager.AddDamage(attackPoint, enemys[i].transform.position,enemys[i].getDamageTextGen());
+                EffectManager.AddDamage(attackPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
             }
-            
         }
     }
     static bool isColMonster(Vector2 ePos) {

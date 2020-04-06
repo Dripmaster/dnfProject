@@ -6,6 +6,7 @@ using UnityEditor;
 
 public class playerFSM : FSMbase
 {
+    public static playerFSM instance;
     public float attackAngle = 50f;
     public float attackSpeed = 0.5f;
     public Vector2 attackfan;//에디터전용
@@ -25,12 +26,12 @@ public class playerFSM : FSMbase
     int movecount = 0;
     BoxCollider2D _Colider;
     GameObject myAlert;
-    myParticle ps;
-
+    
     // Use this for initialization
     void Awake()
     {
         base.Awake();
+        instance = this;
         dashEffects = GameObject.FindGameObjectsWithTag("dashPaticles");
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
@@ -45,9 +46,9 @@ public class playerFSM : FSMbase
         DamageReceiver.addPlayer(this);
         myAlert = GameObject.Find("noHp");
         myAlert.SetActive(false);
-        ps = dashEffects[0].transform.parent.GetComponentInChildren<myParticle>();
-        ps.Stop();
-        ps.setSr(GetComponent<SpriteRenderer>());
+
+        myParticle.instance.Stop();
+        myParticle.instance.setSr(GetComponent<SpriteRenderer>());
 
     }
     private void OnEnable()
@@ -290,7 +291,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator dashTimer() {
         dashState = true;
-        ps.Play();
+        myParticle.instance.Play();
         Physics2D.IgnoreLayerCollision(8,9);
         Physics2D.IgnoreLayerCollision(8,10);
         for (int i= 0; i < 5; i++) { 
@@ -298,7 +299,7 @@ public class playerFSM : FSMbase
             yield return new WaitForSeconds(0.02f);
         }
         dashDir = Vector2.zero;
-        ps.Stop();
+        myParticle.instance.Stop();
         Physics2D.IgnoreLayerCollision(8, 9,false);
         Physics2D.IgnoreLayerCollision(8, 10,false);
         dashState = false;
