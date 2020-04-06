@@ -46,10 +46,6 @@ public class playerFSM : FSMbase
         DamageReceiver.addPlayer(this);
         myAlert = GameObject.Find("noHp");
         myAlert.SetActive(false);
-
-        myParticle.instance.Stop();
-        myParticle.instance.setSr(GetComponent<SpriteRenderer>());
-
     }
     private void OnEnable()
     {
@@ -58,6 +54,8 @@ public class playerFSM : FSMbase
         {
             _anim.initAnims("attack/" + i);
         }
+        myParticle.instance.Stop();
+        myParticle.instance.setSr(GetComponent<SpriteRenderer>());
     }
 
 
