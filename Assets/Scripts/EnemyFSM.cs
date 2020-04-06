@@ -210,6 +210,7 @@ public class EnemyFSM : FSMbase
             {
                 gameObject.SetActive(false);
                 _anim.speed = 1f;
+                LevelManager.instance.checkEnemy();
                 break;
             }
             yield return null;

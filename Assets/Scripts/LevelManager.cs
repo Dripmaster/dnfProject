@@ -5,7 +5,7 @@ using System.IO;
 
 public class LevelManager : MonoBehaviour
 {
-
+    public static LevelManager instance;
     mapMaker.SerializedLIST MapList;
     mapMaker.TileList tileList;
     public int mapNum;
@@ -18,6 +18,7 @@ public class LevelManager : MonoBehaviour
     bool isPause;
     void Awake()
     {
+        instance = this;
         mapObject = GameObject.FindGameObjectsWithTag("map");
         enemyPrefab = Resources.Load<GameObject>("prefabs/enemy");
         loadTileList();
@@ -33,17 +34,28 @@ public class LevelManager : MonoBehaviour
     {
         if (isError||isPause)
             return;
-        if (DamageReceiver.isEnemyRemain()==false&& mapChangeFrame()) {
+    }
+    public void checkEnemy() {
+        if (DamageReceiver.isEnemyRemain() == false && mapChangeFrame())
+        {
             floorNum++;
             loadMap();
-            isPause = true;
-            StartCoroutine(pause());
+            if (!isError)
+            {
+                isPause = true;
+                StartCoroutine(pause());
+            }
         }
     }
     IEnumerator pause() {
         yield return new WaitForSeconds(1.5f);
         currentMap = ++currentMap % 2;
         isPause = false;
+        do {
+            yield return null;
+        } while (!mapChangeFrame());
+        Physics2D.IgnoreLayerCollision(8, 11, false);
+        setEnemy();
     }
     bool mapChangeFrame() {
         if (Vector3.zero == mapObject[currentMap].transform.position)
@@ -58,8 +70,6 @@ public class LevelManager : MonoBehaviour
         {
             mapObject[currentMap].transform.position = Vector2.zero;
             mapObject[(currentMap + 1) % 2].transform.position = new Vector2(0, -20);
-            Physics2D.IgnoreLayerCollision(8, 11, false);
-            setEnemy();
             return true;
         }
         return false;
