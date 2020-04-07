@@ -44,6 +44,22 @@ public class EnemyFSM : FSMbase
         tempDelay = 0f;
         attackAllow = true;
         setHpBar();
+        setColider();
+    }
+    void setColider() {
+        switch (myType)
+        {
+            case type.boss:
+                _Colider.size = new Vector2(1.3f, 1.3f);
+                _Colider.offset = new Vector2(0, 0);
+                break;
+            case type.Long:
+            case type.Short:
+                _Colider.size = new Vector2(0.34f, 0.31f);
+                _Colider.offset = new Vector2(0, -0.13f);
+                break;
+            default: break;
+        }
     }
     void setHpBar() {
         switch (myType)
@@ -51,11 +67,21 @@ public class EnemyFSM : FSMbase
             case type.boss:
                 hpFrame.sprite = SLM.getSpr("image/enemy/bossFrame");
                 hpBar.sprite = SLM.getSpr("image/enemy/bossHp");
+                damageTextGen.anchoredPosition = new Vector2(0,14);
+                hpFrame.rectTransform.anchoredPosition = new Vector2(0,13.89f);
+                hpBar.rectTransform.anchoredPosition = new Vector2(0,13.89f);
+                attackBar.rectTransform.anchoredPosition = new Vector2(0,11.53f);
+                attackFrame.rectTransform.anchoredPosition = new Vector2(0,11.53f);
                 break;
             case type.Long:
             case type.Short:
                 hpFrame.sprite = SLM.getSpr("image/enemy/frame");
                 hpBar.sprite = SLM.getSpr("image/enemy/hp");
+                damageTextGen.anchoredPosition = new Vector2(0, 4.5f);
+                hpFrame.rectTransform.anchoredPosition = new Vector2(0, 4.46f);
+                hpBar.rectTransform.anchoredPosition = new Vector2(0, 4.46f);
+                attackBar.rectTransform.anchoredPosition = new Vector2(0, 3.66f);
+                attackFrame.rectTransform.anchoredPosition = new Vector2(0, 3.66f);
                 break;
             default: break;
         }

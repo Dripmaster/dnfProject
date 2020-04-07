@@ -26,6 +26,7 @@ public class playerFSM : FSMbase
     int movecount = 0;
     BoxCollider2D _Colider;
     public GameObject myAlert;
+    bool isFreeze = false;
 
     // Use this for initialization
     new void Awake()
@@ -74,7 +75,19 @@ public class playerFSM : FSMbase
             }
         }
     }
+    public void playerFreeze(bool condition = true) {
+        if (condition)
+        {
+            isFreeze = true;
+        }
+        else {
+            isFreeze = false;
+        }
+    
+    }
     bool dashPlayer() {//dash페이즈 체크
+        if (dashState)
+            return false;
         if (Input.GetKeyDown(KeyCode.LeftShift)) {
             canDash = 3;
             dashDir.x = 0;
@@ -102,76 +115,12 @@ public class playerFSM : FSMbase
             }
             return true;
         }
-        /*if (dashState)
-            return false;
-        if (canDash == 0)
-        {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                canDash = 1;
-                checkDashTimeTemp = checkDashTime;
-                downKey = KeyCode.LeftArrow;
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                canDash = 1;
-                checkDashTimeTemp = checkDashTime;
-                downKey = KeyCode.RightArrow;
-            }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                canDash = 1;
-                checkDashTimeTemp = checkDashTime;
-                downKey = KeyCode.UpArrow;
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                canDash = 1;
-                checkDashTimeTemp = checkDashTime;
-                downKey = KeyCode.DownArrow;
-            }
-        }
-        else if (canDash == 1) {
-            if (Input.GetKeyUp(downKey))
-            {
-                canDash = 2;
-            }
-        }
-        else if (canDash == 2)
-        {
-            if (Input.GetKeyDown(downKey))
-            {
-                canDash = 3;
-                dashDir.x = 0;
-                dashDir.y = 0;
-                movecount = 0;
-                if (Input.GetKey(KeyCode.LeftArrow))
-                {
-                    movecount++;
-                    dashDir.x += -1;
-                }
-                if (Input.GetKey(KeyCode.RightArrow))
-                {
-                    dashDir.x += 1;
-                    movecount++;
-                }
-                if (Input.GetKey(KeyCode.UpArrow))
-                {
-                    dashDir.y += 1;
-                    movecount++;
-                }
-                if (Input.GetKey(KeyCode.DownArrow))
-                {
-                    dashDir.y += -1;
-                    movecount++;
-                }
-                return true;
-            }
-        }*/
         return false;
     }
     bool movePlayer()
     {
+        if (isFreeze)
+            return false;
         Vector2 moveDir = new Vector2(0, 0);
         if (!dashState)
             movecount = 0;
@@ -243,6 +192,8 @@ public class playerFSM : FSMbase
     }
     bool attackInput()
     {
+        if (dashState || isFreeze)
+            return false;
         if (Input.GetKey(KeyCode.Space))
         {
             RBD.velocity = Vector2.zero;
@@ -314,7 +265,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator move()
     {
-        _anim.setSpeed(1f);
+        _anim.setSpeed(0.5f);
         do
         {
             yield return null;
@@ -331,7 +282,10 @@ public class playerFSM : FSMbase
             else
             {
                 if (!movePlayer())
+                {
+                    _anim.setSpeed(1f);
                     setState(State.idle);
+                }
             }
         } while (!newState);
     }

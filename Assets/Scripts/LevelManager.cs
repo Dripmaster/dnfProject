@@ -14,8 +14,6 @@ public class LevelManager : MonoBehaviour
     bool isError = false;
     public GameObject[] mapObject;
     int currentMap = 0;
-    // Start is called before the first frame update
-    bool isPause;
     void Awake()
     {
         instance = this;
@@ -29,16 +27,9 @@ public class LevelManager : MonoBehaviour
             case 2: mapObject[1].transform.position = new Vector2(-20, 0); break;
 
         }
-        isPause = false;
         //mapObject[1].SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (isError||isPause)
-            return;
-    }
     public void checkEnemy() {
         if (DamageReceiver.isEnemyRemain() == false && mapChangeFrame())
         {
@@ -46,25 +37,25 @@ public class LevelManager : MonoBehaviour
             loadMap();
             if (!isError)
             {
-                isPause = true;
                 StartCoroutine(pause());
             }
         }
     }
     IEnumerator pause() {
+        playerFSM.instance.playerFreeze();
         yield return new WaitForSeconds(1.5f);
         currentMap = ++currentMap % 2;
-        isPause = false;
+        Physics2D.IgnoreLayerCollision(8, 11);
         do {
             yield return null;
         } while (!mapChangeFrame());
         Physics2D.IgnoreLayerCollision(8, 11, false);
+        playerFSM.instance.playerFreeze(false);
         setEnemy();
     }
     bool mapChangeFrame() {
         if (Vector3.zero == mapObject[currentMap].transform.position)
             return true;
-        Physics2D.IgnoreLayerCollision(8, 11);
         Vector3 moveDir = Vector3.Lerp(mapObject[currentMap].transform.position,Vector2.zero,Time.deltaTime*2.5f);
 
         mapObject[(currentMap+1)%2].transform.position += moveDir - mapObject[currentMap].transform.position;
@@ -77,7 +68,6 @@ public class LevelManager : MonoBehaviour
                 case 0: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(0, -20);break;
                 case 1: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(20, 0);break;
                 case 2: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(-20, 0);break;
-
             }
             return true;
         }
