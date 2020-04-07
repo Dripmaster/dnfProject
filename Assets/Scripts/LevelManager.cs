@@ -10,17 +10,15 @@ public class LevelManager : MonoBehaviour
     mapMaker.TileList tileList;
     public int mapNum;
     public int floorNum;
-    GameObject enemyPrefab;
+    public GameObject enemyPrefab;
     bool isError = false;
-    GameObject[] mapObject;
+    public GameObject[] mapObject;
     int currentMap = 0;
     // Start is called before the first frame update
     bool isPause;
     void Awake()
     {
         instance = this;
-        mapObject = GameObject.FindGameObjectsWithTag("map");
-        enemyPrefab = Resources.Load<GameObject>("prefabs/enemy");
         loadTileList();
         loadMap();
         setEnemy();

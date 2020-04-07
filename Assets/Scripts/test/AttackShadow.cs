@@ -12,18 +12,24 @@ public class AttackShadow : MonoBehaviour
     public float speed;
     public Vector2 startScale;
 
-    void Start()
+    private void Awake()
     {
         sr = gameObject.GetComponent<SpriteRenderer>();
         sr.enabled = false;
         parent = transform.parent.GetComponent<SpriteRenderer>();
-        print(parent.sprite);
+    }
+    void OnEnable()
+    {
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (sr.enabled == false && Input.GetKeyDown(KeyCode.X))
+        
+    }
+    public void doEffect() {
+        if (sr.enabled == false)
         {
             sr.sprite = parent.sprite;
             sr.color = new Color(255, 255, 255, 0.3f);
@@ -31,6 +37,7 @@ public class AttackShadow : MonoBehaviour
             sr.enabled = true;
             StartCoroutine("RunEffect");
         }
+
     }
 
     IEnumerator RunEffect()

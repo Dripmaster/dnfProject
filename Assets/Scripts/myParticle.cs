@@ -6,7 +6,7 @@ public class myParticle : MonoBehaviour
 {
     public static myParticle instance;
     bool isPlaying = false;
-    GameObject particlePrefab;
+    public GameObject particlePrefab;
     SpriteRenderer sr;
     SpriteRenderer playersr;
     List<GameObject> particles;
@@ -15,7 +15,6 @@ public class myParticle : MonoBehaviour
     {
         instance = this;
         particles = new List<GameObject>();
-        particlePrefab = Resources.Load<GameObject>("prefabs/TrailParticle");
     }
     private void OnEnable()
     {

@@ -102,13 +102,20 @@ public class myAnimator : MonoBehaviour
             return (animNum >= (sprLength- about)) || isEnded;
         //return (animNum >= sprLength - about-1); 
     }
-    public void Pause() {
+    public void Pause(bool init = true) {
         aniPause = true;
-        animNum = sprLength - 1;
-        if (hasDir)
-            sprUptate();
-        else
-            sprUptate_None();
+        if (init)
+        {
+            animNum = sprLength - 1;
+            if (hasDir)
+                sprUptate();
+            else
+                sprUptate_None();
+        }
+    }
+    public void reOn()
+    {
+        aniPause = false;
     }
     public void setSpeed(float spd) {
         speed = spd;

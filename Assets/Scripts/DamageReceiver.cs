@@ -36,7 +36,6 @@ public static class DamageReceiver
         player = p;
     }
     public static void playerHit(float attackPoint) {
-        
         player.hitted(attackPoint);
     }
 

@@ -22,17 +22,16 @@ public class playerFSM : FSMbase
     bool dashState = false;
     KeyCode downKey;
     Vector2 dashDir;
-    GameObject[] dashEffects;
+    public GameObject[] dashEffects;
     int movecount = 0;
     BoxCollider2D _Colider;
-    GameObject myAlert;
+    public GameObject myAlert;
 
     // Use this for initialization
     new void Awake()
     {
         base.Awake();
         instance = this;
-        dashEffects = GameObject.FindGameObjectsWithTag("dashPaticles");
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
         dashDir = new Vector2(0, 0);
@@ -44,7 +43,6 @@ public class playerFSM : FSMbase
         _Colider = GetComponent<BoxCollider2D>();
         attackfan = new Vector2(0, -1);
         DamageReceiver.addPlayer(this);
-        myAlert = GameObject.Find("noHp");
         myAlert.SetActive(false);
     }
     new private void OnEnable()
@@ -57,8 +55,6 @@ public class playerFSM : FSMbase
         myParticle.instance.Stop();
         myParticle.instance.setSr(GetComponent<SpriteRenderer>());
     }
-
-
     void Update() {
         dashCount();
     }
@@ -276,7 +272,7 @@ public class playerFSM : FSMbase
             }
             if (attackInput())
             {
-                _anim.speed = attackSpeed;
+                _anim.setSpeed(attackSpeed);
                 setState(State.attack,atkNum);
             }
             else
@@ -311,13 +307,14 @@ public class playerFSM : FSMbase
             if (_anim.isEnd())
             {
                 _anim.Pause();
-                _anim.speed = 1f;
+                _anim.setSpeed(1f);
                 break;
             }
         } while (!newState);
     }
     IEnumerator move()
     {
+        _anim.setSpeed(1f);
         do
         {
             yield return null;
@@ -328,7 +325,7 @@ public class playerFSM : FSMbase
             }
             if (!dashState&&attackInput())
             {
-                _anim.speed = attackSpeed;
+                _anim.setSpeed(attackSpeed);
                 setState(State.attack,atkNum);
             }
             else
@@ -336,7 +333,6 @@ public class playerFSM : FSMbase
                 if (!movePlayer())
                     setState(State.idle);
             }
-            
         } while (!newState);
     }
     IEnumerator attack()
@@ -388,7 +384,7 @@ public class playerFSM : FSMbase
                     setState(State.attack, atkNum);
                 else
                 {
-                    _anim.speed = 1;
+                    _anim.setSpeed(1);
                     setState(State.idle);
                 }
             }

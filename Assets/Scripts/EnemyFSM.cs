@@ -12,17 +12,25 @@ public class EnemyFSM : FSMbase
     BoxCollider2D _Colider;
     float tempDelay;
     bool attackAllow;
-    RectTransform damageTextGen;
-    Image hpBar;
+    public RectTransform damageTextGen;
+    public Image hpFrame;
+    public Image hpBar;
+    public Image attackFrame;
+    public Image attackBar;
+    public float attackStopTime = 0.2f;
+    public GameObject doEffect1;
+    public GameObject doEffect2;
+    
 
     new void Awake()
     {
         base.Awake();
         RBD = GetComponent<Rigidbody2D>();
         DamageReceiver.addEnemy(this);
-        _Colider = GetComponent<BoxCollider2D>();
-        damageTextGen = transform.Find("enemyCanvas/TextGen").GetComponent<RectTransform>(); 
+        _Colider = GetComponent<BoxCollider2D>(); 
         gameObject.SetActive(false);
+        attackBar.gameObject.SetActive(false);
+        attackFrame.gameObject.SetActive(false);
     }
     void Update()
     {
@@ -40,21 +48,22 @@ public class EnemyFSM : FSMbase
     void setHpBar() {
         switch (myType)
         {
-            case type.boss: transform.Find("enemyCanvas/hpFrame").GetComponent<Image>().sprite = SLM.getSpr("image/enemy/bossFrame");
-                hpBar = transform.Find("enemyCanvas/hpValue").GetComponent<Image>();
+            case type.boss:
+                hpFrame.sprite = SLM.getSpr("image/enemy/bossFrame");
                 hpBar.sprite = SLM.getSpr("image/enemy/bossHp");
                 break;
             case type.Long:
             case type.Short:
-                transform.Find("enemyCanvas/hpFrame").GetComponent<Image>().sprite = SLM.getSpr("image/enemy/frame");
-                hpBar = transform.Find("enemyCanvas/hpValue").GetComponent<Image>();
+                hpFrame.sprite = SLM.getSpr("image/enemy/frame");
                 hpBar.sprite = SLM.getSpr("image/enemy/hp");
                 break;
             default: break;
         }
-        transform.Find("enemyCanvas/hpFrame").GetComponent<Image>().SetNativeSize();
+        hpFrame.SetNativeSize();
         hpBar.SetNativeSize();
         hpBar.fillAmount = 1;
+        hpFrame.gameObject.SetActive(false);
+        hpBar.gameObject.SetActive(false);
     }
     public bool isDead() {
         if (hp <= 0)
@@ -107,7 +116,12 @@ public class EnemyFSM : FSMbase
 
         return false;
     }
-    public void hitted(float damage) {       
+    public void hitted(float damage) {
+        if (hp == maxHp) {
+            hpFrame.gameObject.SetActive(true);
+            hpBar.gameObject.SetActive(true);
+
+        }
         if (hp <= 0)
         {
             return;
@@ -157,28 +171,40 @@ public class EnemyFSM : FSMbase
                 b.gameObject.SetActive(true);
             }
         }
-        
     }
 
     IEnumerator attack()
     {
-        bool _animEnd = false;
-        
+        attackBar.gameObject.SetActive(true);
+        attackFrame.gameObject.SetActive(true);
+        attackBar.fillAmount = 0;
         bool doneAttack = false;
         do
         {
             _anim.setSpeed(1);
             lookPlayer();
-            if (_anim.isEnd(1) && !doneAttack)
+            
+            if (_anim.animNum==6 && !doneAttack)
             {
+                _anim.Pause(false);
+                doEffect1.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
+                doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
+                float tempTime = 0f;
+                do {
+                    attackBar.fillAmount = tempTime/ attackStopTime;
+                    yield return new WaitForSeconds(attackStopTime/10);
+                    tempTime += attackStopTime / 10f;
+                    if (tempTime >= attackStopTime)
+                        break;
+                } while(true);
+                _anim.reOn();
                 if (myType != type.Short)
                     spawnBullet();
                 else if(detectPlayer() && objectState == State.attack)
                     DamageReceiver.playerHit(attackPoint);
-                _animEnd = true;
                 doneAttack = true;
             }
-            if (_animEnd)
+            if (_anim.isEnd(1))
             {
                 setState(State.move);
                 attackAllow = false;
@@ -186,7 +212,8 @@ public class EnemyFSM : FSMbase
             }
             yield return null;
         } while (!newState);
-
+        attackFrame.gameObject.SetActive(false);
+        attackBar.gameObject.SetActive(false);
     }
     IEnumerator hited()
     {
@@ -219,7 +246,7 @@ public class EnemyFSM : FSMbase
     }
     private void OnDrawGizmos()
     {
-        Handles.color = new Color(0, 0, 255, 0.2f);
+        Handles.color = new Color(255, 0, 0, 0.2f);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90 / 2, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
     }
