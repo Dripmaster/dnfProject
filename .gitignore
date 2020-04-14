@@ -59,5 +59,4 @@ sysinfo.txt
 crashlytics-build.properties
 
 # DataFile
-invenData.json
-invenData.json.meta
+/[Aa]ssets/Data/*

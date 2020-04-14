@@ -4,25 +4,16 @@ using UnityEngine;
 
 public class itemManager : MonoBehaviour
 {
-    public enum itemType { 
-    gold = 0,
-    darkMat,
-    fireMat,
-    glowMat,
-    grassMat,
-    waterMat,
-
-    };
+    
     public static itemManager instance;
     List<itemBase> itemList;
-    GameObject goldItemPrefab;
+    public GameObject goldItemPrefab;
     public Sprite[] effectImage;
     // Start is called before the first frame update
     void Awake()
     {
         instance = this;
         itemList = new List<itemBase>();
-        goldItemPrefab = Resources.Load<GameObject>("prefabs/item/goldItem");
     }
     public void itemGenerate(Vector2 pos,itemType type) {
         itemBase item = null;
@@ -50,14 +41,14 @@ public class itemManager : MonoBehaviour
         switch (type) {
             case itemType.gold:
                 EffectManager.getEffect(playerFSM.instance.transform.position).setImage(effectImage[0]);
-                playerDataManager.instance.addGold();
+                playerDataManager.instance.addGold(10);
                 break;
             case itemType.darkMat:
             case itemType.fireMat:
             case itemType.glowMat:
             case itemType.grassMat:
             case itemType.waterMat:
-                playerDataManager.instance.addItem((int)type);
+                playerDataManager.instance.addItem(type);
                 break;
             default:break;
         
