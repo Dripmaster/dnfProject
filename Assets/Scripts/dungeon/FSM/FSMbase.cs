@@ -5,23 +5,7 @@ using System;
 
 public class FSMbase : MonoBehaviour
 {
-    public enum State
-    {
-        idle = 0,
-        move,
-        attack,
-        dead,
-        skill,
-        hited,
-    };
-    public enum type
-    {
-        player = 0,
-        Long,
-        Short,
-        boss,
-
-    };
+    
     public State objectState;
     public myAnimator _anim;
     public bool newState;

@@ -168,8 +168,8 @@ public class EnemyFSM : FSMbase
         }
     }
     void itemGen() {
-            itemManager.instance.itemGenerate(transform.position,itemManager.itemType.gold);
-        itemManager.itemType t = (itemManager.itemType)System.Enum.Parse(typeof(itemManager.itemType), name + "Mat");
+            itemManager.instance.itemGenerate(transform.position,itemType.gold);
+        itemType t = (itemType)System.Enum.Parse(typeof(itemType), name + "Mat");
         //TODO: 랜덤으로 나오게
 
         if (myType == type.boss) { 

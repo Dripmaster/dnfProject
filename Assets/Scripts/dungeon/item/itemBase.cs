@@ -12,7 +12,7 @@ public class itemBase : MonoBehaviour
     float tempY;
     float veloX;
     bool downs = true;
-    itemManager.itemType type;
+    itemType type;
     private void OnEnable()
     {
         targetOn = false;
@@ -45,7 +45,7 @@ public class itemBase : MonoBehaviour
             if (velo < 0 && transform.position.y - tempY <= 0.1f)
             {
                 downs = false;
-                if (type != itemManager.itemType.gold) {
+                if (type != itemType.gold) {
                     targetOn = true;
                 }
             }
@@ -63,15 +63,15 @@ public class itemBase : MonoBehaviour
     public void itemEvent() {
         itemManager.instance.itemEvent(type);
     }
-    public void setAnim(itemManager.itemType itemType) {
+    public void setAnim(itemType itemType) {
         type = itemType;
         switch (itemType) {
-            case itemManager.itemType.gold:_anim.SetTrigger("goldAnim");break;
-            case itemManager.itemType.darkMat:_anim.SetTrigger("darkMat");break;
-            case itemManager.itemType.fireMat:_anim.SetTrigger("fireMat");break;
-            case itemManager.itemType.glowMat:_anim.SetTrigger("glowMat");break;
-            case itemManager.itemType.grassMat: _anim.SetTrigger("grassMat");break;
-            case itemManager.itemType.waterMat: _anim.SetTrigger("waterMat");break;
+            case itemType.gold:_anim.SetTrigger("goldAnim");break;
+            case itemType.darkMat:_anim.SetTrigger("darkMat");break;
+            case itemType.fireMat:_anim.SetTrigger("fireMat");break;
+            case itemType.glowMat:_anim.SetTrigger("glowMat");break;
+            case itemType.grassMat: _anim.SetTrigger("grassMat");break;
+            case itemType.waterMat: _anim.SetTrigger("waterMat");break;
             default:break;
         }
     
