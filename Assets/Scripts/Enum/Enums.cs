@@ -16,6 +16,14 @@ public enum State
     skill,
     hited,
 };
+public enum mapType
+{
+    dark = 0,
+    fire,
+    glow,
+    grass,
+    water,
+};
 public enum type
 {
     player = 0,

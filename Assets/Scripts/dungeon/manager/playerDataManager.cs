@@ -150,15 +150,15 @@ public class playerDataManager : MonoBehaviour
     public bool hasTutoClear() {
         return progress.tutorialClear;
     }
-    public int getMapProgress(int mapNum) {
-        return progress.floorProgress[mapNum];
+    public int getMapProgress(mapType mapNum) {
+        return progress.floorProgress[(int)mapNum];
     }
     public void setTutoClear(bool value) {
         progress.tutorialClear = value;
         SaveProgress();
     }
-    public void setMapProgress(int mapNum,int value) {
-        progress.floorProgress[mapNum] = value;
+    public void setMapProgress(mapType mapNum,int value) {
+        progress.floorProgress[(int)mapNum] = value;
         SaveProgress();
     }
 }
