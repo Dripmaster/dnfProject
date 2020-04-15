@@ -10,7 +10,7 @@ public class mapMaker : MonoBehaviour
     [System.Serializable]
     public class tileSet {
         
-        public int type = 1; // player long short boss
+        public int type = 4; // bigSword, sowrd, Hammer, long short boss
         public string name = "dark"; // bigSword, sowrd, Hammer, dark, fire, glow, grass, water
         public Vector2 pos;
         public int id;
@@ -122,19 +122,19 @@ public class mapMaker : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.L))
         {
-            currentTile.type = 1;
+            currentTile.type = 4;
             setTileToObject();
 
         }
         if (Input.GetKeyDown(KeyCode.T))
         {
-            currentTile.type = 2;
+            currentTile.type = 5;
             setTileToObject();
 
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            currentTile.type = 3;
+            currentTile.type =6;
             setTileToObject();
 
         }
@@ -198,9 +198,9 @@ public class mapMaker : MonoBehaviour
             string type = null;
             switch (currentTile.type)
             {
-                case 1: type = "long"; break;
-                case 2: type = "short"; break;
-                case 3: type = "boss"; break;
+                case 4: type = "long"; break;
+                case 5: type = "short"; break;
+                case 6: type = "boss"; break;
             }
             target.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/" + currentTile.name + "/" + type + "/move/6/0");
         }

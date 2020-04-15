@@ -67,9 +67,9 @@ public static class DamageReceiver
             enemys = new List<EnemyFSM>();
         for (int i = 0; i < enemys.Count; i++)
         {
-            if (!enemys[i].isDead() && isColMonster(enemys[i].transform.position))
+            if (!enemys[i].isDead() && isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position)))
             {
-                enemys[i].hitted(attackPoint*50f);
+                enemys[i].hitted(attackPoint);
                 showHitEffect(enemys[i].getCol());
                 EffectManager.AddDamage(attackPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
             }

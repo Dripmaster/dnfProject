@@ -387,9 +387,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectState: 0
-  _anim: {fileID: 0}
+  _anim: {fileID: 2968487413014801248}
   newState: 0
-  name: water
   myType: 2
   attackRange: 1
   damageTextGen: {fileID: 2953193787720868969}

@@ -122,7 +122,7 @@ public class EnemyFSM : FSMbase
     }
 
     void moveEnemy() {
-        if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= attackRange)
+        if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= 1f)
             return;
 
         moveDir = Vector2.zero;
@@ -139,7 +139,7 @@ public class EnemyFSM : FSMbase
             return false;
         if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= attackRange)
             return true;
-
+        
         return false;
     }
     public void hitted(float damage) {
@@ -152,7 +152,7 @@ public class EnemyFSM : FSMbase
         {
             return;
         }
-
+        if(!__hpFix)
         hp -= damage;
         hpBar.fillAmount = hp / maxHp;
         if (hp <= 0)
@@ -215,9 +215,7 @@ public class EnemyFSM : FSMbase
 
     IEnumerator attack()
     {
-        attackBar.gameObject.SetActive(true);
-        attackFrame.gameObject.SetActive(true);
-        attackBar.fillAmount = 0;
+        
         bool doneAttack = false;
         do
         {
@@ -227,6 +225,9 @@ public class EnemyFSM : FSMbase
             if (_anim.animNum==6 && !doneAttack)
             {
                 _anim.Pause(false);
+                attackBar.gameObject.SetActive(true);
+                attackFrame.gameObject.SetActive(true);
+                attackBar.fillAmount = 0;
                 doEffect1.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
                 doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
                 float tempTime = 0f;

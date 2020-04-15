@@ -115,7 +115,7 @@ public static class EffectManager
             g = GameObject.Instantiate(damagePrefab, pos, Quaternion.identity);
         }
         g.transform.SetParent(damageTextGen.parent, false);
-        g.GetComponent<Text>().text = atkPoint.ToString("00");
+        g.GetComponent<Text>().text = atkPoint.ToString("0");
         g.transform.localPosition = damageTextGen.localPosition;
         g.gameObject.SetActive(true);
         DagmageList.Add(g);

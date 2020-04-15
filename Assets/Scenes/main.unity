@@ -776,13 +776,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectState: 0
-  _anim: {fileID: 0}
+  _anim: {fileID: 928876953}
   newState: 0
-  name: sword
-  myType: 0
+  myType: 2
   attackRange: 2
   attackAngle: 150
-  attackSpeed: 0.3
+  __hpFix: 0
   attackfan: {x: 0, y: 0}
   checkDashTime: 0.5
   dashRate: 500

@@ -26,7 +26,9 @@ public enum mapType
 };
 public enum type
 {
-    player = 0,
+    Sword = 1,
+    Hammer,
+    BigSword,
     Long,
     Short,
     boss,

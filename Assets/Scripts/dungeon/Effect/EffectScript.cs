@@ -5,7 +5,7 @@ using UnityEngine;
 public class EffectScript : MonoBehaviour
 {
     protected myAnimator _anim;
-    float deleteTime = 1f;
+    float deleteTime = 0.5f;
     bool StartDelete;
     float tempTime;
     SpriteRenderer sr;

@@ -13,38 +13,39 @@ public class FSMbase : MonoBehaviour
     protected float maxHp;
     protected float hp;
     protected float attackPoint;
-    public new string name;
+    protected new string name;
     public type myType;
     public float attackRange;
     protected float moveSpeed = 5;
     protected float attackDelay = 2.0f;
-
+    protected float attackSpeed = 0.5f;
+    public float attackAngle = 50f;
+    public bool __hpFix = false;
     public void Awake()
     {
         objectState = State.idle;
+        if(_anim == null)
         _anim = GetComponent<myAnimator>();
     }
     public void init_Stat() {
-        maxHp = 1000; //나중엔 데이터로부터 받아오기
+        maxHp = DataSetManager.instance.loadFSMData(1,(int)myType);
+        attackPoint = DataSetManager.instance.loadFSMData(2,(int)myType);
+        attackRange = DataSetManager.instance.loadFSMData(3,(int)myType);
+        attackDelay = DataSetManager.instance.loadFSMData(4,(int)myType);
+        attackSpeed = DataSetManager.instance.loadFSMData(5,(int)myType);
+        moveSpeed = DataSetManager.instance.loadFSMData(6,(int)myType);
+        attackAngle = DataSetManager.instance.loadFSMData(7, (int)myType);
         hp = maxHp;
-        attackPoint = 50;//나중엔 데이터로부터 받아오기
-        attackDelay = 2f; //나중엔 데이터로부터 받아오기
-        switch (myType)
-        {
-            case type.Long: attackRange = 3; break;
-            case type.Short: attackRange = 1.1f; break;
-            case type.boss: attackRange = 4f; break;
-            case type.player: attackRange = 2f; break;
-        }
     }
     public void setTypeName(int t, string n) {
         myType = (type)t;
         name = n;
-
+        init_Stat();
     }
     public virtual void initAnim() {
-        if (myType == 0)
+        if ((int)myType <= 3)
         {
+            name = Enum.GetName(typeof(type), myType).ToLower();
             myPath = "player/" + name;
         }
         else {
@@ -57,7 +58,6 @@ public class FSMbase : MonoBehaviour
     {
         initAnim();
         setAnim();
-        init_Stat();
         StartCoroutine("FSMmain");
     }
 

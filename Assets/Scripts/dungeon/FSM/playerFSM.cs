@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEditor;
+using System;
 
 public class playerFSM : FSMbase
 {
     public static playerFSM instance;
-    public float attackAngle = 50f;
-    public float attackSpeed = 0.5f;
+    
     public Vector2 attackfan;//에디터전용
     float speedRate;
     int atkNum;
@@ -39,7 +39,6 @@ public class playerFSM : FSMbase
         speedRate = 100;
         atkNum = 0;
         checkDashTimeTemp = checkDashTime;
-        setState(State.idle);
         RBD = GetComponent<Rigidbody2D>();
         _Colider = GetComponent<BoxCollider2D>();
         attackfan = new Vector2(0, -1);
@@ -49,12 +48,15 @@ public class playerFSM : FSMbase
     new private void OnEnable()
     {
         base.OnEnable();
+        
+        myParticle.instance.Stop();
+        myParticle.instance.setSr(GetComponent<SpriteRenderer>());
+        init_Stat();
         for (int i = 1; i < 4; i++)
         {
             _anim.initAnims("attack/" + i);
         }
-        myParticle.instance.Stop();
-        myParticle.instance.setSr(GetComponent<SpriteRenderer>());
+        setState(State.idle);
     }
     void Update() {
         dashCount();
@@ -205,7 +207,8 @@ public class playerFSM : FSMbase
     public void hitted(float damage) {
         if (hp <= 0)
             return;
-        hp -= damage;
+        if (!__hpFix)
+            hp -= damage;
         myAlert.SetActive(true);
         if (hp <= 0) {
             setState(State.dead);
@@ -213,6 +216,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator idle()
     {
+        _anim.setSpeed(1);
         do
         {
             yield return null;
@@ -296,12 +300,12 @@ public class playerFSM : FSMbase
         bool doneAttack = false;//한번만 공격
         ////////////이펙트 생성 방향 (안맞는거는 수정예정)
         float rot;
-        if (name != "bigSword")
+        if (name != "bigsword")
             rot = -90;
         else
             rot = 0;
 
-        if (atkNum == 3 && name == "bigSword")
+        if (atkNum == 3 && name == "bigsword")
         {
             DamageReceiver.playerAttack(attackPoint);
             EffectScript es = EffectManager.getEffect(transform.position);
@@ -358,7 +362,7 @@ public class playerFSM : FSMbase
                     
                     EffectScript es = EffectManager.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
-                    es.initAni("effect/playerAttack/" + name + "/2", attackSpeed);
+                    es.initAni("effect/playerAttack/" + name + "/2", attackSpeed/2);
                     es.gameObject.SetActive(true);
 
                     secondAtk = false;
