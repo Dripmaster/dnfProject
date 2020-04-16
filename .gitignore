@@ -59,4 +59,5 @@ sysinfo.txt
 crashlytics-build.properties
 
 # DataFile
-/[Aa]ssets/Data/*
+/[Aa]ssets/Data/*.json
+/[Aa]ssets/Data/*.meta
