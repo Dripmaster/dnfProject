@@ -41,11 +41,11 @@ public class myAnimator : MonoBehaviour
     void sprUptate_None()
     {//state, 방향 필요 없음
         
-        sr.sprite = SLM.getSpr(string.Format(SLM.animPathFormat_NONE, animPath, animNum));
+        sr.sprite = SLM.instance.getSpr(string.Format(SLM.instance.animPathFormat_NONE, animPath, animNum));
     }
     void sprUptate() {
         
-        sr.sprite = SLM.getSpr(string.Format(SLM.animPathFormat, animPath, state, direction, animNum));
+        sr.sprite = SLM.instance.getSpr(string.Format(SLM.instance.animPathFormat, animPath, state, direction, animNum));
         
     }
     public void setPath(string aPath) {
@@ -55,7 +55,7 @@ public class myAnimator : MonoBehaviour
     public void setState(string stat) {
         state = stat;
         animNum = 0;
-        sprLength = SLM.countSprite(string.Format(SLM.animPathInitFormat, animPath, stat, direction));
+        sprLength = SLM.instance.countSprite(string.Format(SLM.instance.animPathInitFormat, animPath, stat, direction));
 
         if (sprLength != 0)
             WFS  = new WaitForSeconds(speed/sprLength);
@@ -68,25 +68,32 @@ public class myAnimator : MonoBehaviour
         string[] paths = new string[stats.Length*8];
         for (int i = 0; i < stats.Length; i++) {
             for (int j = 0; j < 8; j++) {
-                paths[i*8+j] = string.Format(SLM.animPathInitFormat, animPath,stats[i], j);
+                paths[i*8+j] = string.Format(SLM.instance.animPathInitFormat, animPath,stats[i], j);
             }
         }
-        sr.sprite  = SLM.Load(paths);
+        try
+        {
+            sr.sprite = SLM.instance.Load(paths);
+        }
+        catch
+        {
+            print(SLM.instance);
+        }
     }
     public void initAnims(string stat)
     {
         string[] paths = new string[8];
         for (int j = 0; j < 8; j++) { 
             {
-               paths[j] = string.Format(SLM.animPathInitFormat, animPath, stat, j);
+               paths[j] = string.Format(SLM.instance.animPathInitFormat, animPath, stat, j);
             }
         }
-        SLM.Load(paths);
+        SLM.instance.Load(paths);
     }
     public void initAnims() {
         animNum = 0;
-        SLM.Load(string.Format(SLM.animPathInitFormat_NONE,animPath));
-        sprLength = SLM.countSprite((string.Format(SLM.animPathInitFormat_NONE, animPath)));
+        SLM.instance.Load(string.Format(SLM.instance.animPathInitFormat_NONE,animPath));
+        sprLength = SLM.instance.countSprite((string.Format(SLM.instance.animPathInitFormat_NONE, animPath)));
         if (sprLength != 0)
             WFS = new WaitForSeconds(speed / sprLength);
     }

@@ -238,6 +238,7 @@ GameObject:
   - component: {fileID: 2968487413014801250}
   - component: {fileID: 2968487413014801248}
   - component: {fileID: 2968487413014801249}
+  - component: {fileID: 643479611366200625}
   m_Layer: 9
   m_Name: enemy
   m_TagString: Enemy
@@ -391,6 +392,8 @@ MonoBehaviour:
   newState: 0
   myType: 2
   attackRange: 1
+  attackAngle: 50
+  __hpFix: 0
   damageTextGen: {fileID: 2953193787720868969}
   hpFrame: {fileID: 6868190959528937074}
   hpBar: {fileID: 9057069490774801589}
@@ -399,6 +402,22 @@ MonoBehaviour:
   attackStopTime: 0.2
   doEffect1: {fileID: 6372622580469957421}
   doEffect2: {fileID: 4307623936987699911}
+--- !u!58 &643479611366200625
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2968487413014801247}
+  m_Enabled: 0
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.34
 --- !u!1 &4988180408810832795
 GameObject:
   m_ObjectHideFlags: 0

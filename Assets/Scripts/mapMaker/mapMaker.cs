@@ -223,9 +223,9 @@ public class mapMaker : MonoBehaviour
             else {
                 string type = null;
                 switch (t.type) {
-                    case 1: type = "long";break;
-                    case 2: type = "short";break;
-                    case 3: type = "boss";break;
+                    case 4: type = "long";break;
+                    case 5: type = "short";break;
+                    case 6: type = "boss";break;
                 }
                 g.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/" + t.name + "/" + type+ "/move/6/0");
             }

@@ -53,5 +53,9 @@ public class FollowCamera : MonoBehaviour
             this.transform.position = stopPosition;
 
         }
+        else
+        {
+            target = GameObject.Find("player");
+        }
     }
 }

@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour
     public GameObject enemyPrefab;
     bool isError = false;
     public GameObject[] mapObject;
+    public GameObject playerPrefab;
     int currentMap = 0;
     void Awake()
     {
@@ -29,7 +30,10 @@ public class LevelManager : MonoBehaviour
         }
         //mapObject[1].SetActive(false);
     }
-
+    private void OnEnable()
+    {
+        Instantiate(playerPrefab, Vector2.zero, Quaternion.identity);
+    }
     public void checkEnemy() {
         if (DamageReceiver.isEnemyRemain() == false && mapChangeFrame())
         {

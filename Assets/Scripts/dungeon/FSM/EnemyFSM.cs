@@ -20,7 +20,7 @@ public class EnemyFSM : FSMbase
     public float attackStopTime = 0.2f;
     public GameObject doEffect1;
     public GameObject doEffect2;
-    
+    int FSMCol = 0;
 
     new void Awake()
     {
@@ -43,6 +43,7 @@ public class EnemyFSM : FSMbase
         setState(State.move);
         tempDelay = 0f;
         attackAllow = true;
+        FSMCol = 0;
         setHpBar();
         setColider();
     }
@@ -65,8 +66,8 @@ public class EnemyFSM : FSMbase
         switch (myType)
         {
             case type.boss:
-                hpFrame.sprite = SLM.getSpr("image/enemy/bossFrame");
-                hpBar.sprite = SLM.getSpr("image/enemy/bossHp");
+                hpFrame.sprite = SLM.instance.getSpr("image/enemy/bossFrame");
+                hpBar.sprite = SLM.instance.getSpr("image/enemy/bossHp");
                 damageTextGen.anchoredPosition = new Vector2(0,14);
                 hpFrame.rectTransform.anchoredPosition = new Vector2(0,13.89f);
                 hpBar.rectTransform.anchoredPosition = new Vector2(0,13.89f);
@@ -75,8 +76,8 @@ public class EnemyFSM : FSMbase
                 break;
             case type.Long:
             case type.Short:
-                hpFrame.sprite = SLM.getSpr("image/enemy/frame");
-                hpBar.sprite = SLM.getSpr("image/enemy/hp");
+                hpFrame.sprite = SLM.instance.getSpr("image/enemy/frame");
+                hpBar.sprite = SLM.instance.getSpr("image/enemy/hp");
                 damageTextGen.anchoredPosition = new Vector2(0, 4.5f);
                 hpFrame.rectTransform.anchoredPosition = new Vector2(0, 4.46f);
                 hpBar.rectTransform.anchoredPosition = new Vector2(0, 4.46f);
@@ -110,6 +111,8 @@ public class EnemyFSM : FSMbase
         moveDir = Vector2.zero;
         moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
         RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * -1*Time.deltaTime/2);
+        
+
     }
 
     void lookPlayer()
@@ -117,21 +120,25 @@ public class EnemyFSM : FSMbase
         moveDir = Vector2.zero;
         moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
 
-        degree = (Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45 +1);
+        degree = (Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45);
         _anim.setDir(degree);
     }
 
-    void moveEnemy() {
-        if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= 1f)
+    void moveEnemy()
+    {
+        if (FSMCol != 0)
+        {
+            RBD.constraints = RigidbodyConstraints2D.FreezeAll;
             return;
-
+        }
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
         moveDir = Vector2.zero;
         moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
 
         degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
         _anim.setDir(degree);
 
-        RBD.MovePosition((Vector2)transform.position+moveDir * moveSpeed * speedRate / 100*Time.deltaTime);
+        RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * Time.deltaTime);
     }
 
     bool detectPlayer() {
@@ -143,6 +150,7 @@ public class EnemyFSM : FSMbase
         return false;
     }
     public void hitted(float damage) {
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
         if (hp == maxHp) {
             hpFrame.gameObject.SetActive(true);
             hpBar.gameObject.SetActive(true);
@@ -268,6 +276,7 @@ public class EnemyFSM : FSMbase
             }
             yield return null;
         } while (!newState);
+        RBD.constraints = RigidbodyConstraints2D.FreezeAll;
     }
     IEnumerator dead()
     {
@@ -292,6 +301,20 @@ public class EnemyFSM : FSMbase
         Handles.color = new Color(255, 0, 0, 0.2f);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90 / 2, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == 8) {
+            FSMCol++;
+        }
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == 8) {
+            FSMCol--;
+            if (FSMCol < 0)
+                FSMCol = 0;
+        }
     }
     public BoxCollider2D getCol() {
         return _Colider;

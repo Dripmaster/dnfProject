@@ -5827,6 +5827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad83e0267b0e4c4f8886ed3965d744b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 0}
 --- !u!212 &495670231
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6102,6 +6103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1a96eeb368ff5945a40ae054289f6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AlertTime: 0.5
 --- !u!212 &614167324
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -20972,14 +20974,15 @@ MonoBehaviour:
   objectState: 0
   _anim: {fileID: 0}
   newState: 0
-  name: sword
-  myType: 0
+  myType: 1
   attackRange: 2
   attackAngle: 150
-  attackSpeed: 0.3
+  __hpFix: 0
   attackfan: {x: 0, y: 0}
   checkDashTime: 0.5
   dashRate: 500
+  dashEffects: []
+  myAlert: {fileID: 614167322}
 --- !u!114 &1375089960
 MonoBehaviour:
   m_ObjectHideFlags: 0

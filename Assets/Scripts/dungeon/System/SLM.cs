@@ -2,16 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class SLM//Sprite Load Manager
+public class SLM: MonoBehaviour//Sprite Load Manager
 {
-    static public string animPathFormat = "image/{0}/{1}/{2}/{3}";//0:경로 1:state 2:방향 3:anim번호
-    static public string animPathInitFormat = "image/{0}/{1}/{2}";//0:경로 1:state 2:방향
-    static public string animPathFormat_NONE = "image/{0}/{1}";//0:경로 1:anim번호
-    static public string animPathInitFormat_NONE = "image/{0}";//0:경로
+    public static SLM instance;
+    public string animPathFormat = "image/{0}/{1}/{2}/{3}";//0:경로 1:state 2:방향 3:anim번호
+    public string animPathInitFormat = "image/{0}/{1}/{2}";//0:경로 1:state 2:방향
+    public string animPathFormat_NONE = "image/{0}/{1}";//0:경로 1:anim번호
+    public string animPathInitFormat_NONE = "image/{0}";//0:경로
 
-    static private Dictionary<string, Sprite> _cache = new Dictionary<string, Sprite>();
+    private Dictionary<string, Sprite> _cache;
 
-    static public Sprite Load(string[] path)
+    void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        DontDestroyOnLoad(gameObject);
+        _cache = new Dictionary<string, Sprite>();
+    }
+    public Sprite Load(string[] path)
     {
         Sprite s = null;
         for (int i = 0; i < path.Length; i++) {
@@ -27,7 +40,7 @@ public static class SLM//Sprite Load Manager
         }
         return s;
     }
-    static public void Load(string path)
+    public void Load(string path)
     {
         Sprite[] objs = Resources.LoadAll<Sprite>(path);
         if (objs.Length == 0)
@@ -38,7 +51,7 @@ public static class SLM//Sprite Load Manager
 
         }
     }
-    static public Sprite getSpr(string path) {
+    public Sprite getSpr(string path) {
         if (!isSpr(path))
         {
             _cache[path] = Resources.Load<Sprite>(path);
@@ -46,14 +59,14 @@ public static class SLM//Sprite Load Manager
 
         return _cache[path];
     }
-    static public void clearDic() {
+    public void clearDic() {
         
     }
 
-    static public bool isSpr(string path) {
+    public bool isSpr(string path) {
         return _cache.ContainsKey(path);
     }
-    static public int countSprite(string path)
+    public int countSprite(string path)
     {
         int i = 0;
         while (true) {

@@ -26,6 +26,7 @@ public class playerFSM : FSMbase
     int movecount = 0;
     BoxCollider2D _Colider;
     public GameObject myAlert;
+    public myParticle myparticle;
     bool isFreeze = false;
 
     // Use this for initialization
@@ -43,14 +44,16 @@ public class playerFSM : FSMbase
         _Colider = GetComponent<BoxCollider2D>();
         attackfan = new Vector2(0, -1);
         DamageReceiver.addPlayer(this);
-        myAlert.SetActive(false);
+        if(myAlert ==null)
+            myAlert = GameObject.Find("noHp");
+        setAlert(false);
     }
     new private void OnEnable()
     {
         base.OnEnable();
         
-        myParticle.instance.Stop();
-        myParticle.instance.setSr(GetComponent<SpriteRenderer>());
+        myparticle.Stop();
+        myparticle.setSr(GetComponent<SpriteRenderer>());
         init_Stat();
         for (int i = 1; i < 4; i++)
         {
@@ -86,6 +89,10 @@ public class playerFSM : FSMbase
             isFreeze = false;
         }
     
+    }
+    void setAlert(bool value) {
+        if (myAlert!= null)
+            myAlert.SetActive(value);
     }
     bool dashPlayer() {//dash페이즈 체크
         if (dashState)
@@ -151,6 +158,7 @@ public class playerFSM : FSMbase
 
         if ((moveDir != Vector2.zero || dashState))
         {
+            RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
             if (dashState)
                 moveDir = dashDir;
 
@@ -189,6 +197,7 @@ public class playerFSM : FSMbase
         else
         {
             RBD.velocity = Vector2.zero;
+            RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         }
         return false;
     }
@@ -209,7 +218,7 @@ public class playerFSM : FSMbase
             return;
         if (!__hpFix)
             hp -= damage;
-        myAlert.SetActive(true);
+        setAlert(true);
         if (hp <= 0) {
             setState(State.dead);
         }
@@ -240,7 +249,7 @@ public class playerFSM : FSMbase
     }
     IEnumerator dashTimer() {
         dashState = true;
-        myParticle.instance.Play();
+        myparticle.Play();
         Physics2D.IgnoreLayerCollision(8,9);
         Physics2D.IgnoreLayerCollision(8,10);
         for (int i= 0; i < 5; i++) { 
@@ -248,7 +257,7 @@ public class playerFSM : FSMbase
             yield return new WaitForSeconds(0.02f);
         }
         dashDir = Vector2.zero;
-        myParticle.instance.Stop();
+        myparticle.Stop();
         Physics2D.IgnoreLayerCollision(8, 9,false);
         Physics2D.IgnoreLayerCollision(8, 10,false);
         dashState = false;
