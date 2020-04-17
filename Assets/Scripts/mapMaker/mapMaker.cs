@@ -2,24 +2,27 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using System;
+[System.Serializable]
+public class tileSet
+{
 
+    public int type; // bigSword, sowrd, Hammer, long short boss
+    public string name = "dark"; // bigSword, sowrd, Hammer, dark, fire, glow, grass, water
+    public Vector2 pos;
+    public int id;
+}
 public class mapMaker : MonoBehaviour
 {
     public GameObject tilePrefab;
 
-    [System.Serializable]
-    public class tileSet {
-        
-        public int type = 4; // bigSword, sowrd, Hammer, long short boss
-        public string name = "dark"; // bigSword, sowrd, Hammer, dark, fire, glow, grass, water
-        public Vector2 pos;
-        public int id;
-    }
+    
     [System.Serializable]
     public class TileList
     {
         public int MapNum = 1;
         public int floorNum = 1;
+        public string prefabName="";
         public List<tileSet> map = new List<tileSet>();
 
         public void  addTile(tileSet t) {
@@ -36,7 +39,7 @@ public class mapMaker : MonoBehaviour
     TileList tileList;
     SerializedLIST MapList;
 
-    public float moveSize = 0.5f;
+    float moveSize = 0.2f;
     int idex = 0;
     public int mapNum = 1;
     public int floorNum = 1;
@@ -54,6 +57,9 @@ public class mapMaker : MonoBehaviour
     }
     void Update()
     {
+        setTileToObject();
+        saveKeyInput();
+        /*
         keyInput();
         if (Input.GetMouseButtonDown(0))
         {
@@ -89,6 +95,14 @@ public class mapMaker : MonoBehaviour
                 print("다시 선택 바랍니다.");
             }
             
+        }
+        */
+    }
+    void saveKeyInput() {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            saveTileList();
+            loadTileList();
         }
     }
     void keyInput() {
@@ -152,11 +166,6 @@ public class mapMaker : MonoBehaviour
             if(tileList.map.Count<=currentTile.id)
                 tileList.map.Add(currentTile);
         }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            saveTileList();
-            loadTileList();
-        }
         if (Input.GetKey(KeyCode.DownArrow))
         {
             target.transform.Translate(new Vector2(0,-moveSize));
@@ -188,22 +197,19 @@ public class mapMaker : MonoBehaviour
         return pos;
     }
     void setTileToObject() {
-
-        if (currentTile.type == 0)
+        foreach (var item in GameObject.FindGameObjectsWithTag("customTile"))
         {
-            target.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/player/" + currentTile.name + "/move/6/0");
-        }
-        else
-        {
-            string type = null;
-            switch (currentTile.type)
+            string[] nametype = item.name.ToLower().Split(',');
+            try
             {
-                case 4: type = "long"; break;
-                case 5: type = "short"; break;
-                case 6: type = "boss"; break;
+                item.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/" + nametype[0] + "/" + nametype[1] + "/move/6/0");
             }
-            target.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/" + currentTile.name + "/" + type + "/move/6/0");
+            catch
+            {
+                print("image/enemy/" + nametype[0] + "/" + nametype[1] + "/move/6/0");
+            }
         }
+        
     }
     void initMap() {
         int i = 0;
@@ -214,27 +220,29 @@ public class mapMaker : MonoBehaviour
         }
         foreach (tileSet t in tileList.map) {
             GameObject g = Instantiate(tilePrefab, t.pos, Quaternion.identity);
+            g.transform.SetParent(GameObject.FindGameObjectWithTag("map").transform);
             t.id = i++;
-            g.name = t.id.ToString();
-            if (t.type == 0)
-            {
-                g.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/player/" + t.name+"/move/6/0");
-            }
-            else {
-                string type = null;
-                switch (t.type) {
-                    case 4: type = "long";break;
-                    case 5: type = "short";break;
-                    case 6: type = "boss";break;
-                }
-                g.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("image/enemy/" + t.name + "/" + type+ "/move/6/0");
-            }
+            g.name = t.name+","+Enum.GetName(typeof(type),t.type);
         }
     }
 
     void saveTileList() {
+        TileList tileList = new TileList();
+        int count = 0;
+        foreach (var item in GameObject.FindGameObjectsWithTag("customTile"))
+        {
+            string[] nametype = item.name.Split(',');
+            tileSet t = new tileSet();
+            t.name = nametype[0];
+            t.type = (int)Enum.Parse(typeof(type),nametype[1]);
+            t.pos = item.transform.position;
+            t.id = count++;
+            tileList.addTile(t);
+        }
+
         tileList.MapNum = mapNum;
         tileList.floorNum = floorNum;
+        tileList.prefabName = GameObject.FindGameObjectWithTag("map").name;
         if (MapList.maps.Count <=idex)
         {
             MapList.maps.Add(tileList);

@@ -223,7 +223,7 @@ public class EnemyFSM : FSMbase
 
     IEnumerator attack()
     {
-        
+        RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         bool doneAttack = false;
         do
         {
@@ -263,6 +263,7 @@ public class EnemyFSM : FSMbase
         } while (!newState);
         attackFrame.gameObject.SetActive(false);
         attackBar.gameObject.SetActive(false);
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
     IEnumerator hited()
     {

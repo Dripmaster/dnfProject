@@ -58,6 +58,10 @@ public class LevelManager : MonoBehaviour
         Physics2D.IgnoreLayerCollision(8, 11, false);
         playerFSM.instance.playerFreeze(false);
         setEnemy();
+        ///!TODO
+        ///맵 로딩 후 콜라이더 박스 렌더러 끄기
+        ///맵 트랜스폼의 자식들 wall 태그로 찾아서 ㅇ
+
     }
     bool mapChangeFrame() {
         if (Vector3.zero == mapObject[currentMap].transform.position)

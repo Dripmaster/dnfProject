@@ -35,7 +35,7 @@ public static class DamageReceiver
     public static void setEnemy(mapMaker.TileList tileList, GameObject enemyPrefab) {
         if (enemys == null)
             enemys = new List<EnemyFSM>();
-        foreach (mapMaker.tileSet t in tileList.map)
+        foreach (tileSet t in tileList.map)
         {
             EnemyFSM enemy=null;
             foreach (EnemyFSM e in enemys)
