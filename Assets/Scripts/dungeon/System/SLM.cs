@@ -28,12 +28,15 @@ public class SLM: MonoBehaviour//Sprite Load Manager
     {
         Sprite s = null;
         for (int i = 0; i < path.Length; i++) {
+            if (_cache.ContainsKey(path[i]+"/0")) {
+                s = _cache[path[i] + "/0"];
+                continue;
+            }
             Sprite[] objs = Resources.LoadAll<Sprite>(path[i]);
             if (objs.Length == 0)
                 continue;
             for (int j = 0; j < objs.Length; j++) {
                 _cache[path[i] + "/"+objs[j].name] = objs[j];
-                
             }
             if(s==null)
             s = objs[0];
@@ -42,6 +45,10 @@ public class SLM: MonoBehaviour//Sprite Load Manager
     }
     public void Load(string path)
     {
+        if (_cache.ContainsKey(path+ "/0"))
+        {
+            return;
+        }
         Sprite[] objs = Resources.LoadAll<Sprite>(path);
         if (objs.Length == 0)
             return;

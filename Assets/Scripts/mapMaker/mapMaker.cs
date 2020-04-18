@@ -38,8 +38,6 @@ public class mapMaker : MonoBehaviour
 
     TileList tileList;
     SerializedLIST MapList;
-
-    float moveSize = 0.2f;
     int idex = 0;
     public int mapNum = 1;
     public int floorNum = 1;

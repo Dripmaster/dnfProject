@@ -7,15 +7,21 @@ public static class DamageReceiver
     static playerFSM player;
     static List<EnemyFSM> enemys;
     static bool enemyRemain = true;
-    public static void addEnemy(EnemyFSM e) {
+    public static void init(GameObject enemyPrefab) {
         if (enemys == null)
             enemys = new List<EnemyFSM>();
+        for (int i = 0; i < 100; i++)
+        {
+            GameObject g = GameObject.Instantiate(enemyPrefab, Vector2.zero, Quaternion.identity);
+            g.SetActive(false);
+        }
+    }
+    public static void addEnemy(EnemyFSM e) {
         enemys.Add(e);
     }
     public static bool isEnemyRemain()
     {
         int count = 0;
-        if (enemys != null) {
             foreach (EnemyFSM e in enemys) {
                 if (e.gameObject.activeInHierarchy == true) {
                     count++;
@@ -29,12 +35,10 @@ public static class DamageReceiver
             else {
                 enemyRemain = true;
             }
-        }
         return enemyRemain;
     }
     public static void setEnemy(mapMaker.TileList tileList, GameObject enemyPrefab) {
-        if (enemys == null)
-            enemys = new List<EnemyFSM>();
+       
         foreach (tileSet t in tileList.map)
         {
             EnemyFSM enemy=null;
@@ -51,9 +55,7 @@ public static class DamageReceiver
             enemy = GameObject.Instantiate(enemyPrefab, t.pos, Quaternion.identity).GetComponent<EnemyFSM>();
             enemy.setTypeName(t.type, t.name);
             enemy.gameObject.SetActive(true);
-
         }
-
     }
     public static void addPlayer(playerFSM p) {
         player = p;
@@ -62,12 +64,10 @@ public static class DamageReceiver
         player.hitted(attackPoint);
     }
 
-    public static void playerAttack(float attackPoint) {
-        if (enemys == null)
-            enemys = new List<EnemyFSM>();
+    public static void playerAttack(float attackPoint,bool cheet = false) {
         for (int i = 0; i < enemys.Count; i++)
         {
-            if (!enemys[i].isDead() && isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position)))
+            if (!enemys[i].isDead() && (isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position))||cheet))
             {
                 enemys[i].hitted(attackPoint);
                 showHitEffect(enemys[i].getCol());

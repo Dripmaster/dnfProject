@@ -21,12 +21,10 @@ public class myAnimator : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         animNum = 0;//anim 번호 처음으로 초기화
         WFS = null;
-        
     }
     void OnEnable() {
         aniPause = false;
         isEnded = false;
-        
         StartCoroutine(sprUpdater());
     }
     public void setOffset(float time)

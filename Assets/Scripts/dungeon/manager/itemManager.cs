@@ -31,8 +31,10 @@ public class itemManager : MonoBehaviour
         if (item == null)
         {
             item = Instantiate(goldItemPrefab, pos, Quaternion.identity).GetComponent<itemBase>();
+            item.transform.SetParent(LevelManager.instance.getCurrentMap().transform);
             itemList.Add(item);
         }
+        
         item.gameObject.SetActive(true);
         item.setAnim(type);
     }

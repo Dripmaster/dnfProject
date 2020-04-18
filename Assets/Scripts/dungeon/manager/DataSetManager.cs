@@ -29,10 +29,9 @@ public class DataSetManager : MonoBehaviour
         {
             f = float.Parse(FSMData[dataType, fsmType]);
         }
-        catch (Exception e) {
+        catch {
             Debug.Log(fsmType+" : "+FSMData[dataType, fsmType]);  
         };
-
         return f;
     } 
 }

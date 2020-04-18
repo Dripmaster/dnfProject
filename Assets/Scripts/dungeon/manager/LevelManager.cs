@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 public class LevelManager : MonoBehaviour
 {
@@ -12,23 +13,32 @@ public class LevelManager : MonoBehaviour
     public int floorNum;
     public GameObject enemyPrefab;
     bool isError = false;
-    public GameObject[] mapObject;
+    List<GameObject> mapObject;
     public GameObject playerPrefab;
     int currentMap = 0;
     void Awake()
     {
         instance = this;
+        mapObject = new List<GameObject>();
         loadTileList();
-        loadMap();
+        initmap();
+        loadSprite();
+        DamageReceiver.init(enemyPrefab);
         setEnemy();
-        switch (Random.Range(0, 3))
-        {
-            case 0: mapObject[1].transform.position = new Vector2(0, -20); break;
-            case 1: mapObject[1].transform.position = new Vector2(20, 0); break;
-            case 2: mapObject[1].transform.position = new Vector2(-20, 0); break;
 
+    }
+    void loadSprite() {
+        foreach (var typeItem in Enum.GetNames(typeof(type)))
+        {
+            foreach (var stateItem in Enum.GetNames(typeof(State)))
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    SLM.instance.Load(string.Format(SLM.instance.animPathInitFormat, "enemy/" + typeItem, stateItem, i));
+                }
+            }
         }
-        //mapObject[1].SetActive(false);
+       
     }
     private void OnEnable()
     {
@@ -50,7 +60,7 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(2.0f);
         playerFSM.instance.playerFreeze();
         yield return new WaitForSeconds(0.5f);
-        currentMap = ++currentMap % 2;
+        currentMap++;
         Physics2D.IgnoreLayerCollision(8, 11);
         do {
             yield return null;
@@ -58,27 +68,28 @@ public class LevelManager : MonoBehaviour
         Physics2D.IgnoreLayerCollision(8, 11, false);
         playerFSM.instance.playerFreeze(false);
         setEnemy();
-        ///!TODO
-        ///맵 로딩 후 콜라이더 박스 렌더러 끄기
-        ///맵 트랜스폼의 자식들 wall 태그로 찾아서 ㅇ
-
+        mapObject[currentMap - 1].SetActive(false);
+    }
+    public GameObject getCurrentMap() {
+        return mapObject[currentMap];
     }
     bool mapChangeFrame() {
         if (Vector3.zero == mapObject[currentMap].transform.position)
             return true;
         Vector3 moveDir = Vector3.Lerp(mapObject[currentMap].transform.position,Vector2.zero,Time.deltaTime*2.5f);
 
-        mapObject[(currentMap+1)%2].transform.position += moveDir - mapObject[currentMap].transform.position;
+        for (int i = 0; i < mapObject.Count; i++)
+        {
+            if (i != currentMap) { 
+        mapObject[i].transform.position += moveDir - mapObject[currentMap].transform.position;
+
+            }
+        }
         mapObject[currentMap].transform.position = moveDir;
 
         if (Vector2.Distance(Vector2.zero, mapObject[currentMap].transform.position) <= 0.1f)
         {
             mapObject[currentMap].transform.position = Vector2.zero;
-            switch (Random.Range(0, 3)) {
-                case 0: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(0, -20);break;
-                case 1: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(20, 0);break;
-                case 2: mapObject[(currentMap + 1) % 2].transform.position = new Vector2(-20, 0);break;
-            }
             return true;
         }
         return false;
@@ -91,24 +102,52 @@ public class LevelManager : MonoBehaviour
 
         DamageReceiver.setEnemy(tileList,enemyPrefab);
     }
-    void loadMap() {
-        tileList = null;
+    void initmap()
+    {
         if (MapList != null)
         {
             for (int i = 0; i < MapList.maps.Count; i++)
             {
-                if (MapList.maps[i].floorNum == floorNum && MapList.maps[i].MapNum == mapNum)
+                if (MapList.maps[i].MapNum == mapNum)
                 {
-                    tileList = MapList.maps[i];
-                    print("load success : " + mapNum + "번째 맵 " + floorNum + "층");
-                    break;
+                    int mapX,mapY;
+                    if (((MapList.maps[i].floorNum-1) / 3) % 2 == 0)
+                    {
+                        mapX = ((MapList.maps[i].floorNum - 1) % 3) * 20;
+                    }
+                    else { 
+                        mapX = 40 + ((MapList.maps[i].floorNum - 1)%3) * -20;
+                    }
+                    mapY = ((MapList.maps[i].floorNum - 1) / 3)*20;
+                    try
+                    {
+                        mapObject.Add(Instantiate(Resources.Load<GameObject>("prefabs/mapMaker/maps/" + MapList.maps[i].prefabName), new Vector2(mapX, mapY), Quaternion.identity));
+                    }
+                    catch
+                    {
+                        print("prefabs/mapMaker/maps/" + MapList.maps[i].prefabName);
+                        print(MapList.maps[i].floorNum + "F :" + mapX + "," + mapY);
+                    }
                 }
             }
+        }
+        loadMap();
+    }
+    void loadMap() {
+        tileList = null;
+        foreach (var item in MapList.maps)
+        {
+            if (item.floorNum == floorNum && item.MapNum == mapNum)
+                tileList = item;
         }
         if (tileList == null)
         {
             print("load Error : " + mapNum + "번째 맵 " + floorNum + "층");
             isError = true;
+        }
+        foreach (var item in GameObject.FindGameObjectsWithTag("wall"))
+        {
+            item.GetComponent<SpriteRenderer>().enabled = false;
         }
     }
 

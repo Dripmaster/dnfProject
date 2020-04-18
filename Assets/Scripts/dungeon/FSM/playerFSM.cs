@@ -210,6 +210,12 @@ public class playerFSM : FSMbase
             RBD.velocity = Vector2.zero;
             return true;
         }
+        if (Input.GetKey(KeyCode.Tab))
+        {
+            RBD.velocity = Vector2.zero;
+            DamageReceiver.playerAttack(500000,true);
+            return true;
+        }
         atkNum = 1;
         return false;
     }
