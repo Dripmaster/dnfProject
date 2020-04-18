@@ -43,7 +43,7 @@ public class mapMaker : MonoBehaviour
     int idex = 0;
     public int mapNum = 1;
     public int floorNum = 1;
-    GameObject target;
+    GameObject currentMap;
     tileSet currentTile;
     // Start is called before the first frame update
     void Awake()
@@ -98,13 +98,43 @@ public class mapMaker : MonoBehaviour
         }
         */
     }
-    void saveKeyInput() {
+    void saveKeyInput()
+    {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             saveTileList();
             loadTileList();
         }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            loadTileList();
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            saveTileList();
+            mapNum--;
+            loadTileList();
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            saveTileList();
+            mapNum++;
+            loadTileList();
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            saveTileList();
+            floorNum--;
+            loadTileList();
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            saveTileList();
+            floorNum++;
+            loadTileList();
+        }
     }
+    /*
     void keyInput() {
         if (Input.GetKeyDown(KeyCode.D)) {
             currentTile.name = "dark";
@@ -166,26 +196,11 @@ public class mapMaker : MonoBehaviour
             if(tileList.map.Count<=currentTile.id)
                 tileList.map.Add(currentTile);
         }
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            target.transform.Translate(new Vector2(0,-moveSize));
-        }
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            target.transform.Translate(new Vector2(0, moveSize));
-        }
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            target.transform.Translate(new Vector2(-moveSize, 0));
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            target.transform.Translate(new Vector2(moveSize, 0));
-        }
     }
+
+        
     Vector2  CastRay()
     {
-
         target = null;
         Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -196,6 +211,7 @@ public class mapMaker : MonoBehaviour
         }
         return pos;
     }
+    */
     void setTileToObject() {
         foreach (var item in GameObject.FindGameObjectsWithTag("customTile"))
         {
@@ -220,7 +236,7 @@ public class mapMaker : MonoBehaviour
         }
         foreach (tileSet t in tileList.map) {
             GameObject g = Instantiate(tilePrefab, t.pos, Quaternion.identity);
-            g.transform.SetParent(GameObject.FindGameObjectWithTag("map").transform);
+            g.transform.SetParent(GameObject.Find("LoadedObject").transform);
             t.id = i++;
             g.name = t.name+","+Enum.GetName(typeof(type),t.type);
         }
@@ -239,10 +255,28 @@ public class mapMaker : MonoBehaviour
             t.id = count++;
             tileList.addTile(t);
         }
-
-        tileList.MapNum = mapNum;
-        tileList.floorNum = floorNum;
-        tileList.prefabName = GameObject.FindGameObjectWithTag("map").name;
+        if (tileList.MapNum != mapNum || tileList.floorNum != floorNum)
+        {
+            bool chk = false;
+            for (int i = 0; i < MapList.maps.Count; i++)
+            {
+                if (MapList.maps[i].floorNum == floorNum && MapList.maps[i].MapNum == mapNum)
+                {
+                    idex = i;
+                    chk = true;
+                    break;
+                }
+            }
+            if (!chk) {
+                idex = MapList.maps.Count;
+            }
+            tileList.MapNum = mapNum;
+            tileList.floorNum = floorNum;
+        }
+        if (currentMap.activeInHierarchy == false) {
+            currentMap = GameObject.FindGameObjectWithTag("map");
+        }
+        tileList.prefabName = currentMap.name;
         if (MapList.maps.Count <=idex)
         {
             MapList.maps.Add(tileList);
@@ -261,6 +295,7 @@ public class mapMaker : MonoBehaviour
         string jsonString = File.ReadAllText(Application.dataPath + "/MapData/data.json");
         MapList = JsonUtility.FromJson<SerializedLIST>(jsonString);
         tileList = null;
+        currentMap = GameObject.FindGameObjectWithTag("map");
         if (MapList != null)
         {
             for (int i = 0; i < MapList.maps.Count; i++)
@@ -270,7 +305,25 @@ public class mapMaker : MonoBehaviour
                     idex = i;
                     tileList = MapList.maps[i];
                     print("load success : " + mapNum + "번째 맵 " + floorNum + "층");
+                    if (currentMap.name != tileList.prefabName) {
+                        GameObject m = null;
+                        try
+                        {
+                            m = Instantiate(Resources.Load<GameObject>("prefabs/mapMaker/maps/" + tileList.prefabName), Vector2.zero, Quaternion.identity);
+                            m.name = tileList.prefabName;
+                            currentMap.SetActive(false);
+                        }
+                        catch
+                        {
+                            m = GameObject.FindGameObjectWithTag("map");
+                            print("prefabLoadError :"+tileList.prefabName);
+                        }
+                        finally
+                        {
+                            currentMap = m;
 
+                        }
+                    }
                     break;
                 }
             }

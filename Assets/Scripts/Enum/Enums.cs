@@ -13,7 +13,6 @@ public enum State
     move,
     attack,
     dead,
-    skill,
     hited,
 };
 public enum mapType

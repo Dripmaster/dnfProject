@@ -101,7 +101,6 @@ public class LevelManager : MonoBehaviour
                 {
                     tileList = MapList.maps[i];
                     print("load success : " + mapNum + "번째 맵 " + floorNum + "층");
-
                     break;
                 }
             }
