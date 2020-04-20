@@ -5,11 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class SceneChangeManager : MonoBehaviour
 {
-    GameObject blackBg;
-    GameObject whiteBg;
-
-
-
     // Start is called before the first frame update
     void Awake()
     {
@@ -30,6 +25,23 @@ public class SceneChangeManager : MonoBehaviour
     public void StartScene(int type, float speed, float delay = 0f, System.Action callback = null)
     {
         StartCoroutine(RunSceneFadeIn(type, speed, delay, callback));
+    }
+
+    public void HideScene(int type = 1)
+    {
+        GameObject bg;
+        if (type == 0)
+        {
+            bg = transform.Find("white").gameObject;
+        }
+        else
+            bg = transform.Find("black").gameObject;
+
+        bg.SetActive(true);
+        SpriteRenderer spriteRenderer = bg.GetComponent<SpriteRenderer>();
+        Color color = spriteRenderer.color;
+        color.a = 1;
+        spriteRenderer.color = color;
     }
 
     IEnumerator RunSceneFadeOut(string scene, int type, float speed)

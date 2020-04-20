@@ -1,12 +1,12 @@
 ﻿public enum itemType
-    {
-        gold = 0,
-        darkMat,
-        fireMat,
-        glowMat,
-        grassMat,
-        waterMat,
-    };
+{
+    gold = 0,
+    darkMat,
+    fireMat,
+    glowMat,
+    grassMat,
+    waterMat,
+};
 public enum State
 {
     idle = 0,
@@ -19,9 +19,12 @@ public enum mapType
 {
     dark = 0,
     fire,
+    miniFire,
     glow,
     grass,
+    miniGrass,
     water,
+    miniWater,
 };
 public enum type
 {

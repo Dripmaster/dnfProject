@@ -5,7 +5,7 @@ using System.IO;
 
 public class playerDataManager : MonoBehaviour
 {
-    public static playerDataManager instance=null;
+    public static playerDataManager instance = null;
     playerInven inven;
     playerProgress progress;
 
@@ -14,7 +14,8 @@ public class playerDataManager : MonoBehaviour
     {
         public List<item> playerInventory = new List<item>();
         public int gold = 0;
-        public void addItem(int type) {
+        public void addItem(int type)
+        {
             bool need = true;
             foreach (var i in playerInventory)
             {
@@ -25,11 +26,13 @@ public class playerDataManager : MonoBehaviour
                     break;
                 }
             }
-            if (need) {
-                playerInventory.Add(new item(type,1));
+            if (need)
+            {
+                playerInventory.Add(new item(type, 1));
             }
         }
-        public int getItem(int type,int count = 0) {
+        public int getItem(int type, int count = 0)
+        {
             int value = 0;
             foreach (var i in playerInventory)
             {
@@ -40,16 +43,18 @@ public class playerDataManager : MonoBehaviour
                     break;
 
                 }
-                
+
             }
             return value;
         }
     }
     [System.Serializable]
-    public class playerProgress {
+    public class playerProgress
+    {
         public bool tutorialClear = false;
         public List<int> floorProgress = new List<int>();
-        public playerProgress() {
+        public playerProgress()
+        {
             for (int i = 0; i < 10; i++)
             {
                 floorProgress.Add(0);
@@ -74,14 +79,15 @@ public class playerDataManager : MonoBehaviour
         string str = JsonUtility.ToJson(progress);
         File.WriteAllText(Application.dataPath + "/Data/progressData.json", str);
     }
-    void loadProgress() {
+    void loadProgress()
+    {
         string jsonString = null;
         try
         {
             jsonString = File.ReadAllText(Application.dataPath + "/Data/progressData.json");
         }
         catch
-        { 
+        {
 
         }
         if (jsonString != null)
@@ -97,35 +103,41 @@ public class playerDataManager : MonoBehaviour
         string str = JsonUtility.ToJson(inven);
         File.WriteAllText(Application.dataPath + "/Data/invenData.json", str);
     }
-    void loadInventory() {
+    void loadInventory()
+    {
         string jsonString = null;
         try
         {
             jsonString = File.ReadAllText(Application.dataPath + "/Data/invenData.json");
         }
         catch
-        { 
+        {
 
         }
-        if(jsonString!=null)
-        inven = JsonUtility.FromJson<playerInven>(jsonString);
-        if (inven == null) {
+        if (jsonString != null)
+            inven = JsonUtility.FromJson<playerInven>(jsonString);
+        if (inven == null)
+        {
             inven = new playerInven();
             saveInventory();
         }
     }
-    public void addGold(int goldSize) {
+    public void addGold(int goldSize)
+    {
         inven.gold += goldSize;
         saveInventory();
     }
-    public void addItem(itemType type) {
+    public void addItem(itemType type)
+    {
         inven.addItem((int)type);
         saveInventory();
     }
-    public bool popGold(int goldSize,bool chcek = true) {
+    public bool popGold(int goldSize, bool chcek = true)
+    {
         if (inven.gold < goldSize)
             return false;
-        else {
+        else
+        {
             if (!chcek)
             {
                 inven.gold -= goldSize;
@@ -134,30 +146,37 @@ public class playerDataManager : MonoBehaviour
             return true;
         }
     }
-    public bool popItem(itemType type, int count,bool chcek = true) {
+    public bool popItem(itemType type, int count, bool chcek = true)
+    {
         if (inven.getItem((int)type) < count)
         {
             return false;
         }
-        else {
-            if (!chcek) {
-                inven.getItem((int)type,count);
+        else
+        {
+            if (!chcek)
+            {
+                inven.getItem((int)type, count);
                 saveInventory();
             }
             return true;
         }
     }
-    public bool hasTutoClear() {
+    public bool hasTutoClear()
+    {
         return progress.tutorialClear;
     }
-    public int getMapProgress(mapType mapNum) {
+    public int getMapProgress(mapType mapNum)
+    {
         return progress.floorProgress[(int)mapNum];
     }
-    public void setTutoClear(bool value) {
+    public void setTutoClear(bool value)
+    {
         progress.tutorialClear = value;
         SaveProgress();
     }
-    public void setMapProgress(mapType mapNum,int value) {
+    public void setMapProgress(mapType mapNum, int value)
+    {
         progress.floorProgress[(int)mapNum] = value;
         SaveProgress();
     }
