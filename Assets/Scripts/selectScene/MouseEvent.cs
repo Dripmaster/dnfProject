@@ -5,7 +5,6 @@ using UnityEngine;
 public class MouseEvent : MonoBehaviour
 {
     public Sprite hoverImage;
-    public
     Sprite originImage;
     GameObject mark;
 
@@ -42,6 +41,13 @@ public class MouseEvent : MonoBehaviour
         {
             mark.transform.position = originMarkPos;
             StopCoroutine(markCoroutine);
+        }
+    }
+    private void OnMouseDown()
+    {
+        if (gameObject.tag == "selectTown")
+        {
+            GameObject.Find("townUi").gameObject.GetComponent<TownUiManager>().OpenTownUi();
         }
     }
 
