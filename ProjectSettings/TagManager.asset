@@ -11,6 +11,8 @@ TagManager:
   - customTile
   - floor
   - map
+  - selectTown
+  - selectDungeon
   layers:
   - Default
   - TransparentFX

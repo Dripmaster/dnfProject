@@ -24,9 +24,12 @@ public enum mapType
 {
     dark = 0,
     fire,
+    miniFire,
     glow,
     grass,
+    miniGrass,
     water,
+    miniWater,
 };
 public enum type
 {
