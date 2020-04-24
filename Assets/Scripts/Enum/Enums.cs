@@ -6,6 +6,11 @@
         glowMat,
         grassMat,
         waterMat,
+        healPotion,
+        clearPotion,
+        sword,
+        bigSword,
+        hammer,
     };
 public enum State
 {
@@ -31,4 +36,11 @@ public enum type
     Long,
     Short,
     boss,
+};
+public enum skillType {
+    Confuse = 1,
+    KnockBack,
+    DarkSide,
+
+
 };

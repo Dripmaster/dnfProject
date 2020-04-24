@@ -64,16 +64,19 @@ public static class DamageReceiver
         player.hitted(attackPoint);
     }
 
-    public static void playerAttack(float attackPoint,bool cheet = false) {
+    public static bool playerAttack(float attackPoint,bool cheet = false) {
+        bool attackOk = false;
         for (int i = 0; i < enemys.Count; i++)
         {
             if (!enemys[i].isDead() && (isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position))||cheet))
             {
+                attackOk = true;
                 enemys[i].hitted(attackPoint);
                 showHitEffect(enemys[i].getCol());
                 EffectManager.AddDamage(attackPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
             }
         }
+        return attackOk;
     }
     static bool isColMonster(Vector2 ePos) {
         if (Vector2.Distance(ePos, player.transform.position) > player.attackRange)

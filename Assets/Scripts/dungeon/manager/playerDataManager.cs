@@ -18,7 +18,7 @@ public class playerDataManager : MonoBehaviour
             bool need = true;
             foreach (var i in playerInventory)
             {
-                if (i.id == type)
+                if (i.type == type)
                 {
                     i.count++;
                     need = false;
@@ -26,14 +26,14 @@ public class playerDataManager : MonoBehaviour
                 }
             }
             if (need) {
-                playerInventory.Add(new item(type,1));
+                playerInventory.Add(new item(playerInventory.Count,1,type));
             }
         }
         public int getItem(int type,int count = 0) {
             int value = 0;
             foreach (var i in playerInventory)
             {
-                if (i.id == type)
+                if (i.type == type)
                 {
                     i.count -= count;
                     value = i.count;
@@ -146,6 +146,9 @@ public class playerDataManager : MonoBehaviour
             }
             return true;
         }
+    }
+    public playerInven getInventory() {
+        return inven;
     }
     public bool hasTutoClear() {
         return progress.tutorialClear;

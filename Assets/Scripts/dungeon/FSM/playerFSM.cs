@@ -15,10 +15,10 @@ public class playerFSM : FSMbase
     int degree;
     Rigidbody2D RBD;
     bool animEnd;
-    public float checkDashTime = 0.75f;//대쉬 가능 시간
+    float checkDashTime = 0.3f;//대쉬 가능 시간
     public float dashRate = 500;
-    float checkDashTimeTemp;
-    int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
+    sceneEffect sEffect;
+    //int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
     bool dashState = false;
     KeyCode downKey;
     Vector2 dashDir;
@@ -28,18 +28,21 @@ public class playerFSM : FSMbase
     public GameObject myAlert;
     public myParticle myparticle;
     bool isFreeze = false;
+    bool canDash;
+    bool isKnockBack = false;
+    bool confuseKey;
 
     // Use this for initialization
     new void Awake()
     {
         base.Awake();
+        
         instance = this;
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
         dashDir = new Vector2(0, 0);
         speedRate = 100;
         atkNum = 0;
-        checkDashTimeTemp = checkDashTime;
         RBD = GetComponent<Rigidbody2D>();
         _Colider = GetComponent<BoxCollider2D>();
         attackfan = new Vector2(0, -1);
@@ -47,11 +50,15 @@ public class playerFSM : FSMbase
         if(myAlert ==null)
             myAlert = GameObject.Find("noHp");
         setAlert(false);
+        sEffect = Camera.main.GetComponent<sceneEffect>();
     }
     new private void OnEnable()
     {
         base.OnEnable();
-        
+        canDash = true;
+        confuseKey = false;
+        isKnockBack = false;
+        isFreeze = false;
         myparticle.Stop();
         myparticle.setSr(GetComponent<SpriteRenderer>());
         init_Stat();
@@ -61,9 +68,6 @@ public class playerFSM : FSMbase
         }
         setState(State.idle);
     }
-    void Update() {
-        dashCount();
-    }
     void dashEffect(int i) {
         dashEffects[i].SetActive(true);
         
@@ -71,14 +75,7 @@ public class playerFSM : FSMbase
     }
     void dashCount()
     {
-        if (canDash<3)
-        {
-            checkDashTimeTemp -= Time.deltaTime;
-            if (checkDashTimeTemp < 0) {
-                checkDashTimeTemp = checkDashTime;
-                canDash = 0;
-            }
-        }
+        
     }
     public void playerFreeze(bool condition = true) {
         if (condition)
@@ -97,8 +94,9 @@ public class playerFSM : FSMbase
     bool dashPlayer() {//dash페이즈 체크
         if (dashState)
             return false;
+        if (canDash == false)
+            return false;
         if (Input.GetKeyDown(KeyCode.LeftShift)) {
-            canDash = 3;
             dashDir.x = 0;
             dashDir.y = 0;
             movecount = 0;
@@ -125,6 +123,27 @@ public class playerFSM : FSMbase
             return true;
         }
         return false;
+    }
+    public void playerKnockBack(Vector2 moveDir) {
+        setState(State.idle);
+        isKnockBack = true;
+        StartCoroutine(knockBack(moveDir));
+    }
+    IEnumerator knockBack(Vector2 moveDir) {
+
+        Vector2 tempPos = transform.position;
+        float tempTime = 0f;
+
+        Physics2D.IgnoreLayerCollision(8, 9);
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
+        do {
+            RBD.MovePosition(Vector2.Lerp(transform.position,moveDir*5+(Vector2)tempPos,Time.deltaTime*5));
+            tempTime += Time.deltaTime;
+            yield return null;
+        } while ((Vector2.Distance(tempPos,transform.position)<=5f )&& tempTime<=1f);
+        RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+        isKnockBack = false;
+        Physics2D.IgnoreLayerCollision(8, 9,false);
     }
     bool movePlayer()
     {
@@ -169,7 +188,8 @@ public class playerFSM : FSMbase
             if (objectState == State.attack) {
                 moveDir *= 0.1f;
             }
-
+            if (confuseKey)
+                moveDir *= -1;
             if (!dashState)
             {
                 // RBD.velocity = moveDir * moveSpeed * speedRate / 100;
@@ -196,8 +216,11 @@ public class playerFSM : FSMbase
         }
         else
         {
-            RBD.velocity = Vector2.zero;
-            RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+            if (!isKnockBack)
+            {
+                RBD.velocity = Vector2.zero;
+                RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+            }
         }
         return false;
     }
@@ -205,7 +228,7 @@ public class playerFSM : FSMbase
     {
         if (dashState || isFreeze)
             return false;
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Z))
         {
             RBD.velocity = Vector2.zero;
             return true;
@@ -253,13 +276,21 @@ public class playerFSM : FSMbase
 
         } while (!newState);
     }
+    IEnumerator canDashTimer() {
+        yield return new WaitForSeconds(checkDashTime);
+        canDash = true;
+    }
     IEnumerator dashTimer() {
         dashState = true;
+        canDash = false;
         myparticle.Play();
         Physics2D.IgnoreLayerCollision(8,9);
         Physics2D.IgnoreLayerCollision(8,10);
+        Vector2 temppos = transform.position;
         for (int i= 0; i < 5; i++) { 
                 dashEffect(i);
+            if (Vector2.Distance(temppos, transform.position) >= 3.5f)
+                break;
             yield return new WaitForSeconds(0.02f);
         }
         dashDir = Vector2.zero;
@@ -267,7 +298,7 @@ public class playerFSM : FSMbase
         Physics2D.IgnoreLayerCollision(8, 9,false);
         Physics2D.IgnoreLayerCollision(8, 10,false);
         dashState = false;
-        canDash = 0;
+        StartCoroutine(canDashTimer());
     }
     IEnumerator dead()
     {
@@ -281,6 +312,14 @@ public class playerFSM : FSMbase
                 break;
             }
         } while (!newState);
+    }
+    public void confuseStart() {
+        confuseKey = true;
+        StartCoroutine(confuse());
+    }
+    IEnumerator confuse() {
+        yield return new WaitForSeconds(3f);
+        confuseKey = false;
     }
     IEnumerator move()
     {
@@ -308,6 +347,35 @@ public class playerFSM : FSMbase
             }
         } while (!newState);
     }
+    void shakeCamera() {
+        if (sEffect != null) {
+            sEffect.shakeStart();
+        }
+    }
+    public void startDarkSide()
+    {
+        StartCoroutine(darkSide());
+    }
+
+    IEnumerator darkSide()
+    {
+        Color c = sr.color;
+        do
+        {
+            c.a -= Time.deltaTime;
+            sr.color = c;
+            yield return null;
+        } while (c.a >= 0.3f);
+        yield return new WaitForSeconds(1f);
+        do
+        {
+            c.a += Time.deltaTime;
+            sr.color = c;
+            yield return null;
+        } while (c.a <= 0.95f);
+        c.a = 1;
+        sr.color = c;
+    }
     IEnumerator attack()
     {
         
@@ -322,7 +390,10 @@ public class playerFSM : FSMbase
 
         if (atkNum == 3 && name == "bigsword")
         {
-            DamageReceiver.playerAttack(attackPoint);
+            if (DamageReceiver.playerAttack(attackPoint))
+            {
+                shakeCamera();
+            }
             EffectScript es = EffectManager.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/1",attackSpeed/2);
@@ -364,7 +435,10 @@ public class playerFSM : FSMbase
             if (!doneAttack && _anim.isEnd(_anim.sprLength - 3)) {
                 //공격
                 doneAttack = true;
-                DamageReceiver.playerAttack(attackPoint);
+                if (DamageReceiver.playerAttack(attackPoint))
+                {
+                    shakeCamera();
+                }
                 atkNum++;
                 if (atkNum > 3)
                     atkNum = 1;
