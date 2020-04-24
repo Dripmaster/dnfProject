@@ -26,14 +26,9 @@ public class playerDataManager : MonoBehaviour
                     break;
                 }
             }
-<<<<<<< HEAD
-            if (need) {
-                playerInventory.Add(new item(playerInventory.Count,1,type));
-=======
             if (need)
             {
-                playerInventory.Add(new item(type, 1));
->>>>>>> 813e07bebc69e06837d39820a58a5b7410133127
+                playerInventory.Add(new item(playerInventory.Count, 1, type));
             }
         }
         public int getItem(int type, int count = 0)
@@ -167,15 +162,11 @@ public class playerDataManager : MonoBehaviour
             return true;
         }
     }
-<<<<<<< HEAD
     public playerInven getInventory() {
         return inven;
     }
-    public bool hasTutoClear() {
-=======
     public bool hasTutoClear()
     {
->>>>>>> 813e07bebc69e06837d39820a58a5b7410133127
         return progress.tutorialClear;
     }
     public int getMapProgress(mapType mapNum)
