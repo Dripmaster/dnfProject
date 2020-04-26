@@ -12,7 +12,7 @@ public class DungeonUiManager : MonoBehaviour
     bool isOpen = false;
     bool doingChange = false;
 
-    mapType mapType;
+    mapType selectMapType;
 
     // Start is called before the first frame update
     void Awake()
@@ -72,7 +72,7 @@ public class DungeonUiManager : MonoBehaviour
         dungeonUi.transform.Find("names").transform.Find("dark").gameObject.SetActive(false);
         dungeonUi.transform.Find("names").transform.Find("glory").gameObject.SetActive(false);
 
-        switch (mapType)
+        switch (selectMapType)
         {
             case mapType.grass:
                 dungeonUi.transform.Find("names").transform.Find("grass").gameObject.SetActive(true);
@@ -99,17 +99,17 @@ public class DungeonUiManager : MonoBehaviour
                 dungeonUi.transform.Find("names").transform.Find("glory").gameObject.SetActive(true);
                 break;
         }
-        dungeonUi.transform.Find("bestFloor").GetComponent<Text>().text = playerDataManager.instance.getMapProgress(mapType).ToString();
+        dungeonUi.transform.Find("bestFloor").GetComponent<Text>().text = playerDataManager.instance.getMapProgress(selectMapType).ToString();
 
-        if (playerDataManager.instance.getMapProgress(mapType) >= 10)
+        if (playerDataManager.instance.getMapProgress(selectMapType) >= 10)
             dungeonUi.transform.Find("clear").gameObject.SetActive(true);
         else
             dungeonUi.transform.Find("clear").gameObject.SetActive(false);
     }
 
-    public void OpenDungeonUi(mapType mapType)
+    public void OpenDungeonUi(mapType map)
     {
-        this.mapType = mapType;
+        selectMapType = map;
         canvas.SetActive(true);
         isOpen = true;
         InitImage();
@@ -122,5 +122,12 @@ public class DungeonUiManager : MonoBehaviour
             canvas.SetActive(false);
         }
 
+    }
+
+    public void OnClickPlay()
+    {
+        playerDataManager.instance.setMap((int)selectMapType);
+        SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
+        sceneChangeManager.ChangeScene("main", 1, 1f);
     }
 }
