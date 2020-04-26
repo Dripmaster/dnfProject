@@ -26,7 +26,7 @@ public class LevelManager : MonoBehaviour
         loadSprite();
         DamageReceiver.init(enemyPrefab);
         setEnemy();
-
+        mapNum = playerDataManager.instance.getMap();
     }
     void loadSprite() {
         foreach (var typeItem in Enum.GetNames(typeof(type)))
