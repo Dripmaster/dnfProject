@@ -37,6 +37,7 @@ public static class DamageReceiver
             else {
                 enemyRemain = true;
             }
+
         return enemyRemain;
     }
     public static void setEnemy(mapMaker.TileList tileList, GameObject enemyPrefab) {
@@ -80,8 +81,12 @@ public static class DamageReceiver
                 enemys[i].hitted(atkPoint);
                 showHitEffect(enemys[i].getCol());
                 EffectManager.instance.AddDamage(atkPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
+
+                //playerFSM.instance.addCombo(1);
             }
         }
+        if(successCount>0)
+        playerFSM.instance.addCombo(successCount);
         return attackOk;
     }
     static bool isColMonster(Vector2 ePos) {

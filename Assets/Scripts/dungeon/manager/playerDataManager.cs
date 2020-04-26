@@ -8,7 +8,8 @@ public class playerDataManager : MonoBehaviour
     public static playerDataManager instance = null;
     playerInven inven;
     playerProgress progress;
-
+    item currendEquip;
+    int mapLevel;
     [System.Serializable]
     public class playerInven
     {
@@ -32,6 +33,18 @@ public class playerDataManager : MonoBehaviour
                 playerInventory.Add(new item(playerInventory.Count, 1, type));
             }
         }
+        public item getItemById(int id) {
+            item r = null;
+            foreach (var i in playerInventory)
+            {
+                if (i.id == id)
+                {
+                    r = i;
+                    break;
+                }
+            }
+            return r;
+        }
         public int getItem(int type, int count = 0)
         {
             int value = 0;
@@ -42,9 +55,7 @@ public class playerDataManager : MonoBehaviour
                     i.count -= count;
                     value = i.count;
                     break;
-
                 }
-
             }
             return value;
         }
@@ -116,7 +127,12 @@ public class playerDataManager : MonoBehaviour
 
         }
         if (jsonString != null)
+        {
             inven = JsonUtility.FromJson<playerInven>(jsonString);
+            int equip_id = PlayerPrefs.GetInt("equip",-1);
+            if(equip_id!=-1)
+            currendEquip = inven.getItemById(equip_id);
+        }
         if (inven == null)
         {
             inven = new playerInven();
@@ -183,5 +199,18 @@ public class playerDataManager : MonoBehaviour
     {
         progress.floorProgress[(int)mapNum] = value;
         SaveProgress();
+    }
+    public void setEquip(item weapon) {
+        currendEquip = weapon;
+        PlayerPrefs.SetInt("equip",weapon.id);
+    }
+    public item getEquip() {
+        return currendEquip;
+    }
+    public void setMap(int m) {
+        mapLevel = m;
+    }
+    public int getMap() {
+        return mapLevel;
     }
 }
