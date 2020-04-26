@@ -49,7 +49,7 @@ public class bulletEffect : EffectScript
             DamageReceiver.playerHit(attackPoint);
             gameObject.SetActive(false);
 
-            EffectScript es = EffectManager.getEffect(col.ClosestPoint(transform.position));
+            EffectScript es = EffectManager.instance.getEffect(col.ClosestPoint(transform.position));
             es.initAni(effPath);
             es.gameObject.SetActive(true);
         }
@@ -57,7 +57,7 @@ public class bulletEffect : EffectScript
         {
             gameObject.SetActive(false);
 
-            EffectScript es = EffectManager.getEffect(col.ClosestPoint(transform.position));
+            EffectScript es = EffectManager.instance.getEffect(col.ClosestPoint(transform.position));
             es.initAni(effPath);
             es.gameObject.SetActive(true);
         }

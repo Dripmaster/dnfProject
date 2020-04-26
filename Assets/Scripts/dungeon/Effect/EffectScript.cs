@@ -10,6 +10,7 @@ public class EffectScript : MonoBehaviour
     float tempTime;
     SpriteRenderer sr;
     Color c;
+    bool isitemGain = false;
     // Start is called before the first frame update
     public void Awake()
     {
@@ -22,11 +23,18 @@ public class EffectScript : MonoBehaviour
     {
         c.a = 1;
         sr.color = c;
+        if (isitemGain)
+            deleteTime = 1f;
+        else
+            deleteTime = 0.5f;
     }
-    public void setImage(Sprite s) {
+    public void setImage(Sprite s,bool value = false) {
         _anim.enabled = false;
         sr.sprite = s;
         StartDelete = true;
+        if (value) {
+            isitemGain = true;
+        }
         gameObject.SetActive(true);
     }
     public void initAni(string path ,float speed=0.5f) {
@@ -51,6 +59,9 @@ public class EffectScript : MonoBehaviour
             tempTime += Time.deltaTime;
             if (tempTime >= deleteTime)
             {
+                if (isitemGain) {
+                    EffectManager.instance.popitemGain(this);
+                }
                 gameObject.SetActive(false);
                 StartDelete = false;
                 tempTime = 0;

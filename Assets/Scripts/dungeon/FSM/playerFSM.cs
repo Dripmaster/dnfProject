@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 using UnityEditor;
 using System;
@@ -27,19 +28,28 @@ public class playerFSM : FSMbase
     BoxCollider2D _Colider;
     public GameObject myAlert;
     public myParticle myparticle;
+    GameObject darkScreen;
+    SpriteRenderer confuseAni;
+    Image hpBar;
+    Image myHeart;
     bool isFreeze = false;
     bool canDash;
+    bool isHitted = false;
+
     bool isKnockBack = false;
     bool confuseKey;
+    bool isEyeDebuff = false;
 
     // Use this for initialization
     new void Awake()
     {
         base.Awake();
-        
         instance = this;
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
+
+        hpBar = GameObject.Find("hpBar_fg").GetComponent<Image>();
+        myHeart = GameObject.Find("Heart").GetComponent<Image>();
         dashDir = new Vector2(0, 0);
         speedRate = 100;
         atkNum = 0;
@@ -49,6 +59,10 @@ public class playerFSM : FSMbase
         DamageReceiver.addPlayer(this);
         if(myAlert ==null)
             myAlert = GameObject.Find("noHp");
+        if (darkScreen == null)
+            darkScreen = GameObject.Find("darkScreen");
+        if (confuseAni == null)
+            confuseAni = GameObject.Find("confuseAni").GetComponent<SpriteRenderer>(); ;
         setAlert(false);
         sEffect = Camera.main.GetComponent<sceneEffect>();
     }
@@ -56,9 +70,13 @@ public class playerFSM : FSMbase
     {
         base.OnEnable();
         canDash = true;
+        isHitted = false;
         confuseKey = false;
         isKnockBack = false;
         isFreeze = false;
+        isEyeDebuff = false;
+        if(darkScreen != null)
+        darkScreen.SetActive(isEyeDebuff);
         myparticle.Stop();
         myparticle.setSr(GetComponent<SpriteRenderer>());
         init_Stat();
@@ -67,6 +85,54 @@ public class playerFSM : FSMbase
             _anim.initAnims("attack/" + i);
         }
         setState(State.idle);
+        if(hpBar!=null)
+        StartCoroutine(lerpHPbar());
+        if(myHeart!=null)
+        StartCoroutine(transHeart());
+        if (confuseAni != null)
+            confuseAni.enabled = (false);
+    }
+    IEnumerator transHeart()
+    {
+        Color hColor = Color.white;
+        float alpha = 1;
+        float alphaDir = 1;
+        do
+        {
+            float amount = hp / maxHp;
+            alpha -= Time.deltaTime * alphaDir;
+            if ((alphaDir==1)&&(amount - 0.1f > alpha)) {
+                alphaDir *= -1;
+            }
+            if ((alphaDir == -1) && (amount < alpha))
+            {
+                alphaDir *= -1;
+            }
+            hColor.a = alpha;
+            myHeart.color = hColor;
+            yield return null;
+        } while (hp > 0);
+        myHeart.color= hColor;
+    }
+    IEnumerator lerpHPbar()
+    {
+        do
+        {
+            if (hp != maxHp)
+            {
+                do
+                {
+                    hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, hp / maxHp, Time.deltaTime * 5);
+                    yield return null;
+                } while (hpBar.fillAmount - (hp / maxHp) >= 0.01f);
+                hpBar.fillAmount = hp / maxHp;
+            }
+            else {
+                yield return null;
+            }
+        } while (hp>0);
+                hpBar.fillAmount = 0;
+        
     }
     void dashEffect(int i) {
         dashEffects[i].SetActive(true);
@@ -181,6 +247,8 @@ public class playerFSM : FSMbase
             if (dashState)
                 moveDir = dashDir;
 
+            if (confuseKey)
+                moveDir *= -1;
             degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
             _anim.setDir(degree);
             attackfan = moveDir;
@@ -188,8 +256,6 @@ public class playerFSM : FSMbase
             if (objectState == State.attack) {
                 moveDir *= 0.1f;
             }
-            if (confuseKey)
-                moveDir *= -1;
             if (!dashState)
             {
                 // RBD.velocity = moveDir * moveSpeed * speedRate / 100;
@@ -206,10 +272,10 @@ public class playerFSM : FSMbase
                 movecount = t;
                 if (t >= 2)
                 {
-                    RBD.MovePosition((Vector2)transform.position + dashDir * moveSpeed * dashRate / 100 / Mathf.Sqrt(2) * Time.deltaTime);
+                    RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * dashRate / 100 / Mathf.Sqrt(2) * Time.deltaTime);
                 }
                 else
-                    RBD.MovePosition((Vector2)transform.position + dashDir * moveSpeed * dashRate / 100 * Time.deltaTime);
+                    RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * dashRate / 100 * Time.deltaTime);
             }
             //RBD.velocity = dashDir * moveSpeed * dashRate / 100;
             return true;
@@ -243,13 +309,20 @@ public class playerFSM : FSMbase
         return false;
     }
     public void hitted(float damage) {
+        if (isHitted) {
+            return;
+        }
         if (hp <= 0)
             return;
         if (!__hpFix)
             hp -= damage;
         setAlert(true);
-        if (hp <= 0) {
+        if (hp <= 0)
+        {
             setState(State.dead);
+        }
+        else {
+            StartCoroutine(hit());
         }
     }
     IEnumerator idle()
@@ -302,6 +375,8 @@ public class playerFSM : FSMbase
     }
     IEnumerator dead()
     {
+
+        RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         do
         {
             yield return null;
@@ -313,12 +388,22 @@ public class playerFSM : FSMbase
             }
         } while (!newState);
     }
+    IEnumerator hit()
+    {
+        isHitted = true;
+        _anim.setColor(new Color(0.5f, 0.5f, 0.5f, 1));
+        yield return new WaitForSeconds(0.1f);
+        _anim.setColor(new Color(1, 1, 1, 1));
+        isHitted = false;
+    }
     public void confuseStart() {
         confuseKey = true;
         StartCoroutine(confuse());
     }
     IEnumerator confuse() {
+        confuseAni.enabled = true;
         yield return new WaitForSeconds(3f);
+        confuseAni.enabled = false;
         confuseKey = false;
     }
     IEnumerator move()
@@ -355,6 +440,17 @@ public class playerFSM : FSMbase
     public void startDarkSide()
     {
         StartCoroutine(darkSide());
+    }
+    public void cutEye() { 
+        
+        StartCoroutine(eyeSizeDown());
+    }
+    IEnumerator eyeSizeDown() {
+        darkScreen.SetActive(true);
+        isEyeDebuff = true;
+        yield return new WaitForSeconds(3);
+        isEyeDebuff = false;
+        darkScreen.SetActive (false);
     }
 
     IEnumerator darkSide()
@@ -394,7 +490,7 @@ public class playerFSM : FSMbase
             {
                 shakeCamera();
             }
-            EffectScript es = EffectManager.getEffect(transform.position);
+            EffectScript es = EffectManager.instance.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/1",attackSpeed/2);
             es.gameObject.SetActive(true);
@@ -403,7 +499,7 @@ public class playerFSM : FSMbase
         }
         else
         {
-            EffectScript es = EffectManager.getEffect(transform.position);
+            EffectScript es = EffectManager.instance.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeed);
             es.gameObject.SetActive(true);
@@ -449,7 +545,7 @@ public class playerFSM : FSMbase
                 if (secondAtk)
                 {
                     
-                    EffectScript es = EffectManager.getEffect(transform.position);
+                    EffectScript es = EffectManager.instance.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeed/2);
                     es.gameObject.SetActive(true);

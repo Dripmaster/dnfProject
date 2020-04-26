@@ -17,6 +17,7 @@ public class playerDataManager : MonoBehaviour
         public void addItem(int type)
         {
             bool need = true;
+            if(type<=(int)itemType.sword)
             foreach (var i in playerInventory)
             {
                 if (i.type == type)

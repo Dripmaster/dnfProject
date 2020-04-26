@@ -49,8 +49,10 @@ public class EnemyFSM : FSMbase
         initSkill();
     }
     void initSkill() {
-        if(myType == type.boss)
-        setSkill(skillType.KnockBack);
+        if (myType == type.boss)
+            setSkill(skillType.Confuse);
+        else
+            setSkill(0,false);
     }
     void setColider() {
         switch (myType)
@@ -116,8 +118,6 @@ public class EnemyFSM : FSMbase
         moveDir = Vector2.zero;
         moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
         RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * -1*Time.deltaTime/2);
-        
-
     }
 
     void lookPlayer()
@@ -155,7 +155,6 @@ public class EnemyFSM : FSMbase
         return false;
     }
     public void hitted(float damage) {
-        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
         if (sr.color.a>=0.5f) {
             hpFrame.gameObject.SetActive(true);
             hpBar.gameObject.SetActive(true);
@@ -167,7 +166,9 @@ public class EnemyFSM : FSMbase
         }
         if(!__hpFix)
         hp -= damage;
-        StartCoroutine(lerpHPbar());
+
+        if (gameObject.activeInHierarchy)
+            StartCoroutine(lerpHPbar());
         if (hp <= 0)
         {
             hp = 0;
@@ -176,6 +177,7 @@ public class EnemyFSM : FSMbase
             itemGen();
         }
         else if(myType!=type.boss){
+            RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
             _anim.speed = 0.1f;
             setState(State.hited);
         }
@@ -218,7 +220,7 @@ public class EnemyFSM : FSMbase
     void spawnBullet() {
         if (myType == type.Long)
         {
-            bulletEffect b = EffectManager.getbullet(transform.position);
+            bulletEffect b = EffectManager.instance.getbullet(transform.position);
             b.transform.Rotate(new Vector3(0, 0, (Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
             b.setAnim(name, attackPoint, myType == type.boss);
             b.gameObject.SetActive(true);
@@ -227,7 +229,7 @@ public class EnemyFSM : FSMbase
             bulletEffect b;
             for (int i = -2; i < 3; i++)
             {
-                b = EffectManager.getbullet(transform.position);
+                b = EffectManager.instance.getbullet(transform.position);
                 b.transform.Rotate(new Vector3(0, 0, 25 * i + (Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
                 b.setAnim(name, attackPoint, myType == type.boss);
                 b.gameObject.SetActive(true);
@@ -239,8 +241,7 @@ public class EnemyFSM : FSMbase
     {
         RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         bool doneAttack = false;
-        if (mySkillStrategy != null)
-            StartCoroutine(skill());
+        
         do
         {
             _anim.setSpeed(1);
@@ -252,18 +253,31 @@ public class EnemyFSM : FSMbase
                 attackBar.gameObject.SetActive(true);
                 attackFrame.gameObject.SetActive(true);
                 attackBar.fillAmount = 0;
-                doEffect1.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
-                doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
                 float tempTime = 0f;
-                
-                do {
-                    attackBar.fillAmount = tempTime/ attackStopTime;
-                    yield return new WaitForSeconds(attackStopTime/10);
-                    tempTime += attackStopTime / 10f;
-                    if (tempTime >= attackStopTime)
-                        break;
-                } while(true);
+
+                if (mySkillStrategy != null)
+                {
+                    yield return StartCoroutine(skill());
+                }
+                else
+                {
+                    doEffect1.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
+                    doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
+                    do
+                    {
+                        attackBar.fillAmount = tempTime / attackStopTime;
+                        yield return new WaitForSeconds(attackStopTime / 10);
+                        tempTime += attackStopTime / 10f;
+                        if (tempTime >= attackStopTime)
+                            break;
+                    } while (true);
+                }
                 _anim.reOn();
+
+                if (hp <= 0)
+                {
+                    continue;
+                }
                 if (myType != type.Short)
                     spawnBullet();
                 else if(detectPlayer() && objectState == State.attack)
@@ -314,12 +328,22 @@ public class EnemyFSM : FSMbase
         } while (!newState);
     }
     IEnumerator skill() {
-        //!TODO effectManager gogo rererererrerererererere
+        //!TODO EffectManager.instance.gogo rererererrerererererere 1.enemy 생성때 보스면 파티클추가 및 색 조정, 그 후 플레이만 눌러서 하는걸로
         GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/glowParticle"), transform.position, Quaternion.identity);
-        g.GetComponent<ParticleSystem>().Play();
-        GameObject.Destroy(g, 0.5f);
 
-        yield return new WaitForSeconds(0.5f);
+        ParticleSystem[] p = g.GetComponentsInChildren<ParticleSystem>();
+        foreach (var item in p)
+        {
+
+            ParticleSystem.MainModule mainModule = item.main;
+
+            mainModule.startColor = Color.green;
+        }
+        g.GetComponent<ParticleSystem>().Play();
+        GameObject.Destroy(g, 1.5f);
+
+        yield return new WaitForSeconds(1.5f);
+        if(hp>0)
         doSkill();
     }
     private void OnDrawGizmos()
@@ -355,11 +379,17 @@ public class EnemyFSM : FSMbase
             StartCoroutine(lerpHPbar());
         }
     }
-    public void setSkill(skillType sType) {
+    public void setSkill(skillType sType,bool value = true) {
+        if (!value)
+        {
+            mySkillStrategy = null;
+            return;
+        }
         switch (sType) {
             case skillType.Confuse: mySkillStrategy = new confuseKeySkill();break;
             case skillType.KnockBack: mySkillStrategy = new knockBackSkill();break;
             case skillType.DarkSide: mySkillStrategy = new daskSideSkill(gameObject);break;
+            case skillType.DarkScreen: mySkillStrategy = new eyeCutSkill();break;
             default: break;
         }
         mySkillStrategy.setTrans(transform,attackRange);
@@ -373,13 +403,22 @@ public class EnemyFSM : FSMbase
             playerFSM.instance.confuseStart();
         }
     }
+    class eyeCutSkill : skillStrategy
+    {
+
+        override
+        public void doSkill()
+        {
+            playerFSM.instance.cutEye();
+        }
+    }
     class knockBackSkill : skillStrategy
     {
 
         override
             public void doSkill()
         {
-            //!TODO effectManager gogo ererererererer
+            //!TODO EffectManager.instance.gogo ererererererer
             GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/shockWaveParticle"), myTrans.position, Quaternion.identity);
                 g.GetComponent<ParticleSystem>().Play();
             GameObject.Destroy(g,2f);

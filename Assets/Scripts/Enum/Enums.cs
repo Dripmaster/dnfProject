@@ -44,6 +44,6 @@ public enum skillType {
     Confuse = 1,
     KnockBack,
     DarkSide,
-
+    DarkScreen,
 
 };

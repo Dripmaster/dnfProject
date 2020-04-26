@@ -17,6 +17,8 @@ public static class DamageReceiver
         }
     }
     public static void addEnemy(EnemyFSM e) {
+
+        e.transform.parent = GameObject.Find("EnemyParent").transform;
         enemys.Add(e);
     }
     public static bool isEnemyRemain()
@@ -66,14 +68,18 @@ public static class DamageReceiver
 
     public static bool playerAttack(float attackPoint,bool cheet = false) {
         bool attackOk = false;
+        int atkPoint;
+        int successCount = 0;
         for (int i = 0; i < enemys.Count; i++)
         {
             if (!enemys[i].isDead() && (isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position))||cheet))
             {
-                attackOk = true;
-                enemys[i].hitted(attackPoint);
+                atkPoint = (int)(attackPoint * Random.Range(0.9f, 1.2f));
+                   attackOk = true;
+                successCount++;
+                enemys[i].hitted(atkPoint);
                 showHitEffect(enemys[i].getCol());
-                EffectManager.AddDamage(attackPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
+                EffectManager.instance.AddDamage(atkPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
             }
         }
         return attackOk;
@@ -93,8 +99,8 @@ public static class DamageReceiver
     static void showHitEffect(BoxCollider2D mColider)
     {
         //Vector2 RandomDir = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
-        //EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
-        EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
+        //EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
+        EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
         //es.setOffset(Random.Range(0,10)/100f);
         es.initAni("effect/playerHit/" + player.name);
         es.gameObject.SetActive(true);
