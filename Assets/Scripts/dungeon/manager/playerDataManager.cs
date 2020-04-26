@@ -124,7 +124,6 @@ public class playerDataManager : MonoBehaviour
         }
         catch
         {
-
         }
         if (jsonString != null)
         {
@@ -200,6 +199,14 @@ public class playerDataManager : MonoBehaviour
         progress.floorProgress[(int)mapNum] = value;
         SaveProgress();
     }
+    public float showAtkPoint(item waepon) {
+        int weaponLevel = 0;
+        foreach (var i in waepon.upgradeList)
+        {
+            weaponLevel += i;
+        }
+        return weaponLevel * (weaponLevel % 10);
+     }
     public void setEquip(item weapon) {
         currendEquip = weapon;
         PlayerPrefs.SetInt("equip",weapon.id);
