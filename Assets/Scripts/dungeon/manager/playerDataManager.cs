@@ -8,6 +8,9 @@ public class playerDataManager : MonoBehaviour
     public static playerDataManager instance = null;
     playerInven inven;
     playerProgress progress;
+    potionInfo hpPotion;
+    potionInfo cleanPotion;
+
     item currendEquip;
     int mapLevel;
     [System.Serializable]
@@ -18,16 +21,16 @@ public class playerDataManager : MonoBehaviour
         public void addItem(int type)
         {
             bool need = true;
-            if(type<=(int)itemType.sword)
-            foreach (var i in playerInventory)
-            {
-                if (i.type == type)
+            if (type <= (int)itemType.sword)
+                foreach (var i in playerInventory)
                 {
-                    i.count++;
-                    need = false;
-                    break;
+                    if (i.type == type)
+                    {
+                        i.count++;
+                        need = false;
+                        break;
+                    }
                 }
-            }
             if (need)
             {
                 playerInventory.Add(new item(playerInventory.Count, 1, type));
@@ -83,6 +86,7 @@ public class playerDataManager : MonoBehaviour
             return;
         }
         DontDestroyOnLoad(gameObject);
+        currendEquip = null;
         loadInventory();
         loadProgress();
     }
@@ -109,6 +113,21 @@ public class playerDataManager : MonoBehaviour
             progress = new playerProgress();
             SaveProgress();
         }
+    }
+    public void setPotionInfo(potionInfo p,int v)
+    {
+        if (v==0)
+        {
+            hpPotion = p;
+            hpPotion.setItemCount((inven.getItem((int)itemType.healPotion, 0)));
+        }
+        else
+        {
+            cleanPotion = p;
+            cleanPotion.setItemCount((inven.getItem((int)itemType.clearPotion, 0)));
+
+        }
+
     }
     void saveInventory()
     {//NOTICE : 인벤토리 변경이 있을때마다 호출 !
@@ -174,6 +193,14 @@ public class playerDataManager : MonoBehaviour
             {
                 inven.getItem((int)type, count);
                 saveInventory();
+                if (type == itemType.clearPotion)
+                {
+                    cleanPotion.setItemCount(inven.getItem((int)type));
+                }
+                else if (type == itemType.healPotion)
+                { 
+                hpPotion.setItemCount(inven.getItem((int)type));
+                }
             }
             return true;
         }
@@ -201,6 +228,9 @@ public class playerDataManager : MonoBehaviour
     }
     public float showAtkPoint(item waepon) {
         int weaponLevel = 0;
+        if (waepon == null) {
+            return 0;
+        }
         foreach (var i in waepon.upgradeList)
         {
             weaponLevel += i;
@@ -214,6 +244,7 @@ public class playerDataManager : MonoBehaviour
     public item getEquip() {
         return currendEquip;
     }
+
     public void setMap(int m) {
         mapLevel = m;
     }

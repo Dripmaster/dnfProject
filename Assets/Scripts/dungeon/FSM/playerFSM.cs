@@ -52,7 +52,6 @@ public class playerFSM : FSMbase
         instance = this;
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
-
         hpBar = GameObject.Find("hpBar_fg").GetComponent<Image>();
         myHeart = GameObject.Find("Heart").GetComponent<Image>();
         dashDir = new Vector2(0, 0);
@@ -72,7 +71,8 @@ public class playerFSM : FSMbase
         sEffect = Camera.main.GetComponent<sceneEffect>();
         cText = GameObject.Find("comboCanvas").GetComponentsInChildren<comboText>();
         itemParticle = GetComponentsInChildren<ParticleSystem>();
-        
+        if(playerDataManager.instance.getEquip() != null)
+        myType = (type)(playerDataManager.instance.getEquip().type-7);
     }
     new private void OnEnable()
     {
@@ -87,7 +87,9 @@ public class playerFSM : FSMbase
             darkScreen.SetActive(isEyeDebuff);
         myparticle.Stop();
         myparticle.setSr(GetComponent<SpriteRenderer>());
+        
         init_Stat();
+        attackPoint += playerDataManager.instance.showAtkPoint(playerDataManager.instance.getEquip());
         for (int i = 1; i < 4; i++)
         {
             _anim.initAnims("attack/" + i);
@@ -141,7 +143,7 @@ public class playerFSM : FSMbase
                 {
                     hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, hp / maxHp, Time.deltaTime * 5);
                     yield return null;
-                } while (hpBar.fillAmount - (hp / maxHp) >= 0.01f);
+                } while ((hpBar.fillAmount - (hp / maxHp) >= 0.01f) || (hpBar.fillAmount - (hp / maxHp)<=-0.01f));
                 hpBar.fillAmount = hp / maxHp;
             }
             else {
@@ -223,7 +225,7 @@ public class playerFSM : FSMbase
             RBD.MovePosition(Vector2.Lerp(transform.position, moveDir * 5 + (Vector2)tempPos, Time.deltaTime * 5));
             tempTime += Time.deltaTime;
             yield return null;
-        } while ((Vector2.Distance(tempPos, transform.position) <= 5f) && tempTime <= 1f);
+        } while (isKnockBack&&((Vector2.Distance(tempPos, transform.position) <= 5f) && tempTime <= 1f));
         RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         isKnockBack = false;
         Physics2D.IgnoreLayerCollision(8, 9, false);
@@ -392,10 +394,10 @@ public class playerFSM : FSMbase
             if (result>0)
             {
                 if(result==1)
-                    used = playerDataManager.instance.popItem(itemType.healPotion,1);
+                    used = playerDataManager.instance.popItem(itemType.healPotion,1,false);
 
                 if (result == 2)
-                    used = playerDataManager.instance.popItem(itemType.clearPotion, 1);
+                    used = playerDataManager.instance.popItem(itemType.clearPotion, 1, false);
                 if (used) {
                     itemUse(result);
                 }
@@ -403,8 +405,32 @@ public class playerFSM : FSMbase
             yield return null;
         } while (gameObject.activeInHierarchy);
     }
+    void CleanPlayer() {
+         isKnockBack = false;
+         confuseKey = false;
+        confuseAni.enabled = false;
+         isEyeDebuff = false;
+        darkScreen.SetActive(false);
+    }
+    IEnumerator healingPlayer() {
+        int count = 0;
+        do
+        {
+            hp += maxHp * 0.05f;
+            if (hp >= maxHp)
+                hp = maxHp;
+            yield return new WaitForSeconds(1);
+        } while (++count<5);
+    }
     void itemUse(int n) {
         itemParticle[n-1].Play();
+        if (n == 1)
+        {
+            StartCoroutine(healingPlayer());
+        }
+        else {
+            CleanPlayer();
+        }
     }
     int itemInput() {
         int result = 0;
