@@ -15,6 +15,9 @@ public class InitSelectScene : MonoBehaviour
     {
         SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
         sceneChangeManager.HideScene(1);
+
+        //playerDataManager.instance.setMapProgress(mapType.miniWater, 10); //치트키 
+
         int miniGrassFloor = playerDataManager.instance.getMapProgress(mapType.miniGrass);
         int miniFireFloor = playerDataManager.instance.getMapProgress(mapType.miniFire);
         int miniWaterFloor = playerDataManager.instance.getMapProgress(mapType.miniWater);

@@ -49,6 +49,38 @@ public class MouseEvent : MonoBehaviour
         {
             GameObject.Find("townUi").gameObject.GetComponent<TownUiManager>().OpenTownUi();
         }
+        if (gameObject.tag == "selectDungeon")
+        {
+            mapType mapType = mapType.grass;
+            switch (gameObject.name)
+            {
+                case "grass":
+                    mapType = mapType.grass;
+                    break;
+                case "grass_1":
+                    mapType = mapType.miniGrass;
+                    break;
+                case "fire":
+                    mapType = mapType.fire;
+                    break;
+                case "fire_1":
+                    mapType = mapType.miniFire;
+                    break;
+                case "water":
+                    mapType = mapType.water;
+                    break;
+                case "water_1":
+                    mapType = mapType.miniWater;
+                    break;
+                case "dark":
+                    mapType = mapType.dark;
+                    break;
+                case "glory":
+                    mapType = mapType.glow;
+                    break;
+            }
+            GameObject.Find("dungeonUi").gameObject.GetComponent<DungeonUiManager>().OpenDungeonUi(mapType);
+        }
     }
 
     IEnumerator RunMarkWave(float speed, float distance)
