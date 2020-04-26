@@ -21,8 +21,12 @@ public class FSMbase : MonoBehaviour
     protected float attackSpeed = 0.5f;
     public float attackAngle = 50f;
     public bool __hpFix = false;
+    protected SpriteRenderer sr;
+
+    protected skillStrategy mySkillStrategy;
     public void Awake()
     {
+        sr = GetComponent<SpriteRenderer>();
         objectState = State.idle;
         if(_anim == null)
         _anim = GetComponent<myAnimator>();
@@ -58,6 +62,7 @@ public class FSMbase : MonoBehaviour
     {
         initAnim();
         setAnim();
+        sr.color = new Color(1,1,1,1);
         StartCoroutine("FSMmain");
     }
 
@@ -104,6 +109,48 @@ public class FSMbase : MonoBehaviour
         {
             yield return null;
         } while (!newState);
+    }
+    
+    
+
+    public void doSkill() {
+        if (mySkillStrategy == null)
+            return;
+        mySkillStrategy.doSkill();
+        //mySkillStrategy = null;
+    }
+    
+
+
+    public class skillStrategy
+    {
+        protected Transform myTrans;
+        protected float checkRange;
+        public void setTrans(Transform t, float f) {
+            myTrans = t;
+            checkRange = f;
+        }
+        virtual public void doSkill() { }
+    }
+    protected class daskSideSkill : skillStrategy
+    {
+        GameObject obj;
+        override
+            public void doSkill()
+        {
+            obj.SendMessage("startDarkSide", SendMessageOptions.DontRequireReceiver);
+        }
+        public daskSideSkill(GameObject o){ obj = o; }
+    }
+
+    protected class waterBombSkill : skillStrategy {
+
+
+    }
+    protected class intagngleSkill : skillStrategy
+    {
+
+
     }
 
 }

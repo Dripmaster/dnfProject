@@ -34,7 +34,7 @@ public class EnemyFSM : FSMbase
     }
     void Update()
     {
-        RBD.velocity = Vector2.zero;   
+        //RBD.velocity = Vector2.zero;   
     }
     new private void OnEnable()
     {
@@ -46,6 +46,13 @@ public class EnemyFSM : FSMbase
         FSMCol = 0;
         setHpBar();
         setColider();
+        initSkill();
+    }
+    void initSkill() {
+        if (myType == type.boss)
+            setSkill(skillType.Confuse);
+        else
+            setSkill(0,false);
     }
     void setColider() {
         switch (myType)
@@ -111,8 +118,6 @@ public class EnemyFSM : FSMbase
         moveDir = Vector2.zero;
         moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
         RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * -1*Time.deltaTime/2);
-        
-
     }
 
     void lookPlayer()
@@ -150,8 +155,7 @@ public class EnemyFSM : FSMbase
         return false;
     }
     public void hitted(float damage) {
-        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
-        if (hp == maxHp) {
+        if (sr.color.a>=0.5f) {
             hpFrame.gameObject.SetActive(true);
             hpBar.gameObject.SetActive(true);
 
@@ -162,7 +166,9 @@ public class EnemyFSM : FSMbase
         }
         if(!__hpFix)
         hp -= damage;
-        hpBar.fillAmount = hp / maxHp;
+
+        if (gameObject.activeInHierarchy)
+            StartCoroutine(lerpHPbar());
         if (hp <= 0)
         {
             hp = 0;
@@ -171,9 +177,19 @@ public class EnemyFSM : FSMbase
             itemGen();
         }
         else if(myType!=type.boss){
+            RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
             _anim.speed = 0.1f;
             setState(State.hited);
         }
+    }
+    IEnumerator lerpHPbar() {
+
+        do {
+
+            hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, hp / maxHp, Time.deltaTime*5);
+            yield return null;
+        } while (hpBar.fillAmount -(hp/maxHp)>=0.01f);
+        hpBar.fillAmount = hp / maxHp;
     }
     void itemGen() {
             itemManager.instance.itemGenerate(transform.position,itemType.gold);
@@ -204,7 +220,7 @@ public class EnemyFSM : FSMbase
     void spawnBullet() {
         if (myType == type.Long)
         {
-            bulletEffect b = EffectManager.getbullet(transform.position);
+            bulletEffect b = EffectManager.instance.getbullet(transform.position);
             b.transform.Rotate(new Vector3(0, 0, (Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
             b.setAnim(name, attackPoint, myType == type.boss);
             b.gameObject.SetActive(true);
@@ -213,7 +229,7 @@ public class EnemyFSM : FSMbase
             bulletEffect b;
             for (int i = -2; i < 3; i++)
             {
-                b = EffectManager.getbullet(transform.position);
+                b = EffectManager.instance.getbullet(transform.position);
                 b.transform.Rotate(new Vector3(0, 0, 25 * i + (Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f)));
                 b.setAnim(name, attackPoint, myType == type.boss);
                 b.gameObject.SetActive(true);
@@ -225,6 +241,7 @@ public class EnemyFSM : FSMbase
     {
         RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         bool doneAttack = false;
+        
         do
         {
             _anim.setSpeed(1);
@@ -236,17 +253,31 @@ public class EnemyFSM : FSMbase
                 attackBar.gameObject.SetActive(true);
                 attackFrame.gameObject.SetActive(true);
                 attackBar.fillAmount = 0;
-                doEffect1.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
-                doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
                 float tempTime = 0f;
-                do {
-                    attackBar.fillAmount = tempTime/ attackStopTime;
-                    yield return new WaitForSeconds(attackStopTime/10);
-                    tempTime += attackStopTime / 10f;
-                    if (tempTime >= attackStopTime)
-                        break;
-                } while(true);
+
+                if (mySkillStrategy != null)
+                {
+                    yield return StartCoroutine(skill());
+                }
+                else
+                {
+                    doEffect1.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
+                    doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
+                    do
+                    {
+                        attackBar.fillAmount = tempTime / attackStopTime;
+                        yield return new WaitForSeconds(attackStopTime / 10);
+                        tempTime += attackStopTime / 10f;
+                        if (tempTime >= attackStopTime)
+                            break;
+                    } while (true);
+                }
                 _anim.reOn();
+
+                if (hp <= 0)
+                {
+                    continue;
+                }
                 if (myType != type.Short)
                     spawnBullet();
                 else if(detectPlayer() && objectState == State.attack)
@@ -295,13 +326,32 @@ public class EnemyFSM : FSMbase
             }
             yield return null;
         } while (!newState);
-        
+    }
+    IEnumerator skill() {
+        //!TODO EffectManager.instance.gogo rererererrerererererere 1.enemy 생성때 보스면 파티클추가 및 색 조정, 그 후 플레이만 눌러서 하는걸로
+        GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/glowParticle"), transform.position, Quaternion.identity);
+
+        ParticleSystem[] p = g.GetComponentsInChildren<ParticleSystem>();
+        foreach (var item in p)
+        {
+
+            ParticleSystem.MainModule mainModule = item.main;
+
+            mainModule.startColor = Color.green;
+        }
+        g.GetComponent<ParticleSystem>().Play();
+        GameObject.Destroy(g, 1.5f);
+
+        yield return new WaitForSeconds(1.5f);
+        if(hp>0)
+        doSkill();
     }
     private void OnDrawGizmos()
     {
         Handles.color = new Color(255, 0, 0, 0.2f);
-        Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90 / 2, attackRange);
+        Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 360, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
+
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -320,4 +370,87 @@ public class EnemyFSM : FSMbase
     public BoxCollider2D getCol() {
         return _Colider;
     }
+    public void glowHeal() {
+        if (name == "glow")
+        {
+            hp += maxHp / 10f;
+            if (hp >= maxHp)
+                hp = maxHp;
+            StartCoroutine(lerpHPbar());
+        }
+    }
+    public void setSkill(skillType sType,bool value = true) {
+        if (!value)
+        {
+            mySkillStrategy = null;
+            return;
+        }
+        switch (sType) {
+            case skillType.Confuse: mySkillStrategy = new confuseKeySkill();break;
+            case skillType.KnockBack: mySkillStrategy = new knockBackSkill();break;
+            case skillType.DarkSide: mySkillStrategy = new daskSideSkill(gameObject);break;
+            case skillType.DarkScreen: mySkillStrategy = new eyeCutSkill();break;
+            default: break;
+        }
+        mySkillStrategy.setTrans(transform,attackRange);
+    }
+    class confuseKeySkill : skillStrategy
+    {
+
+        override
+        public void doSkill()
+        {
+            playerFSM.instance.confuseStart();
+        }
+    }
+    class eyeCutSkill : skillStrategy
+    {
+
+        override
+        public void doSkill()
+        {
+            playerFSM.instance.cutEye();
+        }
+    }
+    class knockBackSkill : skillStrategy
+    {
+
+        override
+            public void doSkill()
+        {
+            //!TODO EffectManager.instance.gogo ererererererer
+            GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/shockWaveParticle"), myTrans.position, Quaternion.identity);
+                g.GetComponent<ParticleSystem>().Play();
+            GameObject.Destroy(g,2f);
+
+            if (Vector2.Distance(playerFSM.instance.transform.position,myTrans.position)<=checkRange)
+            playerFSM.instance.playerKnockBack((playerFSM.instance.transform.position- myTrans.position).normalized);
+        }
+    }
+    public void startDarkSide()
+    {
+        StartCoroutine(darkSide());
+    }
+    IEnumerator darkSide()
+    {
+        Color c = sr.color;
+        do
+        {
+            c.a -= Time.deltaTime;
+            sr.color = c;
+            hpBar.gameObject.SetActive(false);
+            hpFrame.gameObject.SetActive(false);
+            yield return null;
+        } while (c.a >= 0.01f);
+        yield return new WaitForSeconds(1f);
+        do
+        {
+            c.a += Time.deltaTime;
+            sr.color = c;
+            yield return null;
+        } while (c.a <= 0.95f);
+        c.a = 1;
+        sr.color = c;
+    }
+
 }

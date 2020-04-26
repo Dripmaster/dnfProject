@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 using UnityEditor;
 using System;
@@ -8,17 +9,17 @@ using System;
 public class playerFSM : FSMbase
 {
     public static playerFSM instance;
-    
+
     public Vector2 attackfan;//에디터전용
     float speedRate;
     int atkNum;
     int degree;
     Rigidbody2D RBD;
     bool animEnd;
-    public float checkDashTime = 0.75f;//대쉬 가능 시간
+    float checkDashTime = 0.3f;//대쉬 가능 시간
     public float dashRate = 500;
-    float checkDashTimeTemp;
-    int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
+    sceneEffect sEffect;
+    //int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
     bool dashState = false;
     KeyCode downKey;
     Vector2 dashDir;
@@ -27,7 +28,22 @@ public class playerFSM : FSMbase
     BoxCollider2D _Colider;
     public GameObject myAlert;
     public myParticle myparticle;
+    ParticleSystem[] itemParticle;
+    GameObject darkScreen;
+    SpriteRenderer confuseAni;
+    Image hpBar;
+    Image myHeart;
+    comboText[] cText;
+    int nowC;
     bool isFreeze = false;
+    bool canDash;
+    bool isHitted = false;
+    int myComboCount;
+    float comboTimer = 0f;
+
+    bool isKnockBack = false;
+    bool confuseKey;
+    bool isEyeDebuff = false;
 
     // Use this for initialization
     new void Awake()
@@ -36,22 +52,39 @@ public class playerFSM : FSMbase
         instance = this;
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
+
+        hpBar = GameObject.Find("hpBar_fg").GetComponent<Image>();
+        myHeart = GameObject.Find("Heart").GetComponent<Image>();
         dashDir = new Vector2(0, 0);
         speedRate = 100;
         atkNum = 0;
-        checkDashTimeTemp = checkDashTime;
         RBD = GetComponent<Rigidbody2D>();
         _Colider = GetComponent<BoxCollider2D>();
         attackfan = new Vector2(0, -1);
         DamageReceiver.addPlayer(this);
-        if(myAlert ==null)
+        if (myAlert == null)
             myAlert = GameObject.Find("noHp");
+        if (darkScreen == null)
+            darkScreen = GameObject.Find("darkScreen");
+        if (confuseAni == null)
+            confuseAni = GameObject.Find("confuseAni").GetComponent<SpriteRenderer>(); ;
         setAlert(false);
+        sEffect = Camera.main.GetComponent<sceneEffect>();
+        cText = GameObject.Find("comboCanvas").GetComponentsInChildren<comboText>();
+        itemParticle = GetComponentsInChildren<ParticleSystem>();
+        
     }
     new private void OnEnable()
     {
         base.OnEnable();
-        
+        canDash = true;
+        isHitted = false;
+        confuseKey = false;
+        isKnockBack = false;
+        isFreeze = false;
+        isEyeDebuff = false;
+        if (darkScreen != null)
+            darkScreen.SetActive(isEyeDebuff);
         myparticle.Stop();
         myparticle.setSr(GetComponent<SpriteRenderer>());
         init_Stat();
@@ -60,25 +93,72 @@ public class playerFSM : FSMbase
             _anim.initAnims("attack/" + i);
         }
         setState(State.idle);
+        if (hpBar != null)
+            StartCoroutine(lerpHPbar());
+        if (myHeart != null)
+            StartCoroutine(transHeart());
+        if (confuseAni != null)
+            confuseAni.enabled = (false);
+        myComboCount = 0;
+        nowC = 0;
+        comboTimer = 0;
+        foreach (var item in itemParticle)
+        {
+            item.Stop();
+        }
+        StartCoroutine(comboTime());
+        StartCoroutine(inputManage());
     }
-    void Update() {
-        dashCount();
+    IEnumerator transHeart()
+    {
+        Color hColor = Color.white;
+        float alpha = 1;
+        float alphaDir = 1;
+        do
+        {
+            float amount = hp / maxHp;
+            alpha -= Time.deltaTime * alphaDir;
+            if ((alphaDir == 1) && (amount - 0.1f > alpha)) {
+                alphaDir *= -1;
+            }
+            if ((alphaDir == -1) && (amount < alpha))
+            {
+                alphaDir *= -1;
+            }
+            hColor.a = alpha;
+            myHeart.color = hColor;
+            yield return null;
+        } while (hp > 0);
+        myHeart.color = hColor;
+    }
+    IEnumerator lerpHPbar()
+    {
+        do
+        {
+            if (hp != maxHp)
+            {
+                do
+                {
+                    hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, hp / maxHp, Time.deltaTime * 5);
+                    yield return null;
+                } while (hpBar.fillAmount - (hp / maxHp) >= 0.01f);
+                hpBar.fillAmount = hp / maxHp;
+            }
+            else {
+                yield return null;
+            }
+        } while (hp > 0);
+        hpBar.fillAmount = 0;
+
     }
     void dashEffect(int i) {
         dashEffects[i].SetActive(true);
-        
-        dashEffects[i].transform.position = new Vector2(transform.position.x,transform.position.y-0.457f);
+
+        dashEffects[i].transform.position = new Vector2(transform.position.x, transform.position.y - 0.457f);
     }
     void dashCount()
     {
-        if (canDash<3)
-        {
-            checkDashTimeTemp -= Time.deltaTime;
-            if (checkDashTimeTemp < 0) {
-                checkDashTimeTemp = checkDashTime;
-                canDash = 0;
-            }
-        }
+
     }
     public void playerFreeze(bool condition = true) {
         if (condition)
@@ -88,17 +168,18 @@ public class playerFSM : FSMbase
         else {
             isFreeze = false;
         }
-    
+
     }
     void setAlert(bool value) {
-        if (myAlert!= null)
+        if (myAlert != null)
             myAlert.SetActive(value);
     }
     bool dashPlayer() {//dash페이즈 체크
         if (dashState)
             return false;
+        if (canDash == false)
+            return false;
         if (Input.GetKeyDown(KeyCode.LeftShift)) {
-            canDash = 3;
             dashDir.x = 0;
             dashDir.y = 0;
             movecount = 0;
@@ -126,6 +207,27 @@ public class playerFSM : FSMbase
         }
         return false;
     }
+    public void playerKnockBack(Vector2 moveDir) {
+        setState(State.idle);
+        isKnockBack = true;
+        StartCoroutine(knockBack(moveDir));
+    }
+    IEnumerator knockBack(Vector2 moveDir) {
+
+        Vector2 tempPos = transform.position;
+        float tempTime = 0f;
+
+        Physics2D.IgnoreLayerCollision(8, 9);
+        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
+        do {
+            RBD.MovePosition(Vector2.Lerp(transform.position, moveDir * 5 + (Vector2)tempPos, Time.deltaTime * 5));
+            tempTime += Time.deltaTime;
+            yield return null;
+        } while ((Vector2.Distance(tempPos, transform.position) <= 5f) && tempTime <= 1f);
+        RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+        isKnockBack = false;
+        Physics2D.IgnoreLayerCollision(8, 9, false);
+    }
     bool movePlayer()
     {
         if (isFreeze)
@@ -134,7 +236,7 @@ public class playerFSM : FSMbase
         if (!dashState)
             movecount = 0;
         int t = movecount;
-        
+
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             moveDir.x += -1;
@@ -162,6 +264,8 @@ public class playerFSM : FSMbase
             if (dashState)
                 moveDir = dashDir;
 
+            if (confuseKey)
+                moveDir *= -1;
             degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
             _anim.setDir(degree);
             attackfan = moveDir;
@@ -169,7 +273,6 @@ public class playerFSM : FSMbase
             if (objectState == State.attack) {
                 moveDir *= 0.1f;
             }
-
             if (!dashState)
             {
                 // RBD.velocity = moveDir * moveSpeed * speedRate / 100;
@@ -186,26 +289,30 @@ public class playerFSM : FSMbase
                 movecount = t;
                 if (t >= 2)
                 {
-                    RBD.MovePosition((Vector2)transform.position + dashDir * moveSpeed * dashRate / 100 / Mathf.Sqrt(2) * Time.deltaTime);
+                    RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * dashRate / 100 / Mathf.Sqrt(2) * Time.deltaTime);
                 }
                 else
-                    RBD.MovePosition((Vector2)transform.position + dashDir * moveSpeed * dashRate / 100 * Time.deltaTime);
+                    RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * dashRate / 100 * Time.deltaTime);
             }
             //RBD.velocity = dashDir * moveSpeed * dashRate / 100;
             return true;
         }
         else
         {
-            RBD.velocity = Vector2.zero;
-            RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+            if (!isKnockBack)
+            {
+                RBD.velocity = Vector2.zero;
+                RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+            }
         }
         return false;
     }
+
     bool attackInput()
     {
         if (dashState || isFreeze)
             return false;
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Z))
         {
             RBD.velocity = Vector2.zero;
             return true;
@@ -213,21 +320,120 @@ public class playerFSM : FSMbase
         if (Input.GetKey(KeyCode.Tab))
         {
             RBD.velocity = Vector2.zero;
-            DamageReceiver.playerAttack(500000,true);
+            DamageReceiver.playerAttack(500000, true);
             return true;
         }
         atkNum = 1;
         return false;
     }
+    public void addCombo(int addValue) {
+        StartCoroutine(comboCounter(addValue));
+    }
+    IEnumerator comboTime()
+    {
+        do
+        {
+            if (myComboCount > 0)
+            {
+                do
+                {
+                    comboTimer += Time.deltaTime;
+                    yield return null;
+                } while (comboTimer <= 2);
+                myComboCount = 0;
+            }
+            else
+            {
+                yield return null;
+            }
+        }
+        while (gameObject.activeInHierarchy);
+    }
+    IEnumerator comboCounter(int addValue) {
+        do
+        {
+            myComboCount += 1;
+            cText[nowC].setComboValue(myComboCount);
+            nowC++;
+            comboTimer = 0;
+            nowC %= cText.Length;
+            addValue--;
+            yield return new WaitForSeconds(0.1f);
+        } while (addValue >= 0);
+    }
     public void hitted(float damage) {
+        if (isHitted) {
+            return;
+        }
         if (hp <= 0)
             return;
         if (!__hpFix)
             hp -= damage;
         setAlert(true);
-        if (hp <= 0) {
+        if (hp <= 0)
+        {
             setState(State.dead);
         }
+        else {
+            StartCoroutine(hit());
+        }
+    }
+    IEnumerator inputManage() {
+        int result = 0;
+        bool used = false;
+        do
+        {
+            result = skillInput();
+            if (result>0)
+            { 
+            
+            }
+            result = itemInput();
+            if (result>0)
+            {
+                if(result==1)
+                    used = playerDataManager.instance.popItem(itemType.healPotion,1);
+
+                if (result == 2)
+                    used = playerDataManager.instance.popItem(itemType.clearPotion, 1);
+                if (used) {
+                    itemUse(result);
+                }
+            }
+            yield return null;
+        } while (gameObject.activeInHierarchy);
+    }
+    void itemUse(int n) {
+        itemParticle[n-1].Play();
+    }
+    int itemInput() {
+        int result = 0;
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            result = 1;
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            result = 2;
+        }
+        return result;
+    }
+    int skillInput() {
+        int result = 0;
+        return result;
+    }
+    public void setSkill(skillType sType, bool value = true)
+    {
+        if (!value)
+        {
+            mySkillStrategy = null;
+            return;
+        }
+        switch (sType)
+        {
+            case skillType.DarkSide: mySkillStrategy = new daskSideSkill(gameObject); break;
+            default: break;
+        }
+        mySkillStrategy.setTrans(transform, attackRange);
     }
     IEnumerator idle()
     {
@@ -253,13 +459,21 @@ public class playerFSM : FSMbase
 
         } while (!newState);
     }
+    IEnumerator canDashTimer() {
+        yield return new WaitForSeconds(checkDashTime);
+        canDash = true;
+    }
     IEnumerator dashTimer() {
         dashState = true;
+        canDash = false;
         myparticle.Play();
         Physics2D.IgnoreLayerCollision(8,9);
         Physics2D.IgnoreLayerCollision(8,10);
+        Vector2 temppos = transform.position;
         for (int i= 0; i < 5; i++) { 
                 dashEffect(i);
+            if (Vector2.Distance(temppos, transform.position) >= 3.5f)
+                break;
             yield return new WaitForSeconds(0.02f);
         }
         dashDir = Vector2.zero;
@@ -267,10 +481,12 @@ public class playerFSM : FSMbase
         Physics2D.IgnoreLayerCollision(8, 9,false);
         Physics2D.IgnoreLayerCollision(8, 10,false);
         dashState = false;
-        canDash = 0;
+        StartCoroutine(canDashTimer());
     }
     IEnumerator dead()
     {
+
+        RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         do
         {
             yield return null;
@@ -281,6 +497,24 @@ public class playerFSM : FSMbase
                 break;
             }
         } while (!newState);
+    }
+    IEnumerator hit()
+    {
+        isHitted = true;
+        _anim.setColor(new Color(0.5f, 0.5f, 0.5f, 1));
+        yield return new WaitForSeconds(0.1f);
+        _anim.setColor(new Color(1, 1, 1, 1));
+        isHitted = false;
+    }
+    public void confuseStart() {
+        confuseKey = true;
+        StartCoroutine(confuse());
+    }
+    IEnumerator confuse() {
+        confuseAni.enabled = true;
+        yield return new WaitForSeconds(3f);
+        confuseAni.enabled = false;
+        confuseKey = false;
     }
     IEnumerator move()
     {
@@ -308,6 +542,46 @@ public class playerFSM : FSMbase
             }
         } while (!newState);
     }
+    void shakeCamera() {
+        if (sEffect != null) {
+            sEffect.shakeStart();
+        }
+    }
+    public void startDarkSide()
+    {
+        StartCoroutine(darkSide());
+    }
+    public void cutEye() { 
+        
+        StartCoroutine(eyeSizeDown());
+    }
+    IEnumerator eyeSizeDown() {
+        darkScreen.SetActive(true);
+        isEyeDebuff = true;
+        yield return new WaitForSeconds(3);
+        isEyeDebuff = false;
+        darkScreen.SetActive (false);
+    }
+
+    IEnumerator darkSide()
+    {
+        Color c = sr.color;
+        do
+        {
+            c.a -= Time.deltaTime;
+            sr.color = c;
+            yield return null;
+        } while (c.a >= 0.3f);
+        yield return new WaitForSeconds(1f);
+        do
+        {
+            c.a += Time.deltaTime;
+            sr.color = c;
+            yield return null;
+        } while (c.a <= 0.95f);
+        c.a = 1;
+        sr.color = c;
+    }
     IEnumerator attack()
     {
         
@@ -322,8 +596,11 @@ public class playerFSM : FSMbase
 
         if (atkNum == 3 && name == "bigsword")
         {
-            DamageReceiver.playerAttack(attackPoint);
-            EffectScript es = EffectManager.getEffect(transform.position);
+            if (DamageReceiver.playerAttack(attackPoint))
+            {
+                shakeCamera();
+            }
+            EffectScript es = EffectManager.instance.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/1",attackSpeed/2);
             es.gameObject.SetActive(true);
@@ -332,7 +609,7 @@ public class playerFSM : FSMbase
         }
         else
         {
-            EffectScript es = EffectManager.getEffect(transform.position);
+            EffectScript es = EffectManager.instance.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
             es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeed);
             es.gameObject.SetActive(true);
@@ -364,7 +641,10 @@ public class playerFSM : FSMbase
             if (!doneAttack && _anim.isEnd(_anim.sprLength - 3)) {
                 //공격
                 doneAttack = true;
-                DamageReceiver.playerAttack(attackPoint);
+                if (DamageReceiver.playerAttack(attackPoint))
+                {
+                    shakeCamera();
+                }
                 atkNum++;
                 if (atkNum > 3)
                     atkNum = 1;
@@ -375,11 +655,10 @@ public class playerFSM : FSMbase
                 if (secondAtk)
                 {
                     
-                    EffectScript es = EffectManager.getEffect(transform.position);
+                    EffectScript es = EffectManager.instance.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeed/2);
                     es.gameObject.SetActive(true);
-
                     secondAtk = false;
                 }
             }

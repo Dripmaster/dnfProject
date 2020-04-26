@@ -1,12 +1,17 @@
 ﻿public enum itemType
-{
-    gold = 0,
-    darkMat,
-    fireMat,
-    glowMat,
-    grassMat,
-    waterMat,
-};
+    {
+        gold = 0,
+        darkMat,
+        fireMat,
+        glowMat,
+        grassMat,
+        waterMat,
+        healPotion,
+        clearPotion,
+        sword,
+        bigSword,
+        hammer,
+    };
 public enum State
 {
     idle = 0,
@@ -34,4 +39,11 @@ public enum type
     Long,
     Short,
     boss,
+};
+public enum skillType {
+    Confuse = 1,
+    KnockBack,
+    DarkSide,
+    DarkScreen,
+
 };

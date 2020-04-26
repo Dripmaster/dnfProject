@@ -61,3 +61,7 @@ crashlytics-build.properties
 # DataFile
 /[Aa]ssets/Data/*.json
 /[Aa]ssets/Data/*.meta
+
+# TestScene
+particleTestScene.unity
+particleTestScene.unity.meta

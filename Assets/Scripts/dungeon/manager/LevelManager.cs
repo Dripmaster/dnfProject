@@ -16,6 +16,7 @@ public class LevelManager : MonoBehaviour
     List<GameObject> mapObject;
     public GameObject playerPrefab;
     int currentMap = 0;
+    public floorShow floorShow;
     void Awake()
     {
         instance = this;
@@ -65,6 +66,7 @@ public class LevelManager : MonoBehaviour
         do {
             yield return null;
         } while (!mapChangeFrame());
+        floorShow.setFloor();
         Physics2D.IgnoreLayerCollision(8, 11, false);
         playerFSM.instance.playerFreeze(false);
         setEnemy();
@@ -130,6 +132,10 @@ public class LevelManager : MonoBehaviour
                     }
                 }
             }
+        }
+        foreach (var item in mapObject)
+        {
+            item.transform.parent = GameObject.Find("MapParent").transform;
         }
         loadMap();
     }

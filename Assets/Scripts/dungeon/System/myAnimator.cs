@@ -32,10 +32,6 @@ public class myAnimator : MonoBehaviour
         Pause();
         offsetTime = time;
     }
-    void LateUpdate()
-    {
-        
-    }
     void sprUptate_None()
     {//state, 방향 필요 없음
         
@@ -122,6 +118,9 @@ public class myAnimator : MonoBehaviour
     public void reOn()
     {
         aniPause = false;
+    }
+    public void setColor(Color c) {
+        sr.color = c;
     }
     public void setSpeed(float spd) {
         speed = spd;

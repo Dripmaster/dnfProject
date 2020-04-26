@@ -31,10 +31,9 @@ public class itemManager : MonoBehaviour
         if (item == null)
         {
             item = Instantiate(goldItemPrefab, pos, Quaternion.identity).GetComponent<itemBase>();
-            item.transform.SetParent(LevelManager.instance.getCurrentMap().transform);
             itemList.Add(item);
         }
-        
+        item.transform.SetParent(LevelManager.instance.getCurrentMap().transform, true);
         item.gameObject.SetActive(true);
         item.setAnim(type);
     }
@@ -42,7 +41,7 @@ public class itemManager : MonoBehaviour
         //TODO itemHandle필요!!
         switch (type) {
             case itemType.gold:
-                EffectManager.getEffect(playerFSM.instance.transform.position).setImage(effectImage[0]);
+                EffectManager.instance.getEffect(playerFSM.instance.transform.position).setImage(effectImage[0]);
                 playerDataManager.instance.addGold(10);
                 break;
             case itemType.darkMat:
@@ -50,6 +49,7 @@ public class itemManager : MonoBehaviour
             case itemType.glowMat:
             case itemType.grassMat:
             case itemType.waterMat:
+                EffectManager.instance.getEffect(playerFSM.instance.transform.position, true).setImage(effectImage[(int)type],true);
                 playerDataManager.instance.addItem(type);
                 break;
             default:break;

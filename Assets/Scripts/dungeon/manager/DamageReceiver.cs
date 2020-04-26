@@ -17,6 +17,8 @@ public static class DamageReceiver
         }
     }
     public static void addEnemy(EnemyFSM e) {
+
+        e.transform.parent = GameObject.Find("EnemyParent").transform;
         enemys.Add(e);
     }
     public static bool isEnemyRemain()
@@ -35,6 +37,7 @@ public static class DamageReceiver
             else {
                 enemyRemain = true;
             }
+
         return enemyRemain;
     }
     public static void setEnemy(mapMaker.TileList tileList, GameObject enemyPrefab) {
@@ -64,16 +67,27 @@ public static class DamageReceiver
         player.hitted(attackPoint);
     }
 
-    public static void playerAttack(float attackPoint,bool cheet = false) {
+    public static bool playerAttack(float attackPoint,bool cheet = false) {
+        bool attackOk = false;
+        int atkPoint;
+        int successCount = 0;
         for (int i = 0; i < enemys.Count; i++)
         {
             if (!enemys[i].isDead() && (isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position))||cheet))
             {
-                enemys[i].hitted(attackPoint);
+                atkPoint = (int)(attackPoint * Random.Range(0.9f, 1.2f));
+                   attackOk = true;
+                successCount++;
+                enemys[i].hitted(atkPoint);
                 showHitEffect(enemys[i].getCol());
-                EffectManager.AddDamage(attackPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
+                EffectManager.instance.AddDamage(atkPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
+
+                //playerFSM.instance.addCombo(1);
             }
         }
+        if(successCount>0)
+        playerFSM.instance.addCombo(successCount);
+        return attackOk;
     }
     static bool isColMonster(Vector2 ePos) {
         if (Vector2.Distance(ePos, player.transform.position) > player.attackRange)
@@ -90,8 +104,8 @@ public static class DamageReceiver
     static void showHitEffect(BoxCollider2D mColider)
     {
         //Vector2 RandomDir = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
-        //EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
-        EffectScript es = EffectManager.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
+        //EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
+        EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
         //es.setOffset(Random.Range(0,10)/100f);
         es.initAni("effect/playerHit/" + player.name);
         es.gameObject.SetActive(true);

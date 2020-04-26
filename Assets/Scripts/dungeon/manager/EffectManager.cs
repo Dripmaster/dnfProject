@@ -3,28 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public static class EffectManager
+public class EffectManager: MonoBehaviour
 {
-    static List<EffectScript> EffectList;
-    static List<bulletEffect> bulletList;
-    static List<GameObject> DagmageList;
-    static GameObject effectPrefab;
-    static GameObject bulletPrefab;
-    static GameObject damagePrefab;
+    public static EffectManager instance;
+    List<EffectScript> EffectList;
+    List<bulletEffect> bulletList;
+    List<GameObject> DagmageList;
+    List<EffectScript> itemGainList;
+    GameObject effectPrefab;
+    GameObject bulletPrefab;
+    GameObject damagePrefab;
+    Transform effParent;
+    Transform CamParent;
 
+    Vector3 initPos;
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else {
+            Destroy(gameObject);
+        }
+        CamParent = Camera.main.transform;
+        effParent = GameObject.Find("EffectParent").transform;
+        initPos = new Vector3(4.858f,-3.332f,10);
+        if (itemGainList == null)
+            itemGainList = new List<EffectScript>();
+    }
 
-    public static void AddEffect(EffectScript e) {
+    public void AddEffect(EffectScript e) {
         if(EffectList == null)
             EffectList = new List<EffectScript>();
+        e.transform.parent = effParent;
         EffectList.Add(e);
     }
 
-    public static EffectScript getEffect(Transform t) {
+    public EffectScript getEffect(Transform t, bool isitemGain = false) {
 
-        return getEffect(t.position);
+        return getEffect(t.position,isitemGain);
     }
 
-    public static EffectScript getEffect(Vector2 v)
+    public EffectScript getEffect(Vector2 v,bool isitemGain=false)
     {
         if (EffectList == null)
             EffectList = new List<EffectScript>();
@@ -48,26 +69,42 @@ public static class EffectManager
             effect.gameObject.SetActive(false);
             AddEffect(effect);
         }
-        
+        if (isitemGain) {
+            effect.transform.SetParent(CamParent,false) ;
+            itemGainList.Add(effect);
+            setListPosition();
+        }
         return effect;
     }
+    public void setListPosition() {
+        Vector3 tempPos = initPos;
+        foreach (var item in itemGainList)
+        {
+            item.transform.localPosition = tempPos;
+            tempPos.y += 0.5f;
+        }
+    }
+    public void popitemGain(EffectScript e) {
+        e.transform.parent = effParent;
+        itemGainList.Remove(e);
+    }
 
-
-    public static void AddBullet(bulletEffect e)
+    public void AddBullet(bulletEffect e)
     {
         if (bulletList == null)
             bulletList = new List<bulletEffect>();
         bulletList.Add(e);
+        e.transform.parent = effParent;
     }
 
 
-    public static bulletEffect getbullet(Transform t)
+    public bulletEffect getbullet(Transform t)
     {
 
         return getbullet(t.position);
     }
 
-    public static bulletEffect getbullet(Vector2 v)
+    public bulletEffect getbullet(Vector2 v)
     {
         if (bulletList == null)
             bulletList = new List<bulletEffect>();
@@ -95,7 +132,7 @@ public static class EffectManager
         return effect;
     }
 
-    public static void AddDamage(float atkPoint, Vector2 pos, RectTransform damageTextGen)
+    public void AddDamage(float atkPoint, Vector2 pos, RectTransform damageTextGen)
     {
         if (DagmageList == null)
             DagmageList = new List<GameObject>();
