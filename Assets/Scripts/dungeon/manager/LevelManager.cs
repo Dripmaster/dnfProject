@@ -17,6 +17,7 @@ public class LevelManager : MonoBehaviour
     public GameObject playerPrefab;
     int currentMap = 0;
     public floorShow floorShow;
+    public bool spawnEnemy = true;
     void Awake()
     {
         instance = this;
@@ -25,6 +26,7 @@ public class LevelManager : MonoBehaviour
         initmap();
         loadSprite();
         DamageReceiver.init(enemyPrefab);
+        if(spawnEnemy)
         setEnemy();
         mapNum = playerDataManager.instance.getMap();
     }

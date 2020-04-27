@@ -542,6 +542,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 3209377521178791886, guid: 43631053864f24e409774b11f3f4c73c,
     type: 3}
   floorShow: {fileID: 459705221}
+  spawnEnemy: 1
 --- !u!114 &519420034
 MonoBehaviour:
   m_ObjectHideFlags: 0

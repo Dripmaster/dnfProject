@@ -19,6 +19,7 @@ public enum State
     attack,
     dead,
     hited,
+    skill
 };
 public enum mapType
 {

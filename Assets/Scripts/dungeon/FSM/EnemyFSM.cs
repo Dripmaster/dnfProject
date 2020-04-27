@@ -10,6 +10,7 @@ public class EnemyFSM : FSMbase
     Rigidbody2D RBD;
     Vector2 moveDir;
     BoxCollider2D _Colider;
+    CircleCollider2D _secondColider;
     float tempDelay;
     bool attackAllow;
     public RectTransform damageTextGen;
@@ -21,13 +22,15 @@ public class EnemyFSM : FSMbase
     public GameObject doEffect1;
     public GameObject doEffect2;
     int FSMCol = 0;
+    float knockBackDegree = 1;
 
     new void Awake()
     {
         base.Awake();
         RBD = GetComponent<Rigidbody2D>();
         DamageReceiver.addEnemy(this);
-        _Colider = GetComponent<BoxCollider2D>(); 
+        _Colider = GetComponent<BoxCollider2D>();
+        _secondColider = GetComponent<CircleCollider2D>();
         gameObject.SetActive(false);
         attackBar.gameObject.SetActive(false);
         attackFrame.gameObject.SetActive(false);
@@ -117,7 +120,7 @@ public class EnemyFSM : FSMbase
     void knockBack() {
         moveDir = Vector2.zero;
         moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
-        RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * -1*Time.deltaTime/2);
+        RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * knockBackDegree * -1*Time.deltaTime/2);
     }
 
     void lookPlayer()
@@ -154,7 +157,7 @@ public class EnemyFSM : FSMbase
         
         return false;
     }
-    public void hitted(float damage) {
+    public void hitted(float damage, float knockBackDegree=1) {
         if (sr.color.a>=0.5f) {
             hpFrame.gameObject.SetActive(true);
             hpBar.gameObject.SetActive(true);
@@ -179,6 +182,7 @@ public class EnemyFSM : FSMbase
         else if(myType!=type.boss){
             RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
             _anim.speed = 0.1f;
+            this.knockBackDegree = knockBackDegree;
             setState(State.hited);
         }
     }
@@ -298,6 +302,9 @@ public class EnemyFSM : FSMbase
     }
     IEnumerator hited()
     {
+
+        _Colider.enabled = false;
+        _secondColider.enabled = true;
         do
         {
             _anim.setSpeed(0.1f);
@@ -308,6 +315,8 @@ public class EnemyFSM : FSMbase
             }
             yield return null;
         } while (!newState);
+        _Colider.enabled = true;
+        _secondColider.enabled = false;
         RBD.constraints = RigidbodyConstraints2D.FreezeAll;
     }
     IEnumerator dead()
@@ -329,15 +338,23 @@ public class EnemyFSM : FSMbase
     }
     IEnumerator skill() {
         //!TODO EffectManager.instance.gogo rererererrerererererere 1.enemy 생성때 보스면 파티클추가 및 색 조정, 그 후 플레이만 눌러서 하는걸로
-        GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/glowParticle"), transform.position, Quaternion.identity);
+        GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/particle/glowParticle"), transform.position, Quaternion.identity);
 
         ParticleSystem[] p = g.GetComponentsInChildren<ParticleSystem>();
+        Color parColor = Color.white;
+        switch (name) {
+            case "fire":parColor = Color.red; break;
+            case "glow":parColor = Color.yellow; break;
+            case "water":parColor = Color.blue; break;
+            case "dark":parColor = Color.gray; break;
+            case "grass":parColor = Color.green; break;
+        }
         foreach (var item in p)
         {
 
             ParticleSystem.MainModule mainModule = item.main;
 
-            mainModule.startColor = Color.green;
+            mainModule.startColor = parColor;
         }
         g.GetComponent<ParticleSystem>().Play();
         GameObject.Destroy(g, 1.5f);
@@ -349,7 +366,7 @@ public class EnemyFSM : FSMbase
     private void OnDrawGizmos()
     {
         Handles.color = new Color(255, 0, 0, 0.2f);
-        Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 360, attackRange);
+        Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90/2, attackRange);
         Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
 
     }

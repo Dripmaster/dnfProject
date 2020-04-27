@@ -86,10 +86,52 @@ public static class DamageReceiver
             }
         }
         if(successCount>0)
-        playerFSM.instance.addCombo(successCount);
+            playerFSM.instance.addCombo(successCount);
         return attackOk;
     }
-    static bool isColMonster(Vector2 ePos) {
+    public static bool playerSkill(float attackPoint,float knockBackDegre=1,bool allDir = false,Vector2 pos = new Vector2())
+    {
+        bool attackOk = false;
+        int atkPoint;
+        int successCount = 0;
+        for (int i = 0; i < enemys.Count; i++)
+        {
+            if (!enemys[i].isDead() && isColMonster(enemys[i].getCol().ClosestPoint(playerFSM.instance.transform.position),allDir,pos))
+            {
+                atkPoint = (int)(attackPoint * Random.Range(0.9f, 1.2f));
+                attackOk = true;
+                successCount++;
+                enemys[i].hitted(atkPoint,knockBackDegre);
+                showHitEffect(enemys[i].getCol());
+                EffectManager.instance.AddDamage(atkPoint, enemys[i].transform.position, enemys[i].getDamageTextGen());
+
+                //playerFSM.instance.addCombo(1);
+            }
+        }
+        if (successCount > 0)
+            playerFSM.instance.addCombo(successCount);
+        return attackOk;
+    }
+    public static void playerSkill(float attackPoint, EnemyFSM enemy,float knockBackDegre = 1)
+    {
+        int atkPoint;
+        int successCount = 0;
+
+        atkPoint = (int)(attackPoint * Random.Range(0.9f, 1.2f));
+        successCount++;
+        enemy.hitted(atkPoint, knockBackDegre);
+        showHitEffect(enemy.getCol());
+        EffectManager.instance.AddDamage(atkPoint, enemy.transform.position, enemy.getDamageTextGen());
+
+        if (successCount > 0)
+            playerFSM.instance.addCombo(successCount);
+        return;
+    }
+    static bool isColMonster(Vector2 ePos,bool allDir = false,Vector2 pos = new Vector2()) {
+        if (allDir) {
+            if (Vector2.Distance(ePos, pos) <= player.attackRange)
+                return true;
+        }
         if (Vector2.Distance(ePos, player.transform.position) > player.attackRange)
             return false;
         var dotValue = Mathf.Cos(Mathf.Deg2Rad * (player.attackAngle / 2));
@@ -107,7 +149,7 @@ public static class DamageReceiver
         //EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
         EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
         //es.setOffset(Random.Range(0,10)/100f);
-        es.initAni("effect/playerHit/" + player.name);
+        es.initAni("effect/playerHit/" + player.myType.ToString());
         es.gameObject.SetActive(true);
     }
 }

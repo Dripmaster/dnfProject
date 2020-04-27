@@ -10,7 +10,9 @@ public class EffectScript : MonoBehaviour
     float tempTime;
     SpriteRenderer sr;
     Color c;
+    bool init = false;
     bool isitemGain = false;
+    bool isSetAlpha = true;
     // Start is called before the first frame update
     public void Awake()
     {
@@ -21,12 +23,14 @@ public class EffectScript : MonoBehaviour
     }
     private void OnEnable()
     {
+        if(!isSetAlpha)
         c.a = 1;
         sr.color = c;
         if (isitemGain)
             deleteTime = 1f;
         else
             deleteTime = 0.5f;
+        _anim.animNum = 0;
     }
     public void setImage(Sprite s,bool value = false) {
         _anim.enabled = false;
@@ -36,12 +40,23 @@ public class EffectScript : MonoBehaviour
             isitemGain = true;
         }
         gameObject.SetActive(true);
+        init = true;
     }
     public void initAni(string path ,float speed=0.5f) {
         _anim.enabled = true;
         _anim.setPath(path);
         _anim.speed = speed;
+        StartDelete = false;
+        init = true;
         _anim.initAnims();
+        if (_anim.sprLength == 0) {
+            print(path);
+        }
+    }
+    public void setAlpha(float a) {
+        c.a = a;
+        sr.color = c;
+        isSetAlpha = true;
     }
     public void setOffset(float time) {
         _anim.setOffset(time);
@@ -50,7 +65,12 @@ public class EffectScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!StartDelete&&_anim.isEnd())
+        if (!init)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+        if (!StartDelete && _anim.isEnd())
         {
             _anim.Pause();
             StartDelete = true;
@@ -63,7 +83,9 @@ public class EffectScript : MonoBehaviour
                     EffectManager.instance.popitemGain(this);
                 }
                 gameObject.SetActive(false);
+                isSetAlpha = false;
                 StartDelete = false;
+                init = false;
                 tempTime = 0;
             }
             c.a -= Time.deltaTime / deleteTime;

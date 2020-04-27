@@ -222,7 +222,8 @@ public class playerDataManager : MonoBehaviour
                 }
                 if (currendEquip != null)
                 {
-                    setEquip( inven.clearInven(currendEquip.id));                }
+                    setEquip( inven.clearInven(currendEquip.id));               
+                }
             }
             return true;
         }
