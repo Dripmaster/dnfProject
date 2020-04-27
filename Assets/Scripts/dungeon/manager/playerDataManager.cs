@@ -18,19 +18,21 @@ public class playerDataManager : MonoBehaviour
     {
         public List<item> playerInventory = new List<item>();
         public int gold = 0;
-        public void addItem(int type)
+        public void addItem(int type, int count =1)
         {
             bool need = true;
-            if (type <= (int)itemType.sword)
+            if (type < (int)itemType.sword)
+            {
                 foreach (var i in playerInventory)
                 {
                     if (i.type == type)
                     {
-                        i.count++;
+                        i.count+=count;
                         need = false;
                         break;
                     }
                 }
+            }
             if (need)
             {
                 playerInventory.Add(new item(playerInventory.Count, 1, type));
@@ -61,6 +63,23 @@ public class playerDataManager : MonoBehaviour
                 }
             }
             return value;
+        }
+        public item clearInven(int equip_id) {
+            item i = null;
+            for (int index = playerInventory.Count-1; index >= 0; index--)
+            {
+                if (playerInventory[index].count == 0) {
+                    playerInventory.RemoveAt(index);
+                }
+            }
+            int c = 0;
+            foreach (var in_item in playerInventory)
+            {
+                if (in_item.id == equip_id)
+                    i = in_item;
+                in_item.id = c++;
+            }
+            return i;
         }
     }
     [System.Serializable]
@@ -162,9 +181,9 @@ public class playerDataManager : MonoBehaviour
         inven.gold += goldSize;
         saveInventory();
     }
-    public void addItem(itemType type)
+    public void addItem(itemType type,int count = 1)
     {
-        inven.addItem((int)type);
+        inven.addItem((int)type,count);
         saveInventory();
     }
     public bool popGold(int goldSize, bool chcek = true)
@@ -201,6 +220,9 @@ public class playerDataManager : MonoBehaviour
                 { 
                 hpPotion.setItemCount(inven.getItem((int)type));
                 }
+                if (currendEquip != null)
+                {
+                    setEquip( inven.clearInven(currendEquip.id));                }
             }
             return true;
         }
