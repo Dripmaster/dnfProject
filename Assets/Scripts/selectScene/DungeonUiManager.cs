@@ -13,14 +13,27 @@ public class DungeonUiManager : MonoBehaviour
     bool doingChange = false;
 
     mapType selectMapType;
+    item selectEquip;
 
     // Start is called before the first frame update
     void Awake()
     {
-
         canvas = transform.Find("canvas").gameObject;
         bg = canvas.transform.Find("bg").gameObject;
         dungeonUi = canvas.transform.Find("ui").gameObject;
+
+        if (playerDataManager.instance.getEquip() == null)
+        {
+            foreach (item a in playerDataManager.instance.getInventory().playerInventory)
+            {
+                if (a.type >= (int)itemType.sword)
+                {
+                    playerDataManager.instance.setEquip(a);
+                    break;
+                }
+            }
+        }
+
     }
 
     // Update is called once per frame
@@ -105,6 +118,29 @@ public class DungeonUiManager : MonoBehaviour
             dungeonUi.transform.Find("clear").gameObject.SetActive(true);
         else
             dungeonUi.transform.Find("clear").gameObject.SetActive(false);
+
+
+
+        dungeonUi.transform.Find("sword").gameObject.SetActive(false);
+        dungeonUi.transform.Find("bigsword").gameObject.SetActive(false);
+        dungeonUi.transform.Find("hammer").gameObject.SetActive(false);
+        if (playerDataManager.instance.getEquip().type == (int)itemType.sword)
+        {
+            dungeonUi.transform.Find("selectEquip").transform.Find("sword").gameObject.SetActive(true);
+            dungeonUi.transform.Find("sword").gameObject.SetActive(true);
+        }
+        if (playerDataManager.instance.getEquip().type == (int)itemType.hammer)
+        {
+            dungeonUi.transform.Find("selectEquip").transform.Find("hammer").gameObject.SetActive(true);
+            dungeonUi.transform.Find("hammer").gameObject.SetActive(true);
+        }
+        if (playerDataManager.instance.getEquip().type == (int)itemType.bigSword)
+        {
+            dungeonUi.transform.Find("selectEquip").transform.Find("bigsword").gameObject.SetActive(true);
+            dungeonUi.transform.Find("bigsword").gameObject.SetActive(true);
+        }
+
+
     }
 
     public void OpenDungeonUi(mapType map)
@@ -113,6 +149,8 @@ public class DungeonUiManager : MonoBehaviour
         canvas.SetActive(true);
         isOpen = true;
         InitImage();
+
+
     }
     public void OnClickBg()
     {
@@ -127,7 +165,43 @@ public class DungeonUiManager : MonoBehaviour
     public void OnClickPlay()
     {
         playerDataManager.instance.setMap((int)selectMapType);
+        playerDataManager.instance.setEquip(selectEquip);
         SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
-        sceneChangeManager.ChangeScene("main", 1, 1f);
+        sceneChangeManager.ChangeScene("main", 0, 1f);
+    }
+
+    public void OpenDungeonInven()
+    {
+        GameObject.Find("invenUi").GetComponent<Inven>().OpenInven((item, sprite) =>
+        {
+            GameObject selectItem;
+            selectEquip = item;
+            selectItem = dungeonUi.transform.Find("selectEquip").gameObject;
+            string weaponString = "sword";
+
+            selectItem.transform.Find("sword").gameObject.SetActive(false);
+            selectItem.transform.Find("bigsword").gameObject.SetActive(false);
+            selectItem.transform.Find("hammer").gameObject.SetActive(false);
+            dungeonUi.transform.Find("sword").gameObject.SetActive(false);
+            dungeonUi.transform.Find("bigsword").gameObject.SetActive(false);
+            dungeonUi.transform.Find("hammer").gameObject.SetActive(false);
+            switch (item.type)
+            {
+                case (int)itemType.sword:
+                    weaponString = "sword";
+                    dungeonUi.transform.Find("sword").gameObject.SetActive(true);
+                    break;
+                case (int)itemType.hammer:
+                    weaponString = "hammer";
+                    dungeonUi.transform.Find("hammer").gameObject.SetActive(true);
+                    break;
+                case (int)itemType.bigSword:
+                    weaponString = "bigsword";
+                    dungeonUi.transform.Find("bigsword").gameObject.SetActive(true);
+                    break;
+            }
+
+            selectItem.transform.Find(weaponString).gameObject.SetActive(true);
+        }, 1);
     }
 }
