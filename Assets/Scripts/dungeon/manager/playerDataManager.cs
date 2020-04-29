@@ -12,7 +12,7 @@ public class playerDataManager : MonoBehaviour
     potionInfo cleanPotion;
 
     item currendEquip;
-    int mapLevel;
+    int mapLevel = 1;
     [System.Serializable]
     public class playerInven
     {
@@ -63,6 +63,10 @@ public class playerDataManager : MonoBehaviour
                 }
             }
             return value;
+        }
+        public void DestroyItem(item i)
+        {
+            playerInventory.Remove(i);
         }
         public item clearInven(int equip_id) {
             item i = null;
@@ -228,6 +232,15 @@ public class playerDataManager : MonoBehaviour
             return true;
         }
     }
+    public void destroyItem(item i)
+    {
+        inven.DestroyItem(i);
+        if (currendEquip != null)
+        {
+            setEquip(inven.clearInven(currendEquip.id));
+        }
+    }
+
     public playerInven getInventory() {
         return inven;
     }

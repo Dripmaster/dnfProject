@@ -37,6 +37,7 @@ public class playerFSM : FSMbase
     Image hpBar;
     Image myHeart;
     comboText[] cText;
+    public skillTimeScript[] cools;
     int nowC;
     bool isFreeze = false;
     bool canDash;
@@ -78,6 +79,7 @@ public class playerFSM : FSMbase
         itemParticle = GameObject.Find("effectRoot").GetComponentsInChildren<ParticleSystem>();
         hammerParticle = GameObject.Find("hammerParticle").GetComponent<ParticleSystem>();
         bigSwordParticle = GameObject.Find("slashParticle").GetComponent<ParticleSystem>();
+        cools = GameObject.Find("skillTimeCanvas").GetComponentsInChildren<skillTimeScript>();
         blaze = GameObject.Find("Blaze").GetComponent<RayEffect>();
         Entangles = GameObject.Find("Entangles");
         if (playerDataManager.instance.getEquip() != null)
@@ -123,6 +125,10 @@ public class playerFSM : FSMbase
         attackSpeedChange = attackSpeed;
         degree = 6;
         blaze.gameObject.SetActive(false);
+        foreach (var item in cools[0].GetComponentsInChildren<Image>())
+        {
+            item.sprite = SLM.instance.getSpr("image/UI/skill/"+myType);
+        }
     }
     public float getAtkP() {
         return attackPoint;
@@ -135,6 +141,24 @@ public class playerFSM : FSMbase
                 mySkillStrategy = new swordSkill(); break;
             case type.Hammer:
                 mySkillStrategy = new hammerSkill(); break;
+        }
+        if (playerDataManager.instance.getEquip() != null) {
+            for (int i = 0; i < playerDataManager.instance.getEquip().hasSkillList.Count; i++)
+            {
+                if (playerDataManager.instance.getEquip().hasSkillList[i])
+                {
+                    cools[i+1].GetComponent<CanvasGroup>().alpha = 1;
+                }
+                else
+                {
+
+                    cools[i+1].GetComponent<CanvasGroup>().alpha = 0;
+                }
+            }
+        }
+        else
+        {
+            cools[2].GetComponent<CanvasGroup>().alpha = 0;
         }
     }
     IEnumerator transHeart()
@@ -149,7 +173,7 @@ public class playerFSM : FSMbase
             if ((alphaDir == 1) && (amount - 0.1f > alpha)) {
                 alphaDir *= -1;
             }
-            if ((alphaDir == -1) && (amount < alpha))
+            if ((alphaDir == -1) && (amount+0.1f < alpha))
             {
                 alphaDir *= -1;
             }
@@ -421,13 +445,13 @@ public class playerFSM : FSMbase
             result = skillInput();
             if (result>0)
             {
-                if (result == 1)
+                if (result == 1 &&(cools[0].getCool()))
                 {
                     _anim.setSpeed(attackSpeedChange);
                     initSkill();
                     setState(State.skill);
                 }
-                if (result == 2)
+                if (result == 2 && (cools[1].getCool()))
                 {
                     if(playerDataManager.instance.getEquip() != null)
                     if (
@@ -437,7 +461,7 @@ public class playerFSM : FSMbase
                         setState(State.skill);
                     }
                 }
-                if (result == 3)
+                if (result == 3 && (cools[3].getCool()))
                 {
                     if (playerDataManager.instance.getEquip() != null)
                         if (
@@ -448,7 +472,7 @@ public class playerFSM : FSMbase
                             setState(State.skill);
                         }
                 }
-                if (result == 4)
+                if (result == 4 && (cools[4].getCool()))
                 {
                     if (playerDataManager.instance.getEquip() != null)
                         if (
@@ -614,6 +638,7 @@ public class playerFSM : FSMbase
             {
                 _anim.Pause();
                 _anim.setSpeed(1f);
+                LevelManager.instance.deadPlayer();
                 break;
             }
         } while (!newState);
@@ -676,10 +701,12 @@ public class playerFSM : FSMbase
     {
         if (isDark)
             return;
+        cools[1].startCool(10);
         StartCoroutine(darkSide());
     }
-    public void cutEye() { 
-        
+    public void cutEye() {
+        if (hp <= 0)
+            return;
         StartCoroutine(eyeSizeDown());
     }
     IEnumerator eyeSizeDown() {
@@ -698,6 +725,9 @@ public class playerFSM : FSMbase
             if (!instance.blaze.gameObject.activeInHierarchy) {
                 instance.blaze.setTargets(DamageReceiver.getBlazeTarget());
                 instance.blaze.gameObject.SetActive(true);
+
+                ///2.쿨타임적용
+                instance.cools[3].startCool(10f);
             }
         }
     }
@@ -712,6 +742,9 @@ public class playerFSM : FSMbase
             instance.bigSwordParticle.Play();
 
             instance.StartCoroutine(instance.spin());
+
+            instance.cools[0].startCool(5f);
+
         }
     }
     IEnumerator spin() {
@@ -730,6 +763,7 @@ public class playerFSM : FSMbase
 
             ///1.스킬 이펙트 출력
             instance.myCharge.startCharge();
+            instance.cools[0].startCool(5f);
         }
     }
     class hammerSkill : skillStrategy
@@ -748,6 +782,7 @@ public class playerFSM : FSMbase
             }
             e.initAni("effect/playerAttack/hammer/skill",0.1f);
             e.gameObject.SetActive(true);
+            instance.cools[0].startCool(5f);
         }
     }
     IEnumerator skill() {
@@ -770,6 +805,7 @@ public class playerFSM : FSMbase
         }
         else {
             doSkill();
+            setState(State.move);
         }
 
         do

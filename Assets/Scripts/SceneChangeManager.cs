@@ -5,18 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneChangeManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Awake()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+    public GameObject loadMask;
+    public GameObject backMask;
     public void ChangeScene(string scene, int type, float speed)
     {
         StartCoroutine(RunSceneFadeOut(scene, type, speed));
@@ -46,6 +36,9 @@ public class SceneChangeManager : MonoBehaviour
 
     IEnumerator RunSceneFadeOut(string scene, int type, float speed)
     {
+        AsyncOperation asyncOperation =
+        SceneManager.LoadSceneAsync(scene);
+        asyncOperation.allowSceneActivation = false;
         GameObject bg;
         if (type >= 1)
             bg = transform.Find("black").gameObject;
@@ -68,8 +61,17 @@ public class SceneChangeManager : MonoBehaviour
             spriteRenderer.color = color;
             yield return new WaitForSeconds(waitSecond);
         }
-
-        SceneManager.LoadScene(scene);
+        asyncOperation.allowSceneActivation = true;
+        if (loadMask != null)
+        {
+            loadMask.SetActive(true);
+            backMask.SetActive(true);
+            do
+            {
+                loadMask.transform.localScale = new Vector2(asyncOperation.progress * 11f, 1);
+                yield return null;
+            } while (!asyncOperation.isDone);
+        }
     }
     IEnumerator RunSceneFadeIn(int type, float speed, float delay, System.Action callback)
     {
