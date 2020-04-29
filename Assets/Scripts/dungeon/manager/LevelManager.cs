@@ -18,17 +18,23 @@ public class LevelManager : MonoBehaviour
     int currentMap = 0;
     public floorShow floorShow;
     public bool spawnEnemy = true;
+    public SceneChangeManager SCM;
     void Awake()
     {
         instance = this;
         mapObject = new List<GameObject>();
+
+        mapNum = playerDataManager.instance.getMap();
         loadTileList();
         initmap();
         loadSprite();
         DamageReceiver.init(enemyPrefab);
-        if(spawnEnemy)
-        setEnemy();
-        mapNum = playerDataManager.instance.getMap();
+
+        SCM = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
+
+
+        if (spawnEnemy)
+            SCM.StartScene(1, 1,0, setEnemy);
     }
     void loadSprite() {
         foreach (var typeItem in Enum.GetNames(typeof(type)))
@@ -47,6 +53,9 @@ public class LevelManager : MonoBehaviour
     {
         Instantiate(playerPrefab, Vector2.zero, Quaternion.identity);
     }
+    public void deadPlayer() {
+        SCM.ChangeScene("selectScene", 1, 1);
+    }
     public void checkEnemy() {
         if (DamageReceiver.isEnemyRemain() == false && mapChangeFrame())
         {
@@ -64,15 +73,24 @@ public class LevelManager : MonoBehaviour
         playerFSM.instance.playerFreeze();
         yield return new WaitForSeconds(0.5f);
         currentMap++;
-        Physics2D.IgnoreLayerCollision(8, 11);
-        do {
-            yield return null;
-        } while (!mapChangeFrame());
-        floorShow.setFloor();
-        Physics2D.IgnoreLayerCollision(8, 11, false);
-        playerFSM.instance.playerFreeze(false);
-        setEnemy();
-        mapObject[currentMap - 1].SetActive(false);
+        if (currentMap >= mapObject.Count)
+        {
+            SCM.ChangeScene("selectScene", 0, 1);
+        }
+        else
+        {
+            Physics2D.IgnoreLayerCollision(8, 11);
+            do
+            {
+                yield return null;
+            } while (!mapChangeFrame());
+            floorShow.setFloor();
+            Physics2D.IgnoreLayerCollision(8, 11, false);
+            playerFSM.instance.playerFreeze(false);
+            mapObject[currentMap - 1].SetActive(false);
+            if (spawnEnemy)
+                SCM.StartScene(1, 1, 0.5f, setEnemy);
+        }
     }
     public GameObject getCurrentMap() {
         return mapObject[currentMap];

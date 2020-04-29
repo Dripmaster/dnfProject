@@ -47,7 +47,7 @@ public class EnemyFSM : FSMbase
         speedRate = 100;
         setState(State.move);
         tempDelay = 0f;
-        attackAllow = true;
+        attackAllow = false;
         FSMCol = 0;
         setHpBar();
         setColider();

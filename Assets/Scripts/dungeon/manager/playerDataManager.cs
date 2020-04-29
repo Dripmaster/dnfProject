@@ -12,13 +12,13 @@ public class playerDataManager : MonoBehaviour
     potionInfo cleanPotion;
 
     item currendEquip;
-    int mapLevel;
+    int mapLevel = 1;
     [System.Serializable]
     public class playerInven
     {
         public List<item> playerInventory = new List<item>();
         public int gold = 0;
-        public void addItem(int type, int count =1)
+        public void addItem(int type, int count = 1)
         {
             bool need = true;
             if (type < (int)itemType.sword)
@@ -27,7 +27,7 @@ public class playerDataManager : MonoBehaviour
                 {
                     if (i.type == type)
                     {
-                        i.count+=count;
+                        i.count += count;
                         need = false;
                         break;
                     }
@@ -64,9 +64,13 @@ public class playerDataManager : MonoBehaviour
             }
             return value;
         }
+        public void DestroyItem(item i)
+        {
+            playerInventory.Remove(i);
+        }
         public item clearInven(int equip_id) {
             item i = null;
-            for (int index = playerInventory.Count-1; index >= 0; index--)
+            for (int index = playerInventory.Count - 1; index >= 0; index--)
             {
                 if (playerInventory[index].count == 0) {
                     playerInventory.RemoveAt(index);
@@ -133,9 +137,9 @@ public class playerDataManager : MonoBehaviour
             SaveProgress();
         }
     }
-    public void setPotionInfo(potionInfo p,int v)
+    public void setPotionInfo(potionInfo p, int v)
     {
-        if (v==0)
+        if (v == 0)
         {
             hpPotion = p;
             hpPotion.setItemCount((inven.getItem((int)itemType.healPotion, 0)));
@@ -166,9 +170,9 @@ public class playerDataManager : MonoBehaviour
         if (jsonString != null)
         {
             inven = JsonUtility.FromJson<playerInven>(jsonString);
-            int equip_id = PlayerPrefs.GetInt("equip",-1);
-            if(equip_id!=-1)
-            currendEquip = inven.getItemById(equip_id);
+            int equip_id = PlayerPrefs.GetInt("equip", -1);
+            if (equip_id != -1)
+                currendEquip = inven.getItemById(equip_id);
         }
         if (inven == null)
         {
@@ -181,9 +185,9 @@ public class playerDataManager : MonoBehaviour
         inven.gold += goldSize;
         saveInventory();
     }
-    public void addItem(itemType type,int count = 1)
+    public void addItem(itemType type, int count = 1)
     {
-        inven.addItem((int)type,count);
+        inven.addItem((int)type, count);
         saveInventory();
     }
     public bool popGold(int goldSize, bool chcek = true)
@@ -199,6 +203,9 @@ public class playerDataManager : MonoBehaviour
             }
             return true;
         }
+    }
+    public int getItemCount(itemType type) {
+        return inven.getItem((int)type);
     }
     public bool popItem(itemType type, int count, bool chcek = true)
     {
@@ -228,6 +235,15 @@ public class playerDataManager : MonoBehaviour
             return true;
         }
     }
+    public void destroyItem(item i)
+    {
+        inven.DestroyItem(i);
+        if (currendEquip != null)
+        {
+            setEquip(inven.clearInven(currendEquip.id));
+        }
+    }
+
     public playerInven getInventory() {
         return inven;
     }

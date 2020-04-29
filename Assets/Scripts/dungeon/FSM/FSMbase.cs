@@ -182,6 +182,9 @@ public class FSMbase : MonoBehaviour
             }
             else { 
                 Entangles.transform.position = playerFSM.instance.transform.position+(Vector3)playerFSM.instance.attackfan;
+
+                ///2.쿨타임적용
+                playerFSM.instance.cools[4].startCool(5f);
             }
             foreach (var item in 
             Entangles.GetComponentsInChildren<EntangleScript>())
