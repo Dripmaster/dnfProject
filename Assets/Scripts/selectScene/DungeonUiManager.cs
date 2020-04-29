@@ -28,6 +28,7 @@ public class DungeonUiManager : MonoBehaviour
             {
                 if (a.type >= (int)itemType.sword)
                 {
+                    selectEquip = a;
                     playerDataManager.instance.setEquip(a);
                     break;
                 }
