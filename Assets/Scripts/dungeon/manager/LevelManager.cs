@@ -22,6 +22,9 @@ public class LevelManager : MonoBehaviour
     void Awake()
     {
         instance = this;
+        SCM = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
+
+        SCM.HideScene();
         mapObject = new List<GameObject>();
 
         mapNum = playerDataManager.instance.getMap();
@@ -29,12 +32,12 @@ public class LevelManager : MonoBehaviour
         initmap();
         loadSprite();
         DamageReceiver.init(enemyPrefab);
-
-        SCM = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
-
-
+        setEnemy();
         if (spawnEnemy)
-            SCM.StartScene(1, 1,0, setEnemy);
+            SCM.StartScene(1, 1,0,fsmStart);
+    }
+    void fsmStart() {
+        DamageReceiver.fsmStart();
     }
     void loadSprite() {
         foreach (var typeItem in Enum.GetNames(typeof(type)))
@@ -54,6 +57,7 @@ public class LevelManager : MonoBehaviour
         Instantiate(playerPrefab, Vector2.zero, Quaternion.identity);
     }
     public void deadPlayer() {
+        playerDataManager.instance.setMapProgress((mapType)(mapNum),currentMap);
         SCM.ChangeScene("selectScene", 1, 1);
     }
     public void checkEnemy() {
@@ -75,6 +79,8 @@ public class LevelManager : MonoBehaviour
         currentMap++;
         if (currentMap >= mapObject.Count)
         {
+
+            playerDataManager.instance.setMapProgress((mapType)(mapNum), currentMap);
             SCM.ChangeScene("selectScene", 0, 1);
         }
         else
@@ -89,7 +95,10 @@ public class LevelManager : MonoBehaviour
             playerFSM.instance.playerFreeze(false);
             mapObject[currentMap - 1].SetActive(false);
             if (spawnEnemy)
-                SCM.StartScene(1, 1, 0.5f, setEnemy);
+            {
+                setEnemy();
+                SCM.StartScene(1, 1, 0.5f, fsmStart);
+            }
         }
     }
     public GameObject getCurrentMap() {

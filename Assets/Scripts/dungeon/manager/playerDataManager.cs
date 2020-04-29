@@ -38,6 +38,19 @@ public class playerDataManager : MonoBehaviour
                 playerInventory.Add(new item(playerInventory.Count, 1, type));
             }
         }
+        public item getEquip()
+        {
+            item r = null;
+            foreach (var i in playerInventory)
+            {
+                if (i.type >= (int)itemType.sword)
+                {
+                    r = i;
+                    break;
+                }
+            }
+            return r;
+        }
         public item getItemById(int id) {
             item r = null;
             foreach (var i in playerInventory)
@@ -173,6 +186,9 @@ public class playerDataManager : MonoBehaviour
             int equip_id = PlayerPrefs.GetInt("equip", -1);
             if (equip_id != -1)
                 currendEquip = inven.getItemById(equip_id);
+            else {
+                currendEquip = inven.getEquip();
+            }
         }
         if (inven == null)
         {

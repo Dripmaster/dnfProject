@@ -129,6 +129,7 @@ public class playerFSM : FSMbase
         {
             item.sprite = SLM.instance.getSpr("image/UI/skill/"+myType);
         }
+        FSMstart();
     }
     public float getAtkP() {
         return attackPoint;
@@ -151,7 +152,7 @@ public class playerFSM : FSMbase
                 }
                 else
                 {
-
+                    if((i+1)<cools.Length)
                     cools[i+1].GetComponent<CanvasGroup>().alpha = 0;
                 }
             }
@@ -837,6 +838,7 @@ public class playerFSM : FSMbase
     IEnumerator darkSide()
     {
         Physics2D.IgnoreLayerCollision(8, 9);
+        Physics2D.IgnoreLayerCollision(8, 10);
         isDark = true;
         Color c = sr.color;
         do
@@ -854,6 +856,7 @@ public class playerFSM : FSMbase
         } while (c.a <= 0.95f);
         c.a = 1;
         sr.color = c;
+        Physics2D.IgnoreLayerCollision(8, 10,false);
         Physics2D.IgnoreLayerCollision(8, 9,false);
         isDark = false;
     }
