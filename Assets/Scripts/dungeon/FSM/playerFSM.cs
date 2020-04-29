@@ -439,9 +439,9 @@ public class playerFSM : FSMbase
                 }
                 if (result == 3)
                 {
-                   // if (playerDataManager.instance.getEquip() != null)
-                  //      if (
-                //     playerDataManager.instance.getEquip().hasSkillList[2])
+                    if (playerDataManager.instance.getEquip() != null)
+                        if (
+                     playerDataManager.instance.getEquip().hasSkillList[2])
                         {
                             setSkill(skillType.Blaze);
                             _anim.setSpeed(attackSpeedChange);

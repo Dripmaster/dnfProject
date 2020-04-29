@@ -206,7 +206,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &68284925
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -489,7 +489,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098b510cbeaf31243b53961251d0edce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayStart: {fileID: 429056243}
   rayScale: {fileID: 1765294468}
   rayRed: {fileID: 0}
   rayDirpos: {x: 0, y: 0}
@@ -624,6 +623,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpriteLoadManager
       objectReference: {fileID: 0}
+    - target: {fileID: 6627593312977238747, guid: 4511ecac486bddc4e805701e71448334,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4511ecac486bddc4e805701e71448334, type: 3}
 --- !u!1 &870940477
@@ -643,7 +647,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &870940478
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -860,7 +864,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098b510cbeaf31243b53961251d0edce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayStart: {fileID: 1138535600}
   rayScale: {fileID: 1231121070}
   rayRed: {fileID: 0}
   rayDirpos: {x: 0, y: 0}
@@ -1040,7 +1043,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1204785467
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1285,7 +1288,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098b510cbeaf31243b53961251d0edce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayStart: {fileID: 1359045305}
   rayScale: {fileID: 1511849789}
   rayRed: {fileID: 0}
   rayDirpos: {x: 0, y: 0}
@@ -1370,7 +1372,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1428020529
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1668,7 +1670,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1658570008
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2038,7 +2040,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &2044498023
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2659,6 +2661,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Blaze
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127692165595620545, guid: b5886c7d9c158384ea43e9431d839bc8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9127692165595620606, guid: b5886c7d9c158384ea43e9431d839bc8,
         type: 3}
