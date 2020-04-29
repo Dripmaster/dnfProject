@@ -89,6 +89,18 @@ public static class DamageReceiver
             playerFSM.instance.addCombo(successCount);
         return attackOk;
     }
+    public static List<EnemyFSM> GetEnemyFSMs(Vector2 pos) {
+
+        List<EnemyFSM> enemyFSMs = new List<EnemyFSM>();
+        for (int i = 0; i < enemys.Count; i++)
+        {
+            if (!enemys[i].isDead() &&( Vector2.Distance(enemys[i].transform.position, pos) <= 0.5f))
+            {
+                enemyFSMs.Add(enemys[i]);
+            }
+        }
+        return enemyFSMs;
+    }
     public static bool playerSkill(float attackPoint,float knockBackDegre=1,bool allDir = false,Vector2 pos = new Vector2())
     {
         bool attackOk = false;
@@ -127,10 +139,51 @@ public static class DamageReceiver
             playerFSM.instance.addCombo(successCount);
         return;
     }
+    public static EnemyFSM[] getBlaze(EnemyFSM o,Vector2 pos) {
+        o.hitted((int)(player.getAtkP()*0.8f));
+        player.addCombo(1);
+        showHitEffect(o.transform.position);
+        EffectManager.instance.AddDamage((int)(player.getAtkP()*0.8f),o.transform.position, o.getDamageTextGen());
+        return getBlazeTarget(pos);
+    }
+    public static EnemyFSM[] getBlazeTarget(Vector2 pos)
+    {
+        List<EnemyFSM> e = new List<EnemyFSM>();
+
+        foreach (var item in enemys)
+        {
+            if (isColMonster(item.transform.position, 5f, pos) && !item.isDead())
+            {
+                e.Add(item);
+            }
+        }
+        return e.ToArray();
+    }
+    public static EnemyFSM[] getBlazeTarget()
+    {
+        List<EnemyFSM> e = new List<EnemyFSM>();
+
+        foreach (var item in enemys)
+        {
+            if (isColMonster(item.transform.position, 5f,player.transform.position)&&!item.isDead()) {
+                e.Add(item);
+            }
+        }
+        return e.ToArray();
+    }
+    static bool isColMonster(Vector2 ePos, float dis, Vector2 pos = new Vector2())
+    {
+            if (Vector2.Distance(ePos, pos) <= dis)
+                return true;
+       
+        return false;
+    }
     static bool isColMonster(Vector2 ePos,bool allDir = false,Vector2 pos = new Vector2()) {
         if (allDir) {
             if (Vector2.Distance(ePos, pos) <= player.attackRange)
                 return true;
+            else
+                return false;
         }
         if (Vector2.Distance(ePos, player.transform.position) > player.attackRange)
             return false;
@@ -141,6 +194,15 @@ public static class DamageReceiver
             return true;
         }
         return false;
+    }
+    static void showHitEffect(Vector2 vec)
+    {
+        //Vector2 RandomDir = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
+        //EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
+        EffectScript es = EffectManager.instance.getEffect(vec);
+        //es.setOffset(Random.Range(0,10)/100f);
+        es.initAni("effect/playerHit/" + player.myType.ToString());
+        es.gameObject.SetActive(true);
     }
 
     static void showHitEffect(BoxCollider2D mColider)

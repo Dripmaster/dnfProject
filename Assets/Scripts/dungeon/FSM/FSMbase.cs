@@ -5,7 +5,7 @@ using System;
 
 public class FSMbase : MonoBehaviour
 {
-    
+
     public State objectState;
     public myAnimator _anim;
     public bool newState;
@@ -22,22 +22,25 @@ public class FSMbase : MonoBehaviour
     public float attackAngle = 50f;
     public bool __hpFix = false;
     protected SpriteRenderer sr;
+    protected bool isEntangled;
+    protected EffectScript EntangleES;
+    protected GameObject Entangles;
 
     protected skillStrategy mySkillStrategy;
     public void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         objectState = State.idle;
-        if(_anim == null)
-        _anim = GetComponent<myAnimator>();
+        if (_anim == null)
+            _anim = GetComponent<myAnimator>();
     }
     public void init_Stat() {
-        maxHp = DataSetManager.instance.loadFSMData(1,(int)myType);
-        attackPoint = DataSetManager.instance.loadFSMData(2,(int)myType);
-        attackRange = DataSetManager.instance.loadFSMData(3,(int)myType);
-        attackDelay = DataSetManager.instance.loadFSMData(4,(int)myType);
-        attackSpeed = DataSetManager.instance.loadFSMData(5,(int)myType);
-        moveSpeed = DataSetManager.instance.loadFSMData(6,(int)myType);
+        maxHp = DataSetManager.instance.loadFSMData(1, (int)myType);
+        attackPoint = DataSetManager.instance.loadFSMData(2, (int)myType);
+        attackRange = DataSetManager.instance.loadFSMData(3, (int)myType);
+        attackDelay = DataSetManager.instance.loadFSMData(4, (int)myType);
+        attackSpeed = DataSetManager.instance.loadFSMData(5, (int)myType);
+        moveSpeed = DataSetManager.instance.loadFSMData(6, (int)myType);
         attackAngle = DataSetManager.instance.loadFSMData(7, (int)myType);
         hp = maxHp;
     }
@@ -53,16 +56,16 @@ public class FSMbase : MonoBehaviour
             myPath = "player/" + name;
         }
         else {
-            myPath = "enemy/" + name + "/"+Enum.GetName(typeof(type), myType).ToLower();
+            myPath = "enemy/" + name + "/" + Enum.GetName(typeof(type), myType).ToLower();
         }
-        
+
 
     }//name으로부터 해당 애니메이션 주소 구해서 myPath로 넣기
     public void OnEnable()
     {
         initAnim();
         setAnim();
-        sr.color = new Color(1,1,1,1);
+        sr.color = new Color(1, 1, 1, 1);
         StartCoroutine("FSMmain");
     }
 
@@ -77,13 +80,13 @@ public class FSMbase : MonoBehaviour
         newState = true;
         objectState = s;
         _anim.setState(objectState.ToString());
-        
+
     }
-    public void setState(State s,int atkNum)
+    public void setState(State s, int atkNum)
     {
         newState = true;
         objectState = s;
-        _anim.setState(objectState.ToString()+"/"+atkNum);
+        _anim.setState(objectState.ToString() + "/" + atkNum);
     }
 
     IEnumerator FSMmain()
@@ -110,8 +113,8 @@ public class FSMbase : MonoBehaviour
             yield return null;
         } while (!newState);
     }
-    
-    
+
+
 
     public void doSkill() {
         if (mySkillStrategy == null)
@@ -119,8 +122,23 @@ public class FSMbase : MonoBehaviour
         mySkillStrategy.doSkill();
         //mySkillStrategy = null;
     }
-    
-
+    public void getEntangled()
+    {
+        if (isEntangled || myType == type.boss)
+            return;
+        EntangleES = EffectManager.instance.getEffect(transform.position).
+            setImage(SLM.instance.getSpr("image/effect/particle/entangle"))
+            .setDeleteTime(3f)
+            .setScaleEffet();
+        StartCoroutine(Entangled());
+    }
+    IEnumerator Entangled() {
+        isEntangled = true;
+        yield return new WaitForSeconds(2.5f);
+        isEntangled = false;
+        if(EntangleES !=null)
+            EntangleES.stop();
+    }
 
     public class skillStrategy
     {
@@ -147,10 +165,30 @@ public class FSMbase : MonoBehaviour
 
 
     }
-    protected class intagngleSkill : skillStrategy
+    protected class entagngleSkill : skillStrategy
     {
-
-
+        GameObject Entangles;
+        bool type;
+        public entagngleSkill(GameObject EntangleObject,bool type) {
+            Entangles = EntangleObject;
+            this.type = type;
+        }
+        override
+            public void doSkill()
+        {
+            if (type == false)
+            {
+                Entangles.transform.position = playerFSM.instance.transform.position;
+            }
+            else { 
+                Entangles.transform.position = playerFSM.instance.transform.position+(Vector3)playerFSM.instance.attackfan;
+            }
+            foreach (var item in 
+            Entangles.GetComponentsInChildren<EntangleScript>())
+            {
+                item.doEffect(type);
+            }
+        }
     }
 
 }

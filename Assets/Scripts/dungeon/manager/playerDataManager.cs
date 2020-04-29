@@ -258,7 +258,7 @@ public class playerDataManager : MonoBehaviour
         {
             weaponLevel += i;
         }
-        return weaponLevel * (weaponLevel % 10);
+        return weaponLevel + (weaponLevel /10) *5;
      }
     public void setEquip(item weapon) {
         currendEquip = weapon;

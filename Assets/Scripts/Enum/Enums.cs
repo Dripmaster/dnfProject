@@ -46,5 +46,7 @@ public enum skillType {
     KnockBack,
     DarkSide,
     DarkScreen,
-
+    Entangle,
+    BulletWave,
+    Blaze,
 };

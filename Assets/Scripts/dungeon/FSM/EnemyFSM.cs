@@ -21,6 +21,8 @@ public class EnemyFSM : FSMbase
     public float attackStopTime = 0.2f;
     public GameObject doEffect1;
     public GameObject doEffect2;
+    float attackAmount;
+    List<skillType> skillCycle; 
     int FSMCol = 0;
     float knockBackDegree = 1;
 
@@ -53,9 +55,47 @@ public class EnemyFSM : FSMbase
     }
     void initSkill() {
         if (myType == type.boss)
-            setSkill(skillType.Confuse);
+        {
+            Entangles = GameObject.Find("Entangles0");
+            skillCycle = new List<skillType>();
+            switch (name)
+            {
+                case "dark":
+                    skillCycle.Add(skillType.DarkSide);
+                    skillCycle.Add(skillType.DarkScreen);
+                    skillCycle.Add(skillType.DarkSide);
+                    skillCycle.Add(skillType.BulletWave);
+                    skillCycle.Add(skillType.Confuse);
+                    skillCycle.Add(skillType.DarkScreen);
+                    skillCycle.Add(skillType.KnockBack);
+                    skillCycle.Add(skillType.Entangle);
+                    break;
+                case "glow":
+                    skillCycle.Add(skillType.KnockBack);
+                    skillCycle.Add(skillType.BulletWave);
+                    skillCycle.Add(skillType.KnockBack);
+                    skillCycle.Add(skillType.DarkSide);
+                    skillCycle.Add(skillType.DarkScreen);
+                    break;
+                case "grass":
+                    skillCycle.Add(skillType.KnockBack);
+                    skillCycle.Add(skillType.Entangle);
+                    break;
+                case "water":
+                    skillCycle.Add(skillType.BulletWave);
+                    skillCycle.Add(skillType.KnockBack);
+                    skillCycle.Add(skillType.KnockBack);
+                    break;
+                case "fires":
+                    skillCycle.Add(skillType.BulletWave);
+                    skillCycle.Add(skillType.KnockBack);
+                    skillCycle.Add(skillType.KnockBack);
+                    break;
+            }
+            setSkill(skillCycle[Random.Range(0, skillCycle.Count)]);
+        }
         else
-            setSkill(0,false);
+            setSkill(0, false);
     }
     void setColider() {
         switch (myType)
@@ -96,6 +136,7 @@ public class EnemyFSM : FSMbase
                 break;
             default: break;
         }
+        StartCoroutine(lerpAttackbar());
         hpFrame.SetNativeSize();
         hpBar.SetNativeSize();
         hpBar.fillAmount = 1;
@@ -132,25 +173,30 @@ public class EnemyFSM : FSMbase
         _anim.setDir(degree);
     }
 
-    void moveEnemy()
+    void moveEnemy(bool value)
     {
+
         if (FSMCol != 0)
         {
             RBD.constraints = RigidbodyConstraints2D.FreezeAll;
             return;
         }
-        RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
-        moveDir = Vector2.zero;
-        moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
+        else if(value)
+        {
 
-        degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
-        _anim.setDir(degree);
+            RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
+            moveDir = Vector2.zero;
+            moveDir = (playerFSM.instance.transform.position - transform.position).normalized;
 
-        RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * Time.deltaTime);
+            degree = Mathf.RoundToInt((Mathf.Atan2(moveDir.y, moveDir.x) / Mathf.PI * 180f - 180) * -1) / 45;
+            _anim.setDir(degree);
+
+            RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * Time.deltaTime);
+        }
     }
 
     bool detectPlayer() {
-        if (!attackAllow)
+        if (playerFSM.instance.IsDark())
             return false;
         if (Vector2.Distance(playerFSM.instance.transform.position, transform.position) <= attackRange)
             return true;
@@ -161,13 +207,28 @@ public class EnemyFSM : FSMbase
         if (sr.color.a>=0.5f) {
             hpFrame.gameObject.SetActive(true);
             hpBar.gameObject.SetActive(true);
-
         }
         if (hp <= 0)
         {
             return;
         }
-        if(!__hpFix)
+        if (myType == type.boss && hp >= maxHp * 0.6f && (hp - damage) < maxHp * 0.6f)
+        {
+            skillCycle.Add(skillType.BulletWave);
+            skillCycle.Add(skillType.Confuse);
+            skillCycle.Add(skillType.Entangle);
+        }
+        if (myType == type.boss && hp >= maxHp * 0.3f && (hp - damage) < maxHp * 0.3f)
+        {
+
+            skillCycle.Add(skillType.Entangle);
+            skillCycle.Remove(skillType.DarkSide);
+            skillCycle.Add(skillType.BulletWave);
+            skillCycle.Add(skillType.Confuse);
+            attackDelay = 0.5f;
+            
+        }
+        if (!__hpFix)
         hp -= damage;
 
         if (gameObject.activeInHierarchy)
@@ -195,13 +256,48 @@ public class EnemyFSM : FSMbase
         } while (hpBar.fillAmount -(hp/maxHp)>=0.01f);
         hpBar.fillAmount = hp / maxHp;
     }
+    IEnumerator lerpAttackbar()
+    {
+
+        do
+        {
+            if (attackBar.fillAmount - attackAmount <0.01f )
+            {
+                attackBar.fillAmount = Mathf.Lerp(attackBar.fillAmount, attackAmount, Time.deltaTime * 5);
+            }
+            else {
+                attackBar.fillAmount = attackAmount;
+
+            }
+            yield return null;
+        } while (gameObject.activeInHierarchy);
+    }
     void itemGen() {
             itemManager.instance.itemGenerate(transform.position,itemType.gold);
         itemType t = (itemType)System.Enum.Parse(typeof(itemType), name + "Mat");
         //TODO: 랜덤으로 나오게
 
-        if (myType == type.boss) { 
-            
+        if (myType == type.boss)
+        {
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
+            itemManager.instance.itemGenerate(damageTextGen.position,t);
             itemManager.instance.itemGenerate(damageTextGen.position,t);
         }
         itemManager.instance.itemGenerate(transform.position,t);
@@ -212,11 +308,24 @@ public class EnemyFSM : FSMbase
         do
         {
             _anim.setSpeed(1);
-            moveEnemy();
+
+            if (playerFSM.instance.IsDark()||isEntangled)
+            {
+                    _anim.setDir(Random.Range(0, 8));
+                    RBD.constraints = RigidbodyConstraints2D.FreezeAll;
+                    yield return new WaitForSecondsRealtime(0.5f);
+                    continue;
+            }
+            else
+            {
+                    moveEnemy(attackAllow);
+            }
             delayCount();
             if (detectPlayer()) {
-                setState(State.attack);
+                if (attackAllow)
+                    setState(State.attack);
             }
+
             yield return null;
         } while (!newState);
     }
@@ -256,12 +365,15 @@ public class EnemyFSM : FSMbase
                 _anim.Pause(false);
                 attackBar.gameObject.SetActive(true);
                 attackFrame.gameObject.SetActive(true);
-                attackBar.fillAmount = 0;
+                attackAmount = 0;
                 float tempTime = 0f;
-
-                if (mySkillStrategy != null)
+                
+                if (mySkillStrategy != null && Random.Range(0f,1f)>=0.5f)
                 {
                     yield return StartCoroutine(skill());
+
+                    setSkill(skillCycle[Random.Range(0,skillCycle.Count)]);
+                    _anim.reOn();
                 }
                 else
                 {
@@ -269,23 +381,24 @@ public class EnemyFSM : FSMbase
                     doEffect2.SendMessage("doEffect", SendMessageOptions.DontRequireReceiver);
                     do
                     {
-                        attackBar.fillAmount = tempTime / attackStopTime;
+                        attackAmount = tempTime / attackStopTime;
                         yield return new WaitForSeconds(attackStopTime / 10);
                         tempTime += attackStopTime / 10f;
                         if (tempTime >= attackStopTime)
                             break;
                     } while (true);
+                    _anim.reOn();
+                    if (hp <= 0)
+                    {
+                        setState(State.dead);
+                        break;
+                    }
+                    if (myType != type.Short)
+                        spawnBullet();
+                    else if (detectPlayer() && objectState == State.attack)
+                        DamageReceiver.playerHit(attackPoint);
                 }
-                _anim.reOn();
 
-                if (hp <= 0)
-                {
-                    continue;
-                }
-                if (myType != type.Short)
-                    spawnBullet();
-                else if(detectPlayer() && objectState == State.attack)
-                    DamageReceiver.playerHit(attackPoint);
                 doneAttack = true;
             }
             if (_anim.isEnd(1))
@@ -355,11 +468,35 @@ public class EnemyFSM : FSMbase
             ParticleSystem.MainModule mainModule = item.main;
 
             mainModule.startColor = parColor;
+            if(hp<maxHp*0.3f)
+            mainModule.startLifetime = 2;
         }
         g.GetComponent<ParticleSystem>().Play();
-        GameObject.Destroy(g, 1.5f);
+        if (hp < maxHp * 0.3f)
+        {
+            GameObject.Destroy(g, 0.75f);
+        }
+        else {
+            GameObject.Destroy(g, 1.5f);
+        }
+        float tempTime = 0;
+        do
+        {
 
-        yield return new WaitForSeconds(1.5f);
+            attackAmount = tempTime / 1.5f;
+            if (hp < maxHp * 0.3f)
+            {
+                tempTime += 1.5f / 10f;
+                yield return new WaitForSeconds(0.75f / 10);
+            }
+            else {
+
+                tempTime += 1.5f / 10f;
+                yield return new WaitForSeconds(1.5f / 10);
+            }
+            if (tempTime >= 1.5f)
+                break;
+        } while (true);
         if(hp>0)
         doSkill();
     }
@@ -388,7 +525,7 @@ public class EnemyFSM : FSMbase
         return _Colider;
     }
     public void glowHeal() {
-        if (name == "glow")
+        if (name == "glow"&&myType != type.boss)
         {
             hp += maxHp / 10f;
             if (hp >= maxHp)
@@ -407,6 +544,8 @@ public class EnemyFSM : FSMbase
             case skillType.KnockBack: mySkillStrategy = new knockBackSkill();break;
             case skillType.DarkSide: mySkillStrategy = new daskSideSkill(gameObject);break;
             case skillType.DarkScreen: mySkillStrategy = new eyeCutSkill();break;
+            case skillType.Entangle: mySkillStrategy = new entagngleSkill(Entangles,false);break;
+            case skillType.BulletWave: mySkillStrategy = new bulletWaveSkill(this);break;
             default: break;
         }
         mySkillStrategy.setTrans(transform,attackRange);
@@ -429,6 +568,64 @@ public class EnemyFSM : FSMbase
             playerFSM.instance.cutEye();
         }
     }
+    class bulletWaveSkill : skillStrategy
+    {
+        EnemyFSM me;
+        public bulletWaveSkill(EnemyFSM e) {
+            me = e;
+        }
+        override
+        public void doSkill()
+        {
+            me.StartCoroutine(me.BulletSpawn());
+
+        }
+    }
+    void randomBullet() {
+        bulletEffect b;
+        int dir = Random.Range(0, 4);
+        if (dir == 0)
+            for (int i = -3; i < 4; i++)
+            {
+                b = EffectManager.instance.getbullet(new Vector2(8, i * 2f));
+                b.transform.Rotate(new Vector3(0, 0, 180));
+                b.setAnim(name, attackPoint, true);
+                b.gameObject.SetActive(true);
+            }
+        if (dir == 1)
+            for (int i = -3; i < 4; i++)
+            {
+                b = EffectManager.instance.getbullet(new Vector2(-7.8f, i * 2f));
+                b.transform.Rotate(new Vector3(0, 0, 0));
+                b.setAnim(name, attackPoint, true);
+                b.gameObject.SetActive(true);
+            }
+        if (dir == 2)
+            for (int i = -4; i < 5; i++)
+            {
+                b = EffectManager.instance.getbullet(new Vector2(i * 1.8f, 6.5f));
+                b.transform.Rotate(new Vector3(0, 0, -90));
+                b.setAnim(name, attackPoint, true);
+                b.gameObject.SetActive(true);
+            }
+        if (dir == 3)
+            for (int i = -4; i < 5; i++)
+            {
+                b = EffectManager.instance.getbullet(new Vector2(i * 1.8f, -7));
+                b.transform.Rotate(new Vector3(0, 0, 90));
+                b.setAnim(name, attackPoint, true);
+                b.gameObject.SetActive(true);
+            }
+    }
+    public IEnumerator BulletSpawn() {
+        int count = 0;
+        do
+        {
+            randomBullet();
+            yield return new WaitForSeconds(1f);
+        } while (++count<5);
+    }
+
     class knockBackSkill : skillStrategy
     {
 
@@ -436,7 +633,7 @@ public class EnemyFSM : FSMbase
             public void doSkill()
         {
             //!TODO EffectManager.instance.gogo ererererererer
-            GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/shockWaveParticle"), myTrans.position, Quaternion.identity);
+            GameObject g = GameObject.Instantiate(Resources.Load<GameObject>("prefabs/Effect/particle/shockWaveParticle"), myTrans.position, Quaternion.identity);
                 g.GetComponent<ParticleSystem>().Play();
             GameObject.Destroy(g,2f);
 
@@ -459,7 +656,7 @@ public class EnemyFSM : FSMbase
             hpFrame.gameObject.SetActive(false);
             yield return null;
         } while (c.a >= 0.01f);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(3f);
         do
         {
             c.a += Time.deltaTime;

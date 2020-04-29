@@ -21,7 +21,6 @@ public class playerFSM : FSMbase
     sceneEffect sEffect;
     //int canDash = 0;//dash페이즈 0=기본, 1=처음 눌림, 2=뗌, 3= 다시 눌림(대쉬시작)
     bool dashState = false;
-    KeyCode downKey;
     Vector2 dashDir;
     public GameObject[] dashEffects;
     int movecount = 0;
@@ -33,6 +32,7 @@ public class playerFSM : FSMbase
     ParticleSystem bigSwordParticle;
     ParticleSystem[] itemParticle;
     GameObject darkScreen;
+    RayEffect blaze;
     SpriteRenderer confuseAni;
     Image hpBar;
     Image myHeart;
@@ -44,10 +44,11 @@ public class playerFSM : FSMbase
     int myComboCount;
     float comboTimer = 0f;
     float attackSpeedChange;
+
+    bool isDark = false;
     bool isKnockBack = false;
     bool confuseKey;
     bool isEyeDebuff = false;
-
     // Use this for initialization
     new void Awake()
     {
@@ -77,8 +78,11 @@ public class playerFSM : FSMbase
         itemParticle = GameObject.Find("effectRoot").GetComponentsInChildren<ParticleSystem>();
         hammerParticle = GameObject.Find("hammerParticle").GetComponent<ParticleSystem>();
         bigSwordParticle = GameObject.Find("slashParticle").GetComponent<ParticleSystem>();
+        blaze = GameObject.Find("Blaze").GetComponent<RayEffect>();
+        Entangles = GameObject.Find("Entangles");
         if (playerDataManager.instance.getEquip() != null)
         myType = (type)(playerDataManager.instance.getEquip().type-7);
+        isDark = false;
     }
     new private void OnEnable()
     {
@@ -118,6 +122,7 @@ public class playerFSM : FSMbase
         initSkill();
         attackSpeedChange = attackSpeed;
         degree = 6;
+        blaze.gameObject.SetActive(false);
     }
     public float getAtkP() {
         return attackPoint;
@@ -283,6 +288,7 @@ public class playerFSM : FSMbase
 
         if ((moveDir != Vector2.zero || dashState))
         {
+            if(!isEntangled)
             RBD.constraints = RigidbodyConstraints2D.FreezeRotation;
             if (dashState)
                 moveDir = dashDir;
@@ -296,7 +302,7 @@ public class playerFSM : FSMbase
             if (objectState == State.attack) {
                 moveDir *= 0.1f;
             }
-            if (!dashState)
+            if (!dashState&&!isEntangled)
             {
                 // RBD.velocity = moveDir * moveSpeed * speedRate / 100;
                 //transform.Translate(moveDir * moveSpeed* speedRate / 100 * Time.deltaTime);
@@ -307,7 +313,7 @@ public class playerFSM : FSMbase
                 else
                     RBD.MovePosition((Vector2)transform.position + moveDir * moveSpeed * speedRate / 100 * Time.deltaTime);
             }
-            else
+            else if(!isEntangled)
             {
                 movecount = t;
                 if (t >= 2)
@@ -415,9 +421,43 @@ public class playerFSM : FSMbase
             result = skillInput();
             if (result>0)
             {
-                if (result == 1) {
+                if (result == 1)
+                {
                     _anim.setSpeed(attackSpeedChange);
+                    initSkill();
                     setState(State.skill);
+                }
+                if (result == 2)
+                {
+                    if(playerDataManager.instance.getEquip() != null)
+                    if (
+                    playerDataManager.instance.getEquip().hasSkillList[0]) {
+                        setSkill(skillType.DarkSide);
+                        _anim.setSpeed(attackSpeedChange);
+                        setState(State.skill);
+                    }
+                }
+                if (result == 3)
+                {
+                   // if (playerDataManager.instance.getEquip() != null)
+                  //      if (
+                //     playerDataManager.instance.getEquip().hasSkillList[2])
+                        {
+                            setSkill(skillType.Blaze);
+                            _anim.setSpeed(attackSpeedChange);
+                            setState(State.skill);
+                        }
+                }
+                if (result == 4)
+                {
+                    if (playerDataManager.instance.getEquip() != null)
+                        if (
+                     playerDataManager.instance.getEquip().hasSkillList[3])
+                        {
+                            setSkill(skillType.Entangle);
+                            _anim.setSpeed(attackSpeedChange);
+                            setState(State.skill);
+                        }
                 }
             }
             result = itemInput();
@@ -440,6 +480,9 @@ public class playerFSM : FSMbase
          confuseKey = false;
         confuseAni.enabled = false;
          isEyeDebuff = false;
+        isEntangled = false;
+        if(EntangleES!=null)
+        EntangleES.stop();
         darkScreen.SetActive(false);
     }
     IEnumerator healingPlayer() {
@@ -478,9 +521,21 @@ public class playerFSM : FSMbase
         if (objectState == State.skill || objectState == State.dead) {
             return 0;
         }
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             result = 1;
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            result = 2;
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            result = 3;
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            result = 4;
         }
         return result;
     }
@@ -494,6 +549,8 @@ public class playerFSM : FSMbase
         switch (sType)
         {
             case skillType.DarkSide: mySkillStrategy = new daskSideSkill(gameObject); break;
+            case skillType.Entangle: mySkillStrategy = new entagngleSkill(Entangles,true); break;
+            case skillType.Blaze: mySkillStrategy = new blazeSkill(); break;
             default: break;
         }
         mySkillStrategy.setTrans(transform, attackRange);
@@ -563,12 +620,14 @@ public class playerFSM : FSMbase
     }
     IEnumerator hit()
     {
-        isHitted = true;
-        _anim.setColor(new Color(0.5f, 0.5f, 0.5f, 1));
-        
-        yield return new WaitForSeconds(0.1f);
-        _anim.setColor(new Color(1, 1, 1, 1));
-        isHitted = false;
+            isHitted = true;
+            _anim.setColor(new Color(0.5f, 0.5f, 0.5f, sr.color.a));
+            yield return new WaitForSeconds(0.1f);
+            _anim.setColor(new Color(1, 1, 1, sr.color.a));
+            isHitted = false;
+    }
+    public bool IsDark() {
+        return isDark;
     }
     public void confuseStart() {
         if (__hpFix)
@@ -615,6 +674,8 @@ public class playerFSM : FSMbase
     }
     public void startDarkSide()
     {
+        if (isDark)
+            return;
         StartCoroutine(darkSide());
     }
     public void cutEye() { 
@@ -628,16 +689,29 @@ public class playerFSM : FSMbase
         isEyeDebuff = false;
         darkScreen.SetActive (false);
     }
+    protected class blazeSkill : skillStrategy
+    {
+        override
+        public void doSkill()
+        {
+            ///1.블레이즈 생성
+            if (!instance.blaze.gameObject.activeInHierarchy) {
+                instance.blaze.setTargets(DamageReceiver.getBlazeTarget());
+                instance.blaze.gameObject.SetActive(true);
+            }
+        }
+    }
     class bigSwordSkill : skillStrategy
     {
         override
         public void doSkill()
         {
             ///1.현재 지점으로 부터 원 반경에 있는 몬스터 전체 데미지 및 넉백
-            instance.StartCoroutine(instance.spin());
             ///2.스킬 이펙트 출력
             instance.bigSwordParticle.transform.position = instance.transform.position;
             instance.bigSwordParticle.Play();
+
+            instance.StartCoroutine(instance.spin());
         }
     }
     IEnumerator spin() {
@@ -679,18 +753,25 @@ public class playerFSM : FSMbase
     IEnumerator skill() {
         RBD.constraints = RigidbodyConstraints2D.FreezeAll;
         bool isDo = false;
-        if (mySkillStrategy is swordSkill) {
+        if (mySkillStrategy is swordSkill)
+        {
             doSkill();
         }
+        else
         if (mySkillStrategy is hammerSkill)
         {
             hammerParticle.transform.position = transform.position;
             hammerParticle.Play();
         }
+        else
         if (mySkillStrategy is bigSwordSkill)
         {
             doSkill();
         }
+        else {
+            doSkill();
+        }
+
         do
         {
             yield return null;
@@ -719,6 +800,8 @@ public class playerFSM : FSMbase
     }
     IEnumerator darkSide()
     {
+        Physics2D.IgnoreLayerCollision(8, 9);
+        isDark = true;
         Color c = sr.color;
         do
         {
@@ -726,7 +809,7 @@ public class playerFSM : FSMbase
             sr.color = c;
             yield return null;
         } while (c.a >= 0.3f);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2.5f);
         do
         {
             c.a += Time.deltaTime;
@@ -735,6 +818,8 @@ public class playerFSM : FSMbase
         } while (c.a <= 0.95f);
         c.a = 1;
         sr.color = c;
+        Physics2D.IgnoreLayerCollision(8, 9,false);
+        isDark = false;
     }
     IEnumerator attack()
     {
@@ -820,6 +905,10 @@ public class playerFSM : FSMbase
                 }
             }
         } while (!newState);
+    }
+    public BoxCollider2D getCol()
+    {
+        return _Colider;
     }
     private void OnDrawGizmos()
     {

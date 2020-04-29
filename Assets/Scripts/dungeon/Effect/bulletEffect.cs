@@ -31,7 +31,6 @@ public class bulletEffect : EffectScript
         {
             _anim.setPath("bullet/" + name);
             effPath = ("effect/enemyLong/" + name);
-            GetComponent<BoxCollider2D>().size = new Vector2(0.88f, 0.38f);
         }
         else
         {
