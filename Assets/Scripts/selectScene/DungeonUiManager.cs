@@ -159,7 +159,6 @@ public class DungeonUiManager : MonoBehaviour
             isOpen = false;
             canvas.SetActive(false);
         }
-
     }
 
     public void OnClickPlay()
@@ -202,6 +201,7 @@ public class DungeonUiManager : MonoBehaviour
             }
 
             selectItem.transform.Find(weaponString).gameObject.SetActive(true);
+            playerDataManager.instance.setEquip(selectEquip);
         }, 1);
     }
 }
