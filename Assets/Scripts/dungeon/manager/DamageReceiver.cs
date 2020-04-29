@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public static class DamageReceiver
@@ -41,24 +42,33 @@ public static class DamageReceiver
         return enemyRemain;
     }
     public static void setEnemy(mapMaker.TileList tileList, GameObject enemyPrefab) {
-       
-        foreach (tileSet t in tileList.map)
-        {
-            EnemyFSM enemy=null;
+            foreach (tileSet t in tileList.map)
+            {
+                EnemyFSM enemy = null;
+                foreach (EnemyFSM e in enemys)
+                {
+                    if (e.gameObject.activeInHierarchy == false)
+                    {
+                        enemy = e;
+                        enemy.transform.position = t.pos;
+                        break;
+                    }
+                }
+                if (enemy == null)
+                    enemy = GameObject.Instantiate(enemyPrefab, t.pos, Quaternion.identity).GetComponent<EnemyFSM>();
+                enemy.setTypeName(t.type, t.name);
+                enemy.gameObject.SetActive(true);
+            }
+    }
+    public static void fsmStart()
+    {
             foreach (EnemyFSM e in enemys)
             {
-                if (e.gameObject.activeInHierarchy == false)
+                if (e.gameObject.activeInHierarchy == true)
                 {
-                    enemy = e;
-                    enemy.transform.position = t.pos;
-                    break;
+                e.FSMstart();
                 }
             }
-            if(enemy==null)
-            enemy = GameObject.Instantiate(enemyPrefab, t.pos, Quaternion.identity).GetComponent<EnemyFSM>();
-            enemy.setTypeName(t.type, t.name);
-            enemy.gameObject.SetActive(true);
-        }
     }
     public static void addPlayer(playerFSM p) {
         player = p;

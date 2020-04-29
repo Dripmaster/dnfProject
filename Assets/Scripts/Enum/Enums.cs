@@ -9,8 +9,8 @@
         healPotion,
         clearPotion,
         sword,
-        bigSword,
-        hammer,
+    hammer,
+    bigSword,
     };
 public enum State
 {

@@ -66,9 +66,11 @@ public class FSMbase : MonoBehaviour
         initAnim();
         setAnim();
         sr.color = new Color(1, 1, 1, 1);
+    }
+    public void FSMstart() {
+
         StartCoroutine("FSMmain");
     }
-
     public void setAnim() {
         _anim.setPath(myPath);
         _anim.setDir(6);//아래방향으로 초기화

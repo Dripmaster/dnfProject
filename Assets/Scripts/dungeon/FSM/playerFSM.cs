@@ -129,6 +129,7 @@ public class playerFSM : FSMbase
         {
             item.sprite = SLM.instance.getSpr("image/UI/skill/"+myType);
         }
+        FSMstart();
     }
     public float getAtkP() {
         return attackPoint;
@@ -151,7 +152,7 @@ public class playerFSM : FSMbase
                 }
                 else
                 {
-
+                    if((i+1)<cools.Length)
                     cools[i+1].GetComponent<CanvasGroup>().alpha = 0;
                 }
             }
