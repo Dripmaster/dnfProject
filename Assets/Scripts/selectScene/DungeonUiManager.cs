@@ -34,6 +34,9 @@ public class DungeonUiManager : MonoBehaviour
                 }
             }
         }
+        else {
+            selectEquip = playerDataManager.instance.getEquip();
+        }
 
     }
 
