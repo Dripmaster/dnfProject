@@ -22,6 +22,16 @@ public class TownUiManager : MonoBehaviour
     bool isOpen = false;
     bool doingChange = false;
 
+    [HideInInspector]
+    public item selectWeapon;
+    [HideInInspector]
+    public item selectMaterial;
+
+    [HideInInspector]
+    public bool isSelectWeapon;
+    [HideInInspector]
+    public bool isSelectMaterial;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -146,11 +156,22 @@ public class TownUiManager : MonoBehaviour
                     uiType = UiType.TOWN;
                     townButton.SetActive(true);
                     townBuild.SetActive(false);
+                    ClearSelect();
                     break;
             }
         }
     }
-
+    public void ClearSelect()
+    {
+        selectWeapon = null;
+        selectMaterial = null;
+        isSelectWeapon = false;
+        isSelectMaterial = false;
+        townBuild.transform.Find("weaponBtn").transform.Find("Image").GetComponent<Image>().sprite = null;
+        townBuild.transform.Find("weaponBtn").transform.Find("Image").gameObject.SetActive(false);
+        townBuild.transform.Find("materialBtn").transform.Find("Image").GetComponent<Image>().sprite = null;
+        townBuild.transform.Find("materialBtn").transform.Find("Image").gameObject.SetActive(false);
+    }
     public void ChangeType(int type)
     {
         if (!doingChange)
@@ -160,12 +181,26 @@ public class TownUiManager : MonoBehaviour
             InitImage();
         }
     }
-    public void OpenBuildInven(int type)
+    public void OpenTownInven(int type)
     {
-        townBuild.transform.Find("inven").gameObject.SetActive(true);
-    }
-    public void CloseBuildInven()
-    {
-        townBuild.transform.Find("inven").gameObject.SetActive(false);
+        GameObject.Find("invenUi").GetComponent<Inven>().OpenInven((item, sprite) =>
+        {
+            GameObject selectItem;
+            if (type == 1)
+            {
+                selectWeapon = item;
+                isSelectWeapon = true;
+                selectItem = townBuild.transform.Find("weaponBtn").gameObject;
+            }
+            else
+            {
+                selectMaterial = item;
+                isSelectMaterial = true;
+                selectItem = townBuild.transform.Find("materialBtn").gameObject;
+            }
+            selectItem.transform.Find("Image").GetComponent<Image>().sprite = sprite;
+            selectItem.transform.Find("Image").gameObject.SetActive(true);
+
+        }, type);
     }
 }

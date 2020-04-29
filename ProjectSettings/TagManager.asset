@@ -13,6 +13,9 @@ TagManager:
   - map
   - selectTown
   - selectDungeon
+  - weaponItem
+  - materialItem
+  - etcItem
   layers:
   - Default
   - TransparentFX
