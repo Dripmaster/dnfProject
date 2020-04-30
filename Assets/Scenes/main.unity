@@ -2129,6 +2129,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: playerDataManager
       objectReference: {fileID: 0}
+    - target: {fileID: 908467831561998039, guid: e0999a8e2db0238438d05c1efa5411ab,
+        type: 3}
+      propertyPath: m_TagString
+      value: EditorOnly
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e0999a8e2db0238438d05c1efa5411ab, type: 3}
 --- !u!1 &820179169
@@ -5608,6 +5613,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SpriteLoadManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627593312977238747, guid: 4511ecac486bddc4e805701e71448334,
+        type: 3}
+      propertyPath: m_TagString
+      value: EditorOnly
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4511ecac486bddc4e805701e71448334, type: 3}

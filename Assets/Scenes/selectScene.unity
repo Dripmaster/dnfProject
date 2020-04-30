@@ -1692,7 +1692,7 @@ MonoBehaviour:
     m_MaxSize: 300
     m_Alignment: 4
     m_AlignByGeometry: 0
-    m_RichText: 1
+    m_RichText: 0
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
@@ -4367,7 +4367,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &685476197
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6886,7 +6886,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &983201105
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7081,7 +7081,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1043794285
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17932,6 +17932,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c1447562852b45d5898434a80db33b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvas: {fileID: 595591847}
+  bg: {fileID: 1733384733}
+  dungeonUi: {fileID: 1533471569}
+  DebugText: {fileID: 0}
 --- !u!4 &1908772229
 Transform:
   m_ObjectHideFlags: 0
@@ -18135,6 +18139,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: playerDataManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 908467831561998039, guid: e0999a8e2db0238438d05c1efa5411ab,
+        type: 3}
+      propertyPath: m_TagString
+      value: EditorOnly
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e0999a8e2db0238438d05c1efa5411ab, type: 3}

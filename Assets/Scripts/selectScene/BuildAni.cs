@@ -172,6 +172,8 @@ public class BuildAni : MonoBehaviour
                 if (rand <= 10)
                 {
                     // 여기 삭제 이벤트 추가
+                    //임시로 영민이가 추가함
+                    playerDataManager.instance.destroyItem(selectWeapon);
                 }
                 return false;
             }

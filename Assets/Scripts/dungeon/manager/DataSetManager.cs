@@ -20,7 +20,7 @@ public class DataSetManager : MonoBehaviour
         dataLoad();
     }
     void dataLoad() {
-        FSMData = new CSVData("Data/DataSet.CSV");
+        FSMData = new CSVData("ModuleData/Csharp.mon");
         FSMData.Load();
     }
     public float loadFSMData(int dataType,int fsmType) {

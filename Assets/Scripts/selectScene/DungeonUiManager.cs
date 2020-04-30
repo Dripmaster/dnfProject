@@ -5,9 +5,10 @@ using UnityEngine.UI;
 
 public class DungeonUiManager : MonoBehaviour
 {
-    GameObject canvas;
-    GameObject bg;
-    GameObject dungeonUi;
+    public GameObject canvas;
+    public GameObject bg;
+    public GameObject dungeonUi;
+    public Text DebugText;
     Text potion1;
     Text potion2;
 
@@ -65,6 +66,23 @@ public class DungeonUiManager : MonoBehaviour
                 dungeonTrans.anchoredPosition = pos;
             }
         }
+        //영민이가 임시로 추가한 물약구매
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            if (playerDataManager.instance.popGold(200)) {
+                playerDataManager.instance.addItem(itemType.healPotion);
+                playerDataManager.instance.popGold(200,false);
+                soundMgr.instance.PlayOneShot("success");
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            if (playerDataManager.instance.popGold(200))
+            {
+                playerDataManager.instance.addItem(itemType.clearPotion);
+                playerDataManager.instance.popGold(200, false);
+                soundMgr.instance.PlayOneShot("success");
+            }
+        }
     }
 
     void InitImage()
@@ -82,73 +100,81 @@ public class DungeonUiManager : MonoBehaviour
         dungeonPos.y = 720;
         dungeonTransform.anchoredPosition = dungeonPos;
 
+        
+            dungeonUi.transform.Find("names").transform.Find("grass").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("grass_1").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("fire").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("fire_1").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("water").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("water_1").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("dark").gameObject.SetActive(false);
+            dungeonUi.transform.Find("names").transform.Find("glory").gameObject.SetActive(false);
+    
 
-        dungeonUi.transform.Find("names").transform.Find("grass").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("grass_1").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("fire").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("fire_1").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("water").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("water_1").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("dark").gameObject.SetActive(false);
-        dungeonUi.transform.Find("names").transform.Find("glory").gameObject.SetActive(false);
-
-        switch (selectMapType)
+        
+            switch (selectMapType)
+            {
+                case mapType.grass:
+                    dungeonUi.transform.Find("names").transform.Find("grass").gameObject.SetActive(true);
+                    break;
+                case mapType.miniGrass:
+                    dungeonUi.transform.Find("names").transform.Find("grass_1").gameObject.SetActive(true);
+                    break;
+                case mapType.fire:
+                    dungeonUi.transform.Find("names").transform.Find("fire").gameObject.SetActive(true);
+                    break;
+                case mapType.miniFire:
+                    dungeonUi.transform.Find("names").transform.Find("fire_1").gameObject.SetActive(true);
+                    break;
+                case mapType.water:
+                    dungeonUi.transform.Find("names").transform.Find("water").gameObject.SetActive(true);
+                    break;
+                case mapType.miniWater:
+                    dungeonUi.transform.Find("names").transform.Find("water_1").gameObject.SetActive(true);
+                    break;
+                case mapType.dark:
+                    dungeonUi.transform.Find("names").transform.Find("dark").gameObject.SetActive(true);
+                    break;
+                case mapType.glow:
+                    dungeonUi.transform.Find("names").transform.Find("glory").gameObject.SetActive(true);
+                    break;
+            }
+        try
         {
-            case mapType.grass:
-                dungeonUi.transform.Find("names").transform.Find("grass").gameObject.SetActive(true);
-                break;
-            case mapType.miniGrass:
-                dungeonUi.transform.Find("names").transform.Find("grass_1").gameObject.SetActive(true);
-                break;
-            case mapType.fire:
-                dungeonUi.transform.Find("names").transform.Find("fire").gameObject.SetActive(true);
-                break;
-            case mapType.miniFire:
-                dungeonUi.transform.Find("names").transform.Find("fire_1").gameObject.SetActive(true);
-                break;
-            case mapType.water:
-                dungeonUi.transform.Find("names").transform.Find("water").gameObject.SetActive(true);
-                break;
-            case mapType.miniWater:
-                dungeonUi.transform.Find("names").transform.Find("water_1").gameObject.SetActive(true);
-                break;
-            case mapType.dark:
-                dungeonUi.transform.Find("names").transform.Find("dark").gameObject.SetActive(true);
-                break;
-            case mapType.glow:
-                dungeonUi.transform.Find("names").transform.Find("glory").gameObject.SetActive(true);
-                break;
+            dungeonUi.transform.Find("bestFloor").GetComponent<Text>().text = playerDataManager.instance.getMapProgress(selectMapType).ToString();
+
+            if (playerDataManager.instance.getMapProgress(selectMapType) >= 5)
+                dungeonUi.transform.Find("clear").gameObject.SetActive(true);
+            else
+                dungeonUi.transform.Find("clear").gameObject.SetActive(false);
         }
-        dungeonUi.transform.Find("bestFloor").GetComponent<Text>().text = playerDataManager.instance.getMapProgress(selectMapType).ToString();
-
-        if (playerDataManager.instance.getMapProgress(selectMapType) >= 10)
-            dungeonUi.transform.Find("clear").gameObject.SetActive(true);
-        else
-            dungeonUi.transform.Find("clear").gameObject.SetActive(false);
-
-
+        catch(System.Exception e)
+        {
+            DebugText.text = e.ToString();
+        }
+            
+        
 
         dungeonUi.transform.Find("sword").gameObject.SetActive(false);
-        dungeonUi.transform.Find("bigsword").gameObject.SetActive(false);
-        dungeonUi.transform.Find("hammer").gameObject.SetActive(false);
-        if (playerDataManager.instance.getEquip().type == (int)itemType.sword)
-        {
-            dungeonUi.transform.Find("selectEquip").transform.Find("sword").gameObject.SetActive(true);
-            dungeonUi.transform.Find("sword").gameObject.SetActive(true);
-        }
-        if (playerDataManager.instance.getEquip().type == (int)itemType.hammer)
-        {
-            dungeonUi.transform.Find("selectEquip").transform.Find("hammer").gameObject.SetActive(true);
-            dungeonUi.transform.Find("hammer").gameObject.SetActive(true);
-        }
-        if (playerDataManager.instance.getEquip().type == (int)itemType.bigSword)
-        {
-            dungeonUi.transform.Find("selectEquip").transform.Find("bigsword").gameObject.SetActive(true);
-            dungeonUi.transform.Find("bigsword").gameObject.SetActive(true);
-        }
-        potion1.text = playerDataManager.instance.getItemCount(itemType.healPotion).ToString();
-        potion2.text = playerDataManager.instance.getItemCount(itemType.clearPotion).ToString();
-
+            dungeonUi.transform.Find("bigsword").gameObject.SetActive(false);
+            dungeonUi.transform.Find("hammer").gameObject.SetActive(false);
+            if (playerDataManager.instance.getEquip().type == (int)itemType.sword)
+            {
+                dungeonUi.transform.Find("selectEquip").transform.Find("sword").gameObject.SetActive(true);
+                dungeonUi.transform.Find("sword").gameObject.SetActive(true);
+            }
+            if (playerDataManager.instance.getEquip().type == (int)itemType.hammer)
+            {
+                dungeonUi.transform.Find("selectEquip").transform.Find("hammer").gameObject.SetActive(true);
+                dungeonUi.transform.Find("hammer").gameObject.SetActive(true);
+            }
+            if (playerDataManager.instance.getEquip().type == (int)itemType.bigSword)
+            {
+                dungeonUi.transform.Find("selectEquip").transform.Find("bigsword").gameObject.SetActive(true);
+                dungeonUi.transform.Find("bigsword").gameObject.SetActive(true);
+            }
+            potion1.text = playerDataManager.instance.getItemCount(itemType.healPotion).ToString();
+            potion2.text = playerDataManager.instance.getItemCount(itemType.clearPotion).ToString();
     }
 
     public void OpenDungeonUi(mapType map)

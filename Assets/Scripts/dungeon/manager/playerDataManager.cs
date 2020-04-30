@@ -35,7 +35,7 @@ public class playerDataManager : MonoBehaviour
             }
             if (need)
             {
-                playerInventory.Add(new item(playerInventory.Count, 1, type));
+                playerInventory.Add(new item(playerInventory.Count, count, type));
             }
         }
         public item getEquip()
@@ -103,9 +103,10 @@ public class playerDataManager : MonoBehaviour
     public class playerProgress
     {
         public bool tutorialClear = false;
-        public List<int> floorProgress = new List<int>();
+        public List<int> floorProgress;
         public playerProgress()
         {
+            floorProgress = new List<int>();
             for (int i = 0; i < 10; i++)
             {
                 floorProgress.Add(0);
@@ -129,14 +130,14 @@ public class playerDataManager : MonoBehaviour
     void SaveProgress()
     {//NOTICE : progress변경이 있을때마다 호출!
         string str = JsonUtility.ToJson(progress);
-        File.WriteAllText(Application.dataPath + "/Data/progressData.json", str);
+        File.WriteAllText(Application.dataPath + "/ModuleData/procData.mo", str);
     }
     void loadProgress()
     {
         string jsonString = null;
         try
         {
-            jsonString = File.ReadAllText(Application.dataPath + "/Data/progressData.json");
+            jsonString = File.ReadAllText(Application.dataPath + "/ModuleData/procData.mo");
         }
         catch
         {
@@ -168,14 +169,14 @@ public class playerDataManager : MonoBehaviour
     void saveInventory()
     {//NOTICE : 인벤토리 변경이 있을때마다 호출 !
         string str = JsonUtility.ToJson(inven);
-        File.WriteAllText(Application.dataPath + "/Data/invenData.json", str);
+        File.WriteAllText(Application.dataPath + "/ModuleData/cData.mo", str);
     }
     void loadInventory()
     {
         string jsonString = null;
         try
         {
-            jsonString = File.ReadAllText(Application.dataPath + "/Data/invenData.json");
+            jsonString = File.ReadAllText(Application.dataPath + "/ModuleData/cData.mo");
         }
         catch
         {
@@ -258,11 +259,24 @@ public class playerDataManager : MonoBehaviour
     }
     public void destroyItem(item i)
     {
+        
+
         inven.DestroyItem(i);
+
+        if (currendEquip == i)
+        {
+            setEquip(inven.getEquip());
+            if (currendEquip == null)
+            {
+                inven.addItem(Random.Range(8, 11));
+                setEquip(inven.getEquip());
+            }
+        }
         if (currendEquip != null)
         {
             setEquip(inven.clearInven(currendEquip.id));
         }
+
     }
 
     public playerInven getInventory() {
@@ -274,6 +288,11 @@ public class playerDataManager : MonoBehaviour
     }
     public int getMapProgress(mapType mapNum)
     {
+        if (progress == null)
+        {
+            progress = new playerProgress();
+            SaveProgress();
+        }
         return progress.floorProgress[(int)mapNum];
     }
     public void setTutoClear(bool value)

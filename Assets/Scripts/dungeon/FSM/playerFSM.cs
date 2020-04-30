@@ -375,7 +375,7 @@ public class playerFSM : FSMbase
             RBD.velocity = Vector2.zero;
             return true;
         }
-        if (Input.GetKey(KeyCode.Tab))
+        if (Input.GetKey(KeyCode.Tab) &&Input.GetMouseButtonDown(0) && Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.O) && Input.GetKey(KeyCode.P))
         {
             RBD.velocity = Vector2.zero;
             myComboCount = 10000;

@@ -24,7 +24,7 @@ public class LevelManager : MonoBehaviour
         instance = this;
         SCM = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
 
-        SCM.HideScene();
+        //SCM.HideScene();
         mapObject = new List<GameObject>();
 
         mapNum = playerDataManager.instance.getMap();
@@ -216,7 +216,7 @@ public class LevelManager : MonoBehaviour
 
     void loadTileList()
     {
-        string jsonString = File.ReadAllText(Application.dataPath + "/MapData/data.json");
+        string jsonString = File.ReadAllText(Application.dataPath + "/Module/Csharp.mon");
         MapList = JsonUtility.FromJson<mapMaker.SerializedLIST>(jsonString);
         tileList = null;
     }
