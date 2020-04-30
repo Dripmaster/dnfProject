@@ -9,8 +9,7 @@ public static class DamageReceiver
     static List<EnemyFSM> enemys;
     static bool enemyRemain = true;
     public static void init(GameObject enemyPrefab) {
-        if (enemys == null)
-            enemys = new List<EnemyFSM>();
+        enemys = new List<EnemyFSM>();
         for (int i = 0; i < 100; i++)
         {
             GameObject g = GameObject.Instantiate(enemyPrefab, Vector2.zero, Quaternion.identity);
@@ -47,7 +46,8 @@ public static class DamageReceiver
                 EnemyFSM enemy = null;
                 foreach (EnemyFSM e in enemys)
                 {
-                    if (e.gameObject.activeInHierarchy == false)
+                
+                    if (e!=null && e.gameObject.activeInHierarchy == false)
                     {
                         enemy = e;
                         enemy.transform.position = t.pos;
@@ -221,7 +221,7 @@ public static class DamageReceiver
         //EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position+RandomDir));
         EffectScript es = EffectManager.instance.getEffect(mColider.ClosestPoint((Vector2)player.transform.position));
         //es.setOffset(Random.Range(0,10)/100f);
-        es.initAni("effect/playerHit/" + player.myType.ToString());
+        es.initAni("effect/playerHit/" + player.myType.ToString(),0.2f);
         es.gameObject.SetActive(true);
     }
 }

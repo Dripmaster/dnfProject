@@ -151,6 +151,7 @@ public class playerFSM : FSMbase
             {
                 if (playerDataManager.instance.getEquip().hasSkillList[i])
                 {
+                    if(i == 0 || i==2 || i == 3)
                     cools[i+1].GetComponent<CanvasGroup>().alpha = 1;
                 }
                 else

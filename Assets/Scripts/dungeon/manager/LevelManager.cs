@@ -57,6 +57,7 @@ public class LevelManager : MonoBehaviour
         Instantiate(playerPrefab, Vector2.zero, Quaternion.identity);
     }
     public void deadPlayer() {
+        if (playerDataManager.instance.getMapProgress((mapType)(mapNum)) < currentMap)
         playerDataManager.instance.setMapProgress((mapType)(mapNum),currentMap);
         SCM.ChangeScene(1, 1, 1);
     }
