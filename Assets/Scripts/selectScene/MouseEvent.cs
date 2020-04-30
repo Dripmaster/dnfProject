@@ -45,6 +45,7 @@ public class MouseEvent : MonoBehaviour
     }
     private void OnMouseDown()
     {
+        soundMgr.instance.Play("btnc");
         if (gameObject.tag == "selectTown")
         {
             GameObject.Find("townUi").gameObject.GetComponent<TownUiManager>().OpenTownUi();

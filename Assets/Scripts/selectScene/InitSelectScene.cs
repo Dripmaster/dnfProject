@@ -14,7 +14,7 @@ public class InitSelectScene : MonoBehaviour
     void Start()
     {
         SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
-        sceneChangeManager.HideScene(1);
+        //sceneChangeManager.HideScene(1);
 
         //playerDataManager.instance.setMapProgress(mapType.miniWater, 10); //치트키 
 
@@ -26,31 +26,31 @@ public class InitSelectScene : MonoBehaviour
         int waterFloor = playerDataManager.instance.getMapProgress(mapType.water);
 
 
-        if (miniGrassFloor >= 10) // grass 던전 언락 조건 
+        if (miniGrassFloor >= 5) // grass 던전 언락 조건 
         {
             grass.transform.Find("grass").gameObject.SetActive(true);
             grass.transform.Find("lockGrass").gameObject.SetActive(false);
         }
 
-        if (miniFireFloor >= 10) // fire 던전 언락 조건 
+        if (miniFireFloor >= 5) // fire 던전 언락 조건 
         {
             fire.transform.Find("fire").gameObject.SetActive(true);
             fire.transform.Find("lockFire").gameObject.SetActive(false);
         }
 
-        if (miniWaterFloor >= 10) // water 던전 언락 조건 
+        if (miniWaterFloor >= 5) // water 던전 언락 조건 
         {
             water.transform.Find("water").gameObject.SetActive(true);
             water.transform.Find("lockWater").gameObject.SetActive(false);
         }
 
-        if (grassFloor >= 10 && fireFloor >= 10 && waterFloor >= 10) // dark 던전 언락 조건 
+        if (grassFloor >= 5 && fireFloor >= 5 && waterFloor >= 5) // dark 던전 언락 조건 
         {
             dark.transform.Find("dark").gameObject.SetActive(true);
             dark.transform.Find("lockDark").gameObject.SetActive(false);
         }
 
-        if (grassFloor >= 10 && fireFloor >= 10 && waterFloor >= 10) // glory 던전 언락 조건 
+        if (grassFloor >= 5 && fireFloor >= 5 && waterFloor >= 5) // glory 던전 언락 조건 
         {
             glory.transform.Find("glory").gameObject.SetActive(true);
             glory.transform.Find("lockGlory").gameObject.SetActive(false);

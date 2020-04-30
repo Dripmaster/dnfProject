@@ -193,6 +193,11 @@ public class playerDataManager : MonoBehaviour
         if (inven == null)
         {
             inven = new playerInven();
+            inven.addItem((int)itemType.bigSword);
+            inven.addItem((int)itemType.sword);
+            inven.addItem((int)itemType.hammer);
+            inven.addItem((int)itemType.healPotion,5);
+            inven.addItem((int)itemType.clearPotion,5);
             saveInventory();
         }
     }

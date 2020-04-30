@@ -73,7 +73,6 @@ public class BuildAni : MonoBehaviour
         {
             yield return new WaitForSeconds(2f);
             FinishBuild();
-
             GameObject.Find("townUi").GetComponent<TownUiManager>().ClearSelect();
             GameObject.Find("townUi").transform.Find("canvas").GetComponent<GraphicRaycaster>().blockingObjects = GraphicRaycaster.BlockingObjects.None;
             GameObject.Find("invenUi").transform.Find("canvas").GetComponent<GraphicRaycaster>().blockingObjects = GraphicRaycaster.BlockingObjects.None;
@@ -99,7 +98,7 @@ public class BuildAni : MonoBehaviour
                 pVelo.y = new ParticleSystem.MinMaxCurve(-5, 5);
                 pShape.arc = 360;
                 transform.Find("success").gameObject.SetActive(true);
-
+                soundMgr.instance.Play("success");
             }
             else
             {
@@ -110,6 +109,7 @@ public class BuildAni : MonoBehaviour
                 pVelo.y = new ParticleSystem.MinMaxCurve(7, 9);
                 pShape.scale = new Vector3(5, 1, 1);
                 transform.Find("failure").gameObject.SetActive(true);
+                soundMgr.instance.Play("fail");
 
             }
 
@@ -117,6 +117,7 @@ public class BuildAni : MonoBehaviour
         }
         else
         {
+            soundMgr.instance.PlayOneShot("make");
             pMain.startSize = new ParticleSystem.MinMaxCurve(pMain.startSize.constantMin + 0.2f, pMain.startSize.constantMax + 0.2f);
             pVelo.x = new ParticleSystem.MinMaxCurve(pVelo.x.constantMin - 1f, pVelo.x.constantMax + 1f);
             pVelo.y = new ParticleSystem.MinMaxCurve(pVelo.y.constantMin + 0.5f, pVelo.y.constantMax + 0.5f);

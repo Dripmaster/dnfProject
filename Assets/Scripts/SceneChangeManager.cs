@@ -7,7 +7,7 @@ public class SceneChangeManager : MonoBehaviour
 {
     public GameObject loadMask;
     public GameObject backMask;
-    public void ChangeScene(string scene, int type, float speed)
+    public void ChangeScene(int scene, int type, float speed)
     {
         StartCoroutine(RunSceneFadeOut(scene, type, speed));
     }
@@ -34,7 +34,7 @@ public class SceneChangeManager : MonoBehaviour
         spriteRenderer.color = color;
     }
 
-    IEnumerator RunSceneFadeOut(string scene, int type, float speed)
+    IEnumerator RunSceneFadeOut(int scene, int type, float speed)
     {
         AsyncOperation asyncOperation =
         SceneManager.LoadSceneAsync(scene);
@@ -61,6 +61,7 @@ public class SceneChangeManager : MonoBehaviour
             spriteRenderer.color = color;
             yield return new WaitForSeconds(waitSecond);
         }
+
         asyncOperation.allowSceneActivation = true;
         if (loadMask != null)
         {
@@ -71,6 +72,8 @@ public class SceneChangeManager : MonoBehaviour
                 loadMask.transform.localScale = new Vector2(asyncOperation.progress * 11f, 1);
                 yield return null;
             } while (!asyncOperation.isDone);
+        }
+        else {
         }
     }
     IEnumerator RunSceneFadeIn(int type, float speed, float delay, System.Action callback)

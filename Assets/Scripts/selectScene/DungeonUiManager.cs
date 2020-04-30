@@ -8,6 +8,8 @@ public class DungeonUiManager : MonoBehaviour
     GameObject canvas;
     GameObject bg;
     GameObject dungeonUi;
+    Text potion1;
+    Text potion2;
 
     bool isOpen = false;
     bool doingChange = false;
@@ -21,6 +23,8 @@ public class DungeonUiManager : MonoBehaviour
         canvas = transform.Find("canvas").gameObject;
         bg = canvas.transform.Find("bg").gameObject;
         dungeonUi = canvas.transform.Find("ui").gameObject;
+        potion1 = transform.Find("canvas/ui/potion1/Text").GetComponent<Text>();
+        potion2 = transform.Find("canvas/ui/potion2/Text").GetComponent<Text>();
 
         if (playerDataManager.instance.getEquip() == null)
         {
@@ -37,7 +41,6 @@ public class DungeonUiManager : MonoBehaviour
         else {
             selectEquip = playerDataManager.instance.getEquip();
         }
-
     }
 
     // Update is called once per frame
@@ -143,7 +146,8 @@ public class DungeonUiManager : MonoBehaviour
             dungeonUi.transform.Find("selectEquip").transform.Find("bigsword").gameObject.SetActive(true);
             dungeonUi.transform.Find("bigsword").gameObject.SetActive(true);
         }
-
+        potion1.text = playerDataManager.instance.getItemCount(itemType.healPotion).ToString();
+        potion2.text = playerDataManager.instance.getItemCount(itemType.clearPotion).ToString();
 
     }
 
@@ -170,7 +174,7 @@ public class DungeonUiManager : MonoBehaviour
         playerDataManager.instance.setMap((int)selectMapType);
         playerDataManager.instance.setEquip(selectEquip);
         SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
-        sceneChangeManager.ChangeScene("main", 0, 1f);
+        sceneChangeManager.ChangeScene(2, 0, 1f);
     }
 
     public void OpenDungeonInven()

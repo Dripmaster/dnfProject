@@ -37,6 +37,7 @@ public class EffectScript : MonoBehaviour
             else
                 deleteTime = 0.5f;
         }
+        if(!setScale)
         transform.localScale = new Vector3(1, 1, 1);
         _anim.animNum = 0;
     }
@@ -61,6 +62,12 @@ public class EffectScript : MonoBehaviour
         setScale = true;
         StartCoroutine(scaleCo());
 
+        return this;
+    }
+    public EffectScript setScaleValue(float v)
+    {
+        setScale = true;
+        transform.transform.localScale *= v;
         return this;
     }
 
@@ -90,6 +97,8 @@ public class EffectScript : MonoBehaviour
     IEnumerator scaleCo() {
         float tempScale = 1f;
         int degree = 3;
+
+        transform.localScale = new Vector3(1, 1, 1);
         do
         {
             transform.localScale = new Vector2(1,1)*tempScale;

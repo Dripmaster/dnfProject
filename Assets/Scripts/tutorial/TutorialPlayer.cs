@@ -16,7 +16,7 @@ public class TutorialPlayer : MonoBehaviour
     {
         mark = transform.Find("mark").gameObject;
         moveTip = GameObject.Find("move_tutorial").gameObject;
-        player = GameObject.Find("player").gameObject;
+        //player = GameObject.Find("player").gameObject;
     }
 
     // Update is called once per frame
@@ -86,7 +86,7 @@ public class TutorialPlayer : MonoBehaviour
             spriteRenderer.color = color;
             yield return new WaitForSeconds(waitSecond);
         }
-        player.GetComponent<playerFSM>().enabled = true;
+        //player.GetComponent<playerFSM>().enabled = true;
         canMove = true;
     }
 }

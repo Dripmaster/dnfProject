@@ -302,7 +302,7 @@ public class mapMaker : MonoBehaviour
                 {
                     idex = i;
                     tileList = MapList.maps[i];
-                    print("load success : " + mapNum + "번째 맵 " + floorNum + "층");
+                    print("load success : " + ((mapType)(mapNum-1)).ToString() + " 맵 " + floorNum + "층");
                     if (currentMap.name != tileList.prefabName) {
                         GameObject m = null;
                         try

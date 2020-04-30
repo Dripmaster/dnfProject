@@ -32,7 +32,7 @@ public class TextTwinkle : MonoBehaviour
         {
             canClick = false;
             SceneChangeManager sceneChangeManager = GameObject.Find("SceneManager").GetComponent<SceneChangeManager>();
-            sceneChangeManager.ChangeScene("tutorial", 1, 0.7f);
+            sceneChangeManager.ChangeScene(1, 1, 0.7f);
         }
     }
 

@@ -277,6 +277,17 @@ public class EnemyFSM : FSMbase
         itemType t = (itemType)System.Enum.Parse(typeof(itemType), name + "Mat");
         //TODO: 랜덤으로 나오게
 
+        itemManager.instance.itemGenerate(transform.position, itemType.gold);
+        itemManager.instance.itemGenerate(transform.position, itemType.gold);
+
+        itemManager.instance.itemGenerate(transform.position, t);
+        if (myType == type.Long) {
+
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, itemType.gold);
+            itemManager.instance.itemGenerate(transform.position, t);
+            itemManager.instance.itemGenerate(transform.position, t);
+        }
         if (myType == type.boss)
         {
             itemManager.instance.itemGenerate(transform.position, itemType.gold);
@@ -300,7 +311,6 @@ public class EnemyFSM : FSMbase
             itemManager.instance.itemGenerate(damageTextGen.position,t);
             itemManager.instance.itemGenerate(damageTextGen.position,t);
         }
-        itemManager.instance.itemGenerate(transform.position,t);
 
     }
     IEnumerator move()
@@ -398,6 +408,7 @@ public class EnemyFSM : FSMbase
                     else if (detectPlayer() && objectState == State.attack)
                         DamageReceiver.playerHit(attackPoint);
                 }
+                soundMgr.instance.Play("enemyAttack");
 
                 doneAttack = true;
             }
@@ -500,13 +511,15 @@ public class EnemyFSM : FSMbase
         if(hp>0)
         doSkill();
     }
-    private void OnDrawGizmos()
+    
+    /*private void OnDrawGizmos()
     {
-        Handles.color = new Color(255, 0, 0, 0.2f);
-        Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90/2, attackRange);
-        Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
+        
+        //Handles.color = new Color(255, 0, 0, 0.2f);
+        //Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, 90/2, attackRange);
+        //Handles.DrawSolidArc(transform.position, new Vector3(0, 0, 1), moveDir, -90 / 2, attackRange);
 
-    }
+    }*/
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.layer == 8) {

@@ -58,16 +58,24 @@ public class LevelManager : MonoBehaviour
     }
     public void deadPlayer() {
         playerDataManager.instance.setMapProgress((mapType)(mapNum),currentMap);
-        SCM.ChangeScene("selectScene", 1, 1);
+        SCM.ChangeScene(1, 1, 1);
     }
     public void checkEnemy() {
         if (DamageReceiver.isEnemyRemain() == false && mapChangeFrame())
         {
             floorNum++;
             loadMap();
+
             if (!isError)
             {
                 StartCoroutine(pause());
+            }
+            else {
+                if (floorNum >= mapObject.Count)
+                {
+                    playerDataManager.instance.setMapProgress((mapType)(mapNum), mapObject.Count);
+                    SCM.ChangeScene(1, 0, 1);
+                }
             }
         }
     }
@@ -81,7 +89,7 @@ public class LevelManager : MonoBehaviour
         {
 
             playerDataManager.instance.setMapProgress((mapType)(mapNum), currentMap);
-            SCM.ChangeScene("selectScene", 0, 1);
+            SCM.ChangeScene(1, 0, 1);
         }
         else
         {
@@ -135,21 +143,40 @@ public class LevelManager : MonoBehaviour
     }
     void initmap()
     {
+        
         if (MapList != null)
         {
             for (int i = 0; i < MapList.maps.Count; i++)
             {
-                if (MapList.maps[i].MapNum == mapNum)
+                if (MapList.maps[i].MapNum == mapNum+1)
                 {
-                    int mapX,mapY;
-                    if (((MapList.maps[i].floorNum-1) / 3) % 2 == 0)
+
+                    float mapX=0, mapY=0;
+                    switch (MapList.maps[i].prefabName)
                     {
-                        mapX = ((MapList.maps[i].floorNum - 1) % 3) * 20;
+                        case "map0":
+                            if (((MapList.maps[i].floorNum - 1) / 3) % 2 == 0)
+                            {
+                                mapX = ((MapList.maps[i].floorNum - 1) % 3) * 20;
+                            }
+                            else
+                            {
+                                mapX = 40 + ((MapList.maps[i].floorNum - 1) % 3) * -20;
+                            }
+                            mapY = ((MapList.maps[i].floorNum - 1) / 3) * 20;
+                            break;
+                        case "map1":
+                            if (((MapList.maps[i].floorNum - 1) / 3) % 2 == 0)
+                            {
+                                mapX = ((MapList.maps[i].floorNum - 1) % 3) * 24;
+                            }
+                            else
+                            {
+                                mapX = 48 + ((MapList.maps[i].floorNum - 1) % 3) * -24;
+                            }
+                            mapY = ((MapList.maps[i].floorNum - 1) / 3) * 19.4f;
+                            break;
                     }
-                    else { 
-                        mapX = 40 + ((MapList.maps[i].floorNum - 1)%3) * -20;
-                    }
-                    mapY = ((MapList.maps[i].floorNum - 1) / 3)*20;
                     try
                     {
                         mapObject.Add(Instantiate(Resources.Load<GameObject>("prefabs/mapMaker/maps/" + MapList.maps[i].prefabName), new Vector2(mapX, mapY), Quaternion.identity));
@@ -172,12 +199,12 @@ public class LevelManager : MonoBehaviour
         tileList = null;
         foreach (var item in MapList.maps)
         {
-            if (item.floorNum == floorNum && item.MapNum == mapNum)
+            if (item.floorNum == floorNum && item.MapNum == mapNum+1)
                 tileList = item;
         }
         if (tileList == null)
         {
-            print("load Error : " + mapNum + "번째 맵 " + floorNum + "층");
+            print("load Error : " + mapNum+1 + "번째 맵 " + floorNum + "층");
             isError = true;
         }
         foreach (var item in GameObject.FindGameObjectsWithTag("wall"))

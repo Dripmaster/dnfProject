@@ -38,6 +38,7 @@ public class itemManager : MonoBehaviour
         item.setAnim(type);
     }
     public void itemEvent(itemType type) {
+        soundMgr.instance.Play("coin");
         //TODO itemHandle필요!!
         switch (type) {
             case itemType.gold:

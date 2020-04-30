@@ -32,6 +32,7 @@ public class playerFSM : FSMbase
     ParticleSystem bigSwordParticle;
     ParticleSystem[] itemParticle;
     GameObject darkScreen;
+    public bool isTuto;
     RayEffect blaze;
     SpriteRenderer confuseAni;
     Image hpBar;
@@ -57,34 +58,36 @@ public class playerFSM : FSMbase
         instance = this;
         foreach (GameObject g in dashEffects)
             g.SetActive(false);
-        hpBar = GameObject.Find("hpBar_fg").GetComponent<Image>();
-        myHeart = GameObject.Find("Heart").GetComponent<Image>();
-        dashDir = new Vector2(0, 0);
+
         speedRate = 100;
         atkNum = 0;
-        RBD = GetComponent<Rigidbody2D>();
-        _Colider = GetComponent<BoxCollider2D>();
-        attackfan = new Vector2(0, -1);
-        DamageReceiver.addPlayer(this);
-        if (myAlert == null)
-            myAlert = GameObject.Find("noHp");
-        if (darkScreen == null)
-            darkScreen = GameObject.Find("darkScreen");
-        if (confuseAni == null)
-            confuseAni = GameObject.Find("confuseAni").GetComponent<SpriteRenderer>(); ;
-        setAlert(false);
-        myCharge = GameObject.Find("chargeDup").GetComponent<dupEffect>();
-        sEffect = Camera.main.GetComponent<sceneEffect>();
-        cText = GameObject.Find("comboCanvas").GetComponentsInChildren<comboText>();
-        itemParticle = GameObject.Find("effectRoot").GetComponentsInChildren<ParticleSystem>();
-        hammerParticle = GameObject.Find("hammerParticle").GetComponent<ParticleSystem>();
-        bigSwordParticle = GameObject.Find("slashParticle").GetComponent<ParticleSystem>();
-        cools = GameObject.Find("skillTimeCanvas").GetComponentsInChildren<skillTimeScript>();
-        blaze = GameObject.Find("Blaze").GetComponent<RayEffect>();
-        Entangles = GameObject.Find("Entangles");
-        if (playerDataManager.instance.getEquip() != null)
-        myType = (type)(playerDataManager.instance.getEquip().type-7);
-        isDark = false;
+
+            hpBar = GameObject.Find("hpBar_fg").GetComponent<Image>();
+            myHeart = GameObject.Find("Heart").GetComponent<Image>();
+            dashDir = new Vector2(0, 0);
+            RBD = GetComponent<Rigidbody2D>();
+            _Colider = GetComponent<BoxCollider2D>();
+            attackfan = new Vector2(0, -1);
+            DamageReceiver.addPlayer(this);
+            if (myAlert == null)
+                myAlert = GameObject.Find("noHp");
+            if (darkScreen == null)
+                darkScreen = GameObject.Find("darkScreen");
+            if (confuseAni == null)
+                confuseAni = GameObject.Find("confuseAni").GetComponent<SpriteRenderer>(); ;
+            setAlert(false);
+            myCharge = GameObject.Find("chargeDup").GetComponent<dupEffect>();
+            sEffect = Camera.main.GetComponent<sceneEffect>();
+            cText = GameObject.Find("comboCanvas").GetComponentsInChildren<comboText>();
+            itemParticle = GameObject.Find("effectRoot").GetComponentsInChildren<ParticleSystem>();
+            hammerParticle = GameObject.Find("hammerParticle").GetComponent<ParticleSystem>();
+            bigSwordParticle = GameObject.Find("slashParticle").GetComponent<ParticleSystem>();
+            cools = GameObject.Find("skillTimeCanvas").GetComponentsInChildren<skillTimeScript>();
+            blaze = GameObject.Find("Blaze").GetComponent<RayEffect>();
+            Entangles = GameObject.Find("Entangles");
+            if (playerDataManager.instance.getEquip() != null)
+                myType = (type)(playerDataManager.instance.getEquip().type - 7);
+            isDark = false;
     }
     new private void OnEnable()
     {
@@ -430,6 +433,7 @@ public class playerFSM : FSMbase
         if (!__hpFix)
             hp -= damage;
         setAlert(true);
+        soundMgr.instance.PlayOneShot("hit");
         if (hp <= 0)
         {
             setState(State.dead);
@@ -517,6 +521,7 @@ public class playerFSM : FSMbase
             hp += maxHp * 0.05f;
             if (hp >= maxHp)
                 hp = maxHp;
+            soundMgr.instance.PlayOneShot("heal");
             yield return new WaitForSeconds(1);
         } while (++count<5 && hp>0);
     }
@@ -528,6 +533,7 @@ public class playerFSM : FSMbase
         }
         else {
             CleanPlayer();
+            soundMgr.instance.PlayOneShot("usePotion");
         }
     }
     int itemInput() {
@@ -583,6 +589,8 @@ public class playerFSM : FSMbase
     IEnumerator idle()
     {
         _anim.setSpeed(1);
+        if (soundMgr.instance != null)
+        soundMgr.instance.LoopStop();
         do
         {
             yield return null;
@@ -609,6 +617,7 @@ public class playerFSM : FSMbase
         canDash = true;
     }
     IEnumerator dashTimer() {
+        soundMgr.instance.PlayLoop("dash");
         dashState = true;
         canDash = false;
         myparticle.Play();
@@ -620,6 +629,13 @@ public class playerFSM : FSMbase
             if (Vector2.Distance(temppos, transform.position) >= 3.5f)
                 break;
             yield return new WaitForSeconds(0.02f);
+        }
+        if (objectState == State.move)
+        {
+            soundMgr.instance.LoopStop();
+        }
+        else {
+            soundMgr.instance.LoopStop();
         }
         dashDir = Vector2.zero;
         myparticle.Stop();
@@ -646,11 +662,20 @@ public class playerFSM : FSMbase
     }
     IEnumerator hit()
     {
-            isHitted = true;
-            _anim.setColor(new Color(0.5f, 0.5f, 0.5f, sr.color.a));
-            yield return new WaitForSeconds(0.1f);
-            _anim.setColor(new Color(1, 1, 1, sr.color.a));
-            isHitted = false;
+        isHitted = true;
+        _anim.setColor(new Color(0.5f, 0.5f, 0.5f, sr.color.a));
+        yield return new WaitForSeconds(0.05f);
+        _anim.setColor(new Color(1, 1, 1, sr.color.a));
+        yield return new WaitForSeconds(0.05f);
+        _anim.setColor(new Color(0.5f, 0.5f, 0.5f, sr.color.a));
+        yield return new WaitForSeconds(0.05f);
+        _anim.setColor(new Color(1, 1, 1, sr.color.a));
+        yield return new WaitForSeconds(0.05f);
+        _anim.setColor(new Color(0.5f, 0.5f, 0.5f, sr.color.a));
+        yield return new WaitForSeconds(0.05f);
+        _anim.setColor(new Color(1, 1, 1, sr.color.a));
+        yield return new WaitForSeconds(0.05f);
+        isHitted = false;
     }
     public bool IsDark() {
         return isDark;
@@ -737,14 +762,15 @@ public class playerFSM : FSMbase
         override
         public void doSkill()
         {
-            ///1.현재 지점으로 부터 원 반경에 있는 몬스터 전체 데미지 및 넉백
-            ///2.스킬 이펙트 출력
+            ///1.스킬 이펙트 출력
             instance.bigSwordParticle.transform.position = instance.transform.position;
             instance.bigSwordParticle.Play();
 
             instance.StartCoroutine(instance.spin());
-
+            ///2.쿨타임
             instance.cools[0].startCool(5f);
+            ///3.사운드
+            soundMgr.instance.Play("longSkill");
 
         }
     }
@@ -752,7 +778,9 @@ public class playerFSM : FSMbase
         int count = 0;
         do
         {
-            DamageReceiver.playerSkill(instance.attackPoint, 1, true,bigSwordParticle.transform.position);
+            if (DamageReceiver.playerSkill(instance.attackPoint, 1, true, bigSwordParticle.transform.position)) {
+                soundMgr.instance.PlayOneShot("attack1");
+            }
             yield return new WaitForSeconds(0.2f);
         } while (++count<3);
     }
@@ -765,6 +793,8 @@ public class playerFSM : FSMbase
             ///1.스킬 이펙트 출력
             instance.myCharge.startCharge();
             instance.cools[0].startCool(5f);
+            ///2.사운드 출력
+            soundMgr.instance.Play("swordSkill");
         }
     }
     class hammerSkill : skillStrategy
@@ -773,7 +803,10 @@ public class playerFSM : FSMbase
         public void doSkill()
         {
             ///1.현재 지점으로 부터 원 반경에 있는 몬스터 전체 데미지 및 넉백
+            instance.attackRange *= 2.5f;
             DamageReceiver.playerSkill(instance.attackPoint*1.5f,10);
+            instance.attackRange /= 2.5f;
+
             ///2.스킬 이펙트 출력
             EffectScript e = EffectManager.instance.getEffect((Vector2)instance.transform.position + instance.attackfan);
             if (instance.attackfan.y >= 0)
@@ -782,6 +815,9 @@ public class playerFSM : FSMbase
                 e.transform.position += new Vector3(0, 0.2f);
             }
             e.initAni("effect/playerAttack/hammer/skill",0.1f);
+
+            soundMgr.instance.PlayOneShot("hammerSkill");
+            e.setScaleValue(4);
             e.gameObject.SetActive(true);
             instance.cools[0].startCool(5f);
         }
@@ -798,6 +834,7 @@ public class playerFSM : FSMbase
         {
             hammerParticle.transform.position = transform.position;
             hammerParticle.Play();
+            soundMgr.instance.PlayOneShot("hammerJump");
         }
         else
         if (mySkillStrategy is bigSwordSkill)
@@ -877,6 +914,10 @@ public class playerFSM : FSMbase
             if (DamageReceiver.playerAttack(attackPoint))
             {
                 shakeCamera();
+                soundMgr.instance.PlayOneShot("attack" + atkNum);
+            }
+            else { 
+                soundMgr.instance.PlayOneShot("longSwing");
             }
             EffectScript es = EffectManager.instance.getEffect(transform.position);
             es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
@@ -892,8 +933,6 @@ public class playerFSM : FSMbase
             es.initAni("effect/playerAttack/" + name + "/" + atkNum , attackSpeedChange);
             es.gameObject.SetActive(true);
         }
-        ///////////////
-
         do
         {
             yield return null;
@@ -925,6 +964,12 @@ public class playerFSM : FSMbase
                 if (DamageReceiver.playerAttack(attackPoint))
                 {
                     shakeCamera();
+
+                    soundMgr.instance.Play("attack" + atkNum);
+                }
+                else
+                {
+                    soundMgr.instance.PlayOneShot("swordSwing");
                 }
                 atkNum++;
                 if (atkNum > 3)
@@ -935,7 +980,6 @@ public class playerFSM : FSMbase
                 //대검 두번째공격
                 if (secondAtk)
                 {
-                    
                     EffectScript es = EffectManager.instance.getEffect(transform.position);
                     es.transform.rotation = Quaternion.Euler(0, 0, -degree * 45+rot);
                     es.initAni("effect/playerAttack/" + name + "/2", attackSpeedChange / 2);
@@ -949,11 +993,12 @@ public class playerFSM : FSMbase
     {
         return _Colider;
     }
+    /*
     private void OnDrawGizmos()
     {
-        Handles.color = new Color(0,0,255,0.2f);
-        Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, attackAngle / 2, attackRange);
-        Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, -attackAngle / 2, attackRange);
-    }
+        //Handles.color = new Color(0,0,255,0.2f);
+        //Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, attackAngle / 2, attackRange);
+        //Handles.DrawSolidArc(transform.position, new Vector3(0,0,1), attackfan, -attackAngle / 2, attackRange);
+    }*/
     
 }
